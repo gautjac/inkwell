@@ -2,7 +2,7 @@
 // Usage: t('key') returns the string in the current language
 // Loads from Firestore if available, falls back to hardcoded values
 
-const FIREBASE_API_KEY = 'AIzaSyDBLCnPauZJeg2JGriKp9KM-QFjYmSf12s';
+const FIREBASE_API_KEY = 'AIzaSyBTAN4kfoaea6RCwN0qUfeTbfqBwXigEDw';
 const FIREBASE_PROJECT = 'charlotte-dashboard';
 const FIRESTORE_BASE = `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT}/databases/(default)/documents`;
 
