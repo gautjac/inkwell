@@ -1,0 +1,12 @@
+{
+  "name": "inkwell",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "node build.js",
+    "deploy": "node build.js --deploy",
+    "dry-run": "node build.js --dry-run"
+  },
+  "devDependencies": {
+    "netlify-cli": "^17.0.0"
+  }
+}

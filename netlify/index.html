@@ -1,0 +1,5579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light">
+  <meta name="theme-color" content="#f2ece0">
+  <title>Inkwell — Lyric Writing Studio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <script src="/translations.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&family=Crimson+Pro:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --cream:        #f2ece0;
+      --cream-light:  #f8f4ed;
+      --cream-dark:   #e8dfd0;
+      --ink:          #1a1510;
+      --ink-mid:      #3d3428;
+      --ink-soft:     #7a6d5e;
+      --ink-faint:    #b8a99a;
+      --amber:        #c4602a;
+      --amber-soft:   #e0824e;
+      --amber-pale:   #f5dace;
+      --sage:         #5e7a62;
+      --sage-pale:    #cdd8c4;
+      --rule:         #d5cbbf;
+      --shadow-sm:    rgba(26,21,16,0.06);
+      --shadow-md:    rgba(26,21,16,0.14);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--cream);
+      color: var(--ink);
+      font-family: 'DM Sans', sans-serif;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* ── Grain overlay ───────────────────────────── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.6;
+    }
+
+    /* ── Config bar ──────────────────────────────── */
+    #configBar {
+      background: var(--amber-pale);
+      border-bottom: 1px solid #e8c4a8;
+      padding: 7px 20px;
+      font-size: 11.5px;
+      color: var(--amber);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    #configBar input {
+      flex: 1; max-width: 320px;
+      padding: 4px 9px;
+      border: 1px solid var(--amber);
+      border-radius: 4px;
+      background: rgba(255,255,255,0.7);
+      font-size: 11px;
+      font-family: monospace;
+      color: var(--ink);
+    }
+
+    #configBar button {
+      padding: 4px 10px;
+      border: none; border-radius: 4px;
+      font-size: 11px;
+      cursor: pointer;
+    }
+
+    .config-save { background: var(--amber); color: white; }
+    .config-dismiss { background: transparent; color: var(--ink-soft); border: 1px solid var(--rule); }
+
+    /* ── Top bar ─────────────────────────────────── */
+    .topbar {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 12px 22px;
+      background: var(--cream-light);
+      border-bottom: 1px solid var(--rule);
+      flex-shrink: 0;
+    }
+
+    .logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 22px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      color: var(--ink);
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      flex-shrink: 0;
+      user-select: none;
+    }
+
+    .logo-mark {
+      width: 24px; height: 24px;
+      background: var(--ink);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--cream);
+      font-size: 13px;
+      line-height: 1;
+    }
+
+    .divider-v {
+      width: 1px; height: 22px;
+      background: var(--rule);
+      flex-shrink: 0;
+    }
+
+    #songTitle {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 19px;
+      font-weight: 400;
+      font-style: italic;
+      color: var(--ink);
+      background: none;
+      border: none;
+      outline: none;
+      border-bottom: 1px solid transparent;
+      padding: 2px 4px;
+      flex: 1;
+      min-width: 100px;
+      transition: border-color 0.2s;
+    }
+
+    #songTitle:focus { border-bottom-color: var(--amber); }
+    #songTitle::placeholder { color: var(--ink-faint); }
+
+    .meta-chips { display: flex; gap: 7px; align-items: center; }
+
+    .chip {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 11px;
+      border-radius: 20px;
+      font-size: 11.5px;
+      border: 1px solid var(--rule);
+      color: var(--ink-soft);
+      background: none;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    .chip:hover { border-color: var(--amber); color: var(--amber); }
+    .chip:active { transform: scale(0.96); }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-left: auto;
+    }
+
+    .btn-primary {
+      padding: 7px 16px;
+      background: var(--ink);
+      color: var(--cream);
+      border: none; border-radius: 6px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
+    }
+
+    .btn-primary:hover { background: var(--amber); }
+    .btn-primary:active { transform: scale(0.97); }
+
+    .btn-ghost {
+      padding: 7px 12px;
+      background: none;
+      color: var(--ink-soft);
+      border: 1px solid var(--rule);
+      border-radius: 6px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .btn-ghost:hover { border-color: var(--ink-soft); color: var(--ink); }
+    .btn-ghost:active { transform: scale(0.97); }
+
+    /* ── Main layout ─────────────────────────────── */
+    .main {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    /* ── Left sidebar ────────────────────────────── */
+    .sidebar {
+      width: 196px;
+      background: var(--cream-light);
+      border-right: 1px solid var(--rule);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      overflow-y: auto;
+    }
+
+    .sidebar-header {
+      padding: 14px 16px 8px;
+      font-size: 9.5px;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--ink-faint);
+    }
+
+    .section-list { list-style: none; padding: 0 8px; flex: 1; }
+
+    .section-item {
+      display: flex;
+      align-items: center;
+      padding: 8px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-bottom: 1px;
+      transition: all 0.12s;
+      gap: 8px;
+      position: relative;
+    }
+
+    .section-item:hover:not(.active) { background: var(--cream-dark); }
+
+    .section-item.active {
+      background: var(--ink);
+      color: var(--cream);
+    }
+
+    .section-label {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 14px;
+      font-weight: 500;
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .section-lines {
+      font-size: 9.5px;
+      color: var(--ink-faint);
+      flex-shrink: 0;
+    }
+
+    .section-item.active .section-lines { color: rgba(248,244,237,0.45); }
+
+    .add-section-btn {
+      margin: 8px;
+      padding: 8px;
+      border: 1px dashed var(--rule);
+      border-radius: 6px;
+      background: none;
+      color: var(--ink-soft);
+      font-size: 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      transition: all 0.15s;
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    .add-section-btn:hover { border-color: var(--amber); color: var(--amber); }
+
+    /* ── Writing canvas ──────────────────────────── */
+    .canvas-wrap {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .canvas-header {
+      padding: 18px 36px 14px;
+      border-bottom: 1px solid var(--rule);
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+    }
+
+    .section-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 30px;
+      font-weight: 300;
+      color: var(--ink);
+      letter-spacing: -0.02em;
+    }
+
+    .section-badge {
+      font-size: 10.5px;
+      color: var(--amber);
+      border: 1px solid var(--amber-pale);
+      background: var(--amber-pale);
+      padding: 2px 9px;
+      border-radius: 20px;
+      font-weight: 500;
+      letter-spacing: 0.05em;
+    }
+
+    /* Version controls */
+    .version-controls {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-left: 12px;
+    }
+
+    .version-tabs {
+      display: flex;
+      gap: 2px;
+      background: var(--cream-dark);
+      padding: 3px;
+      border-radius: 6px;
+    }
+
+    .version-tab {
+      padding: 5px 12px;
+      background: none;
+      border: none;
+      border-radius: 4px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--ink-soft);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .version-tab:hover { color: var(--ink); }
+    .version-tab.active {
+      background: var(--cream-light);
+      color: var(--ink);
+      box-shadow: 0 1px 3px var(--shadow-sm);
+    }
+
+    .version-add-btn {
+      width: 24px;
+      height: 24px;
+      padding: 0;
+      background: none;
+      border: 1px dashed var(--rule);
+      border-radius: 4px;
+      font-size: 14px;
+      color: var(--ink-faint);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .version-add-btn:hover {
+      border-color: var(--amber);
+      color: var(--amber);
+    }
+
+    .version-compare-btn {
+      padding: 4px 10px;
+      background: none;
+      border: 1px solid var(--rule);
+      border-radius: 4px;
+      font-size: 12px;
+      color: var(--ink-soft);
+      cursor: pointer;
+      transition: all 0.15s;
+      margin-left: 4px;
+    }
+    .version-compare-btn:hover {
+      border-color: var(--sage);
+      color: var(--sage);
+    }
+    .version-compare-btn.active {
+      background: var(--sage-pale);
+      border-color: var(--sage);
+      color: var(--sage);
+    }
+
+    /* Version compare panel */
+    .version-compare-panel {
+      display: none;
+      position: fixed;
+      top: 80px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 90%;
+      max-width: 900px;
+      max-height: calc(100vh - 120px);
+      background: var(--cream-light);
+      border: 1px solid var(--rule);
+      border-radius: 12px;
+      box-shadow: 0 20px 60px var(--shadow-md);
+      z-index: 9000;
+      overflow: hidden;
+    }
+    .version-compare-panel.open { display: flex; flex-direction: column; }
+
+    .compare-header {
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--rule);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .compare-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 16px;
+      color: var(--ink);
+    }
+    .compare-close {
+      background: none;
+      border: none;
+      font-size: 20px;
+      color: var(--ink-faint);
+      cursor: pointer;
+    }
+    .compare-close:hover { color: var(--ink); }
+
+    .compare-body {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+    .compare-column {
+      flex: 1;
+      padding: 16px;
+      overflow-y: auto;
+    }
+    .compare-column:first-child { border-right: 1px solid var(--rule); }
+
+    .compare-version-header {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--ink-soft);
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--rule);
+    }
+    .compare-line {
+      font-family: 'Crimson Pro', serif;
+      font-size: 16px;
+      color: var(--ink);
+      padding: 6px 0;
+      line-height: 1.5;
+    }
+    .compare-line.empty {
+      color: var(--ink-faint);
+      font-style: italic;
+    }
+    .compare-line.diff {
+      background: var(--amber-pale);
+      margin: 0 -8px;
+      padding: 6px 8px;
+      border-radius: 4px;
+    }
+
+    .fork-btn {
+      margin-left: auto;
+      padding: 5px 12px;
+      background: none;
+      border: 1px solid var(--rule);
+      border-radius: 6px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 11px;
+      color: var(--ink-soft);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .fork-btn:hover {
+      border-color: var(--sage);
+      color: var(--sage);
+      background: var(--sage-pale);
+    }
+    .fork-btn.hidden { display: none; }
+
+    /* Intensifiers Panel */
+    .intensifiers-fab {
+      position: absolute;
+      bottom: 70px;
+      right: 20px;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--sage);
+      color: var(--cream);
+      border: none;
+      font-size: 16px;
+      cursor: pointer;
+      box-shadow: 0 4px 12px var(--shadow-md);
+      transition: all 0.2s;
+      z-index: 100;
+    }
+    .intensifiers-fab:hover {
+      background: #4a6a4e;
+      transform: scale(1.1);
+    }
+
+    .intensifiers-panel {
+      position: absolute;
+      bottom: 120px;
+      right: 20px;
+      width: 240px;
+      max-height: 300px;
+      background: var(--cream-light);
+      border: 1px solid var(--rule);
+      border-radius: 12px;
+      box-shadow: 0 10px 30px var(--shadow-md);
+      z-index: 100;
+      overflow: hidden;
+    }
+
+    .intensifiers-header {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--rule);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--ink-soft);
+    }
+
+    .intensifiers-close {
+      background: none;
+      border: none;
+      font-size: 16px;
+      color: var(--ink-faint);
+      cursor: pointer;
+    }
+    .intensifiers-close:hover { color: var(--ink); }
+
+    .intensifiers-body {
+      padding: 12px;
+      max-height: 240px;
+      overflow-y: auto;
+    }
+
+    .intensifiers-group {
+      margin-bottom: 12px;
+    }
+
+    .intensifiers-group-label {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--ink-faint);
+      margin-bottom: 6px;
+    }
+
+    .intensifiers-words {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+
+    .intensifier-word {
+      padding: 4px 8px;
+      background: var(--cream);
+      border: 1px solid var(--rule);
+      border-radius: 4px;
+      font-family: 'Crimson Pro', serif;
+      font-size: 13px;
+      color: var(--ink);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .intensifier-word:hover {
+      border-color: var(--sage);
+      background: var(--sage-pale);
+    }
+    .intensifier-word.verb { border-left: 2px solid var(--amber); }
+    .intensifier-word.adj { border-left: 2px solid var(--sage); }
+
+    .editor-area {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px 36px 40px;
+      position: relative;
+    }
+
+    /* Ruled paper */
+    .editor-area::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-image: repeating-linear-gradient(
+        transparent,
+        transparent 35px,
+        var(--rule) 35px,
+        var(--rule) 36px
+      );
+      background-position: 0 52px;
+      pointer-events: none;
+      opacity: 0.35;
+    }
+
+    /* Red margin line */
+    .editor-area::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 56px;
+      width: 1px; bottom: 0;
+      background: rgba(196,96,42,0.15);
+      pointer-events: none;
+    }
+
+    .lyric-editor { position: relative; z-index: 1; }
+
+    .lyric-line {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      min-height: 36px;
+      transition: background 0.15s;
+      border-radius: 3px;
+      padding: 0 4px 0 0;
+    }
+
+    .lyric-line.focused {
+      background: rgba(196,96,42,0.045);
+    }
+
+    .line-num {
+      font-size: 10px;
+      color: var(--ink-faint);
+      width: 22px;
+      text-align: right;
+      flex-shrink: 0;
+      padding-top: 9px;
+      user-select: none;
+    }
+
+    .line-input {
+      flex: 1;
+      background: none;
+      border: none;
+      outline: none;
+      font-family: 'Crimson Pro', serif;
+      font-size: 21px;
+      line-height: 36px;
+      color: var(--ink);
+      width: 100%;
+      caret-color: var(--amber);
+    }
+
+    .line-input::placeholder {
+      color: var(--ink-faint);
+      font-style: italic;
+    }
+
+    .syl-count {
+      font-size: 9.5px;
+      color: var(--ink-faint);
+      padding-top: 12px;
+      flex-shrink: 0;
+      width: 22px;
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+      transition: color 0.2s;
+      user-select: none;
+    }
+
+    .syl-count.filled { color: var(--amber-soft); }
+
+    /* AI-sourced lines */
+    .line-input.ai-line {
+      color: var(--sage);
+      font-style: italic;
+    }
+
+    .ai-badge {
+      font-size: 9px;
+      color: var(--sage);
+      padding-top: 13px;
+      flex-shrink: 0;
+      letter-spacing: 0.06em;
+      font-weight: 500;
+      opacity: 0.75;
+      user-select: none;
+      width: 18px;
+      text-align: right;
+    }
+
+    /* ── AI panel ────────────────────────────────── */
+    .ai-panel {
+      width: 292px;
+      background: var(--cream-light);
+      border-left: 1px solid var(--rule);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      overflow: hidden;
+      transition: width 0.28s cubic-bezier(.4,0,.2,1),
+                  opacity 0.22s ease;
+    }
+
+    .ai-panel.collapsed {
+      width: 0;
+      opacity: 0;
+      pointer-events: none;
+      border-left-width: 0;
+    }
+
+    .ai-panel-header {
+      padding: 14px 16px 12px;
+      border-bottom: 1px solid var(--rule);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .ai-dot {
+      width: 8px; height: 8px;
+      background: var(--sage);
+      border-radius: 50%;
+      animation: pulse 2.4s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.55; transform: scale(0.8); }
+    }
+
+    .ai-header-text { flex: 1; }
+
+    .ai-title {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--ink-mid);
+      letter-spacing: 0.04em;
+    }
+
+    .ai-subtitle {
+      font-size: 10px;
+      color: var(--ink-faint);
+      margin-top: 1px;
+      font-style: italic;
+      font-family: 'Cormorant Garamond', serif;
+    }
+
+    .ai-close {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--ink-faint);
+      font-size: 16px;
+      padding: 2px;
+      line-height: 1;
+      transition: color 0.15s;
+    }
+
+    .ai-close:hover { color: var(--ink); }
+
+    .ai-tools {
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      flex-shrink: 0;
+      border-bottom: 1px solid var(--rule);
+    }
+
+    .ai-tool-btn {
+      padding: 9px 11px;
+      border: 1px solid var(--rule);
+      border-radius: 7px;
+      background: var(--cream);
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.13s;
+    }
+
+    .ai-tool-btn:hover {
+      border-color: var(--amber);
+      background: var(--amber-pale);
+    }
+
+    .ai-tool-btn:active { transform: scale(0.98); }
+
+    .tool-label {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--ink-mid);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .tool-icon { color: var(--amber); }
+
+    .tool-desc {
+      font-size: 10.5px;
+      color: var(--ink-soft);
+      margin-top: 2px;
+      line-height: 1.4;
+    }
+
+    .tool-info-btn {
+      margin-left: auto;
+      flex-shrink: 0;
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      border: 1px solid var(--rule);
+      background: none;
+      color: var(--ink-faint);
+      font-size: 10px;
+      line-height: 1;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.15s;
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-weight: 600;
+    }
+
+    .tool-info-btn:hover {
+      border-color: var(--amber);
+      color: var(--amber);
+      background: var(--amber-pale);
+    }
+
+    /* Info modal */
+    .info-modal-overlay {
+      position: fixed; inset: 0; z-index: 10001;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(26,21,16,0.45); backdrop-filter: blur(3px);
+      animation: obIn 0.15s cubic-bezier(.22,1,.36,1) both;
+    }
+
+    .info-modal-box {
+      background: var(--cream-light);
+      border: 1px solid var(--rule);
+      border-radius: 14px;
+      padding: 26px 28px 22px;
+      max-width: 440px; width: 92%;
+      box-shadow: 0 20px 60px rgba(26,21,16,0.22);
+    }
+
+    .info-modal-icon {
+      font-size: 22px;
+      color: var(--amber);
+      margin-bottom: 10px;
+    }
+
+    .info-modal-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 24px; font-weight: 500;
+      color: var(--ink);
+      margin-bottom: 8px;
+      line-height: 1.2;
+    }
+
+    .info-modal-body {
+      font-size: 13.5px;
+      color: var(--ink-mid);
+      line-height: 1.7;
+      margin-bottom: 14px;
+    }
+
+    .info-modal-tip {
+      font-size: 12px;
+      color: var(--ink-soft);
+      background: var(--cream-dark);
+      border-radius: 7px;
+      padding: 10px 12px;
+      line-height: 1.6;
+      margin-bottom: 18px;
+    }
+
+    .info-modal-tip strong {
+      color: var(--amber);
+      font-weight: 500;
+    }
+
+    .info-modal-close {
+      padding: 9px 20px;
+      background: var(--ink);
+      color: var(--cream);
+      border: none; border-radius: 7px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px; cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .info-modal-close:hover { background: var(--amber); }
+
+    .ai-tools-group-label {
+      font-size: 9px;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+      color: var(--ink-faint);
+      padding: 4px 2px 2px;
+    }
+
+    .ai-response {
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px;
+    }
+
+    .ai-empty {
+      text-align: center;
+      padding: 28px 14px;
+      color: var(--ink-faint);
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 15px;
+      font-style: italic;
+      line-height: 1.6;
+    }
+
+    .ai-suggestion {
+      padding: 11px 12px;
+      background: var(--cream);
+      border-radius: 7px;
+      border: 1px solid var(--rule);
+      margin-bottom: 7px;
+      transition: border-color 0.15s;
+    }
+
+    .ai-suggestion:hover { border-color: var(--amber); }
+
+    .ai-suggestion-text {
+      font-family: 'Crimson Pro', serif;
+      font-size: 17px;
+      color: var(--ink);
+      line-height: 1.45;
+      margin-bottom: 8px;
+    }
+
+    .ai-suggestion-meta {
+      font-size: 10px;
+      color: var(--ink-faint);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .use-btn {
+      padding: 3px 9px;
+      background: var(--ink);
+      color: var(--cream);
+      border: none; border-radius: 4px;
+      font-size: 10px;
+      cursor: pointer;
+      transition: background 0.15s;
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    .use-btn:hover { background: var(--amber); }
+
+    .collect-btn {
+      padding: 3px 7px;
+      background: none;
+      color: var(--ink-faint);
+      border: 1px solid var(--rule);
+      border-radius: 4px;
+      font-size: 10px;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-family: 'DM Sans', sans-serif;
+    }
+    .collect-btn:hover { border-color: var(--amber); color: var(--amber); }
+    .collect-btn.collected { background: var(--sage-pale); border-color: var(--sage); color: var(--sage); }
+
+    /* Scratch Pad */
+    .scratch-pad {
+      border-top: 1px solid var(--rule);
+      background: var(--cream);
+      flex-shrink: 0;
+    }
+
+    .scratch-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .scratch-header:hover { background: var(--cream-dark); }
+
+    .scratch-icon {
+      font-size: 12px;
+      color: var(--amber);
+    }
+
+    .scratch-title {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--ink-soft);
+      flex: 1;
+    }
+
+    .scratch-count {
+      font-size: 10px;
+      color: var(--cream);
+      background: var(--ink-soft);
+      padding: 2px 7px;
+      border-radius: 10px;
+      min-width: 18px;
+      text-align: center;
+    }
+    .scratch-count.has-items { background: var(--amber); }
+
+    .scratch-toggle {
+      font-size: 10px;
+      color: var(--ink-faint);
+      transition: transform 0.2s;
+    }
+    .scratch-toggle.open { transform: rotate(180deg); }
+
+    .scratch-body {
+      max-height: 200px;
+      overflow-y: auto;
+      padding: 0 10px 10px;
+    }
+
+    .scratch-empty {
+      text-align: center;
+      padding: 16px;
+      color: var(--ink-faint);
+      font-size: 12px;
+      font-style: italic;
+    }
+
+    .scratch-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 8px 10px;
+      background: var(--cream-light);
+      border: 1px solid var(--rule);
+      border-radius: 6px;
+      margin-bottom: 6px;
+      cursor: grab;
+      transition: all 0.15s;
+    }
+    .scratch-item:hover { border-color: var(--amber); }
+    .scratch-item.dragging { opacity: 0.5; }
+
+    .scratch-item-text {
+      flex: 1;
+      font-family: 'Crimson Pro', serif;
+      font-size: 14px;
+      color: var(--ink);
+      line-height: 1.4;
+    }
+
+    .scratch-item-actions {
+      display: flex;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+
+    .scratch-item-btn {
+      padding: 3px 6px;
+      background: none;
+      border: none;
+      color: var(--ink-faint);
+      font-size: 11px;
+      cursor: pointer;
+      border-radius: 3px;
+      transition: all 0.15s;
+    }
+    .scratch-item-btn:hover { background: var(--cream-dark); color: var(--ink); }
+    .scratch-item-btn.delete:hover { color: #c44; }
+
+    .specificity-card {
+      padding: 12px;
+      background: var(--amber-pale);
+      border-radius: 7px;
+      border-left: 3px solid var(--amber);
+      margin-bottom: 7px;
+    }
+
+    .spec-label {
+      font-size: 9.5px;
+      font-weight: 500;
+      color: var(--amber);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .spec-question {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 15px;
+      font-style: italic;
+      color: var(--ink-mid);
+      line-height: 1.5;
+      margin-bottom: 6px;
+    }
+
+    .rhyme-cloud {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      padding: 10px;
+    }
+
+    .rhyme-tag {
+      padding: 4px 11px;
+      background: var(--cream);
+      border: 1px solid var(--rule);
+      border-radius: 20px;
+      font-family: 'Crimson Pro', serif;
+      font-size: 15px;
+      color: var(--ink-mid);
+      cursor: pointer;
+      transition: all 0.13s;
+    }
+
+    .rhyme-tag:hover {
+      border-color: var(--amber);
+      background: var(--amber-pale);
+      color: var(--ink);
+    }
+
+    /* Word Family */
+    .wordfamily-browser {
+      padding: 12px;
+    }
+
+    .wordfamily-header {
+      margin-bottom: 12px;
+    }
+
+    .wordfamily-word {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 14px;
+      color: var(--ink-soft);
+    }
+    .wordfamily-word strong {
+      color: var(--ink);
+      font-size: 16px;
+    }
+
+    .wordfamily-filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-bottom: 14px;
+      background: var(--cream-dark);
+      padding: 3px;
+      border-radius: 6px;
+      width: fit-content;
+    }
+
+    .wf-filter {
+      padding: 5px 12px;
+      background: none;
+      border: none;
+      border-radius: 4px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 11px;
+      color: var(--ink-soft);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .wf-filter:hover { color: var(--ink); }
+    .wf-filter.active {
+      background: var(--cream-light);
+      color: var(--ink);
+      box-shadow: 0 1px 3px var(--shadow-sm);
+    }
+
+    .wf-section {
+      margin-bottom: 16px;
+    }
+
+    .wf-section-label {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--ink-faint);
+      margin-bottom: 8px;
+    }
+
+    .wf-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .wf-tag {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 6px 12px;
+      background: var(--cream);
+      border: 1px solid var(--rule);
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .wf-tag:hover {
+      border-color: var(--amber);
+      background: var(--amber-pale);
+    }
+    .wf-tag.collected {
+      border-color: var(--sage);
+      background: var(--sage-pale);
+    }
+    .wf-tag.primary { border-left: 3px solid var(--ink-soft); }
+    .wf-tag.extended { border-left: 3px solid var(--amber); }
+    .wf-tag.stronger { border-left: 3px solid #c44; }
+    .wf-tag.softer { border-left: 3px solid var(--sage); }
+
+    .wf-word {
+      font-family: 'Crimson Pro', serif;
+      font-size: 15px;
+      color: var(--ink);
+    }
+
+    .wf-badge {
+      font-size: 10px;
+      color: var(--ink-faint);
+    }
+
+    /* Enhanced Rhyme Browser */
+    .rhyme-browser {
+      padding: 12px;
+    }
+
+    .rhyme-header {
+      margin-bottom: 12px;
+    }
+
+    .rhyme-word {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 14px;
+      color: var(--ink-soft);
+    }
+    .rhyme-word strong {
+      color: var(--ink);
+      font-size: 16px;
+    }
+
+    .rhyme-filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .rhyme-filter-group {
+      display: flex;
+      gap: 4px;
+      background: var(--cream-dark);
+      padding: 3px;
+      border-radius: 6px;
+    }
+
+    .rhyme-filter, .rhyme-syl-btn {
+      padding: 5px 10px;
+      background: none;
+      border: none;
+      border-radius: 4px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 11px;
+      color: var(--ink-soft);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .rhyme-filter:hover, .rhyme-syl-btn:hover {
+      color: var(--ink);
+    }
+    .rhyme-filter.active, .rhyme-syl-btn.active {
+      background: var(--cream-light);
+      color: var(--ink);
+      box-shadow: 0 1px 3px var(--shadow-sm);
+    }
+
+    .rhyme-loading {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      padding: 20px;
+    }
+    .rhyme-loading span {
+      width: 8px;
+      height: 8px;
+      background: var(--ink-faint);
+      border-radius: 50%;
+      animation: bounce 1s infinite;
+    }
+    .rhyme-loading span:nth-child(2) { animation-delay: 0.1s; }
+    .rhyme-loading span:nth-child(3) { animation-delay: 0.2s; }
+
+    .rhyme-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .rhyme-tag-v2 {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      background: var(--cream);
+      border: 1px solid var(--rule);
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .rhyme-tag-v2:hover {
+      border-color: var(--amber);
+      background: var(--amber-pale);
+    }
+    .rhyme-tag-v2.collected {
+      border-color: var(--sage);
+      background: var(--sage-pale);
+    }
+
+    .rhyme-word-text {
+      font-family: 'Crimson Pro', serif;
+      font-size: 15px;
+      color: var(--ink);
+    }
+
+    .rhyme-syl-badge {
+      font-size: 9px;
+      color: var(--cream);
+      background: var(--ink-faint);
+      padding: 2px 5px;
+      border-radius: 8px;
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    .rhyme-empty {
+      text-align: center;
+      padding: 20px;
+      color: var(--ink-faint);
+      font-style: italic;
+      font-size: 13px;
+    }
+
+    .rhyme-count {
+      text-align: center;
+      margin-top: 12px;
+      font-size: 11px;
+      color: var(--ink-faint);
+    }
+
+    /* Phrases display */
+    .phrases-card {
+      padding: 12px;
+    }
+
+    .phrases-label {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--ink-soft);
+      margin-bottom: 12px;
+    }
+
+    .phrases-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .phrase-chip {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      background: var(--cream);
+      border: 1px solid var(--rule);
+      border-radius: 8px;
+      transition: all 0.15s;
+    }
+    .phrase-chip:hover { border-color: var(--amber); }
+
+    .phrase-text {
+      flex: 1;
+      font-family: 'Crimson Pro', serif;
+      font-size: 15px;
+      color: var(--ink);
+      font-style: italic;
+    }
+
+    .phrase-actions {
+      display: flex;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+
+    .phrase-btn {
+      width: 24px;
+      height: 24px;
+      padding: 0;
+      background: none;
+      border: 1px solid var(--rule);
+      border-radius: 4px;
+      font-size: 11px;
+      color: var(--ink-faint);
+      cursor: pointer;
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .phrase-btn:hover { border-color: var(--amber); color: var(--amber); }
+    .phrase-btn.collected { background: var(--sage-pale); border-color: var(--sage); color: var(--sage); }
+    .phrase-btn.use { background: var(--ink); border-color: var(--ink); color: var(--cream); }
+    .phrase-btn.use:hover { background: var(--amber); border-color: var(--amber); }
+
+    .loading-row {
+      display: flex;
+      gap: 5px;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .loading-row span {
+      width: 6px; height: 6px;
+      background: var(--ink-faint);
+      border-radius: 50%;
+      animation: ld 1.2s ease-in-out infinite;
+    }
+
+    .loading-row span:nth-child(2) { animation-delay: 0.2s; }
+    .loading-row span:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes ld {
+      0%,80%,100% { transform: translateY(0); opacity: 0.35; }
+      40% { transform: translateY(-7px); opacity: 1; }
+    }
+
+    @keyframes bounce {
+      0%,80%,100% { transform: translateY(0); opacity: 0.35; }
+      40% { transform: translateY(-7px); opacity: 1; }
+    }
+
+    /* ── Split screen ────────────────────────────── */
+    /* Default: canvas-wrap is a vertical column */
+    #canvasWrap {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    /* editor-pane always fills vertically */
+    #editorPane {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Split mode: switch canvas-wrap to horizontal row */
+    #canvasWrap.split-active {
+      flex-direction: row;
+    }
+
+    /* In split mode, editor-pane shrinks to share space */
+    #canvasWrap.split-active #editorPane {
+      flex: 1;
+      min-width: 200px;
+      border-right: none;
+    }
+
+    .song-overview {
+      width: 300px;
+      min-width: 120px;
+      max-width: 70%;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background: var(--cream-light);
+      height: 100%;
+    }
+
+    .song-overview-header {
+      padding: 14px 18px 10px;
+      border-bottom: 1px solid var(--rule);
+      font-size: 10px;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+      color: var(--ink-faint);
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .song-overview-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px;
+    }
+
+    .ov-section {
+      margin-bottom: 16px;
+    }
+
+    .ov-section-label {
+      font-size: 9.5px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--ink-faint);
+      margin-bottom: 5px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .ov-section-label.current {
+      color: var(--amber);
+    }
+
+    .ov-section-label .ov-dot {
+      width: 5px; height: 5px;
+      background: var(--amber);
+      border-radius: 50%;
+    }
+
+    .ov-line {
+      font-family: 'Crimson Pro', serif;
+      font-size: 21px;
+      line-height: 1.6;
+      color: var(--ink-mid);
+      cursor: pointer;
+      border-radius: 3px;
+      padding: 2px 6px;
+      margin: 0 -6px;
+      transition: background 0.12s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .ov-line:hover { background: var(--cream-dark); }
+    .ov-line.ai-ov { color: var(--sage); font-style: italic; }
+
+    .ov-line-text { flex: 1; }
+
+    .ov-move-btn {
+      opacity: 0;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--amber);
+      font-size: 12px;
+      padding: 0 2px;
+      transition: opacity 0.12s;
+      flex-shrink: 0;
+    }
+
+    .ov-line:hover .ov-move-btn { opacity: 1; }
+
+    .ov-empty {
+      font-size: 12px;
+      color: var(--ink-faint);
+      font-style: italic;
+      padding: 2px 6px;
+    }
+
+    /* Move-line arrows in editor */
+    .line-move-arrows {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      opacity: 0;
+      transition: opacity 0.12s;
+      flex-shrink: 0;
+    }
+
+    .lyric-line:hover .line-move-arrows,
+    .lyric-line.focused .line-move-arrows {
+      opacity: 1;
+    }
+
+    .move-arrow {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--ink-faint);
+      font-size: 10px;
+      line-height: 1;
+      padding: 1px 3px;
+      transition: color 0.12s;
+    }
+
+    .move-arrow:hover { color: var(--amber); }
+
+    /* Topbar split button */
+    .btn-split {
+      padding: 7px 12px;
+      background: none;
+      border: 1px solid var(--rule);
+      border-radius: 6px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px;
+      color: var(--ink-soft);
+      cursor: pointer;
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .btn-split:hover { border-color: var(--amber); color: var(--amber); }
+    .btn-split.active { background: var(--amber-pale); border-color: var(--amber); color: var(--amber); }
+
+    /* ── Split resizer ───────────────────────────── */
+    #splitResizer {
+      width: 5px;
+      flex-shrink: 0;
+      background: var(--rule);
+      cursor: col-resize;
+      position: relative;
+      transition: background 0.15s;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 5;
+    }
+
+    #splitResizer:hover, #splitResizer.dragging {
+      background: var(--amber);
+    }
+
+    #splitResizer::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 1px;
+      height: 32px;
+      background: rgba(255,255,255,0.5);
+      border-radius: 1px;
+    }
+
+    /* expand hover hit area */
+    #splitResizer::before {
+      content: '';
+      position: absolute;
+      inset: 0 -6px;
+    }
+
+    #canvasWrap.split-active #splitResizer {
+      display: flex;
+    }
+
+    /* ── AI toggle FAB ───────────────────────────── */
+    .ai-fab {
+      position: absolute;
+      right: 18px; bottom: 18px;
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      background: var(--ink);
+      color: var(--cream);
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 17px;
+      transition: all 0.2s;
+      box-shadow: 0 4px 18px var(--shadow-md);
+      z-index: 10;
+      font-family: 'Cormorant Garamond', serif;
+      letter-spacing: 0;
+    }
+
+    .ai-fab:hover {
+      background: var(--amber);
+      transform: scale(1.06);
+      box-shadow: 0 6px 24px rgba(196,96,42,0.35);
+    }
+
+    /* ── Focus indicators ────────────────────────── */
+    :focus-visible {
+      outline: 2px solid var(--amber);
+      outline-offset: 2px;
+    }
+
+    /* Remove default outline for mouse users */
+    :focus:not(:focus-visible) {
+      outline: none;
+    }
+
+    /* ── Reduced motion ─────────────────────────── */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+
+    /* ── Scrollbar ───────────────────────────────── */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--rule); border-radius: 2px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--ink-faint); }
+
+    /* ── Voice switcher ─────────────────────────── */
+    .voice-switcher {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .voice-btn {
+      display: flex; align-items: center; gap: 6px;
+      padding: 5px 11px;
+      border: 1px solid var(--rule);
+      border-radius: 20px;
+      background: none;
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px;
+      color: var(--ink-mid);
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+
+    .voice-btn:hover { border-color: var(--amber); color: var(--amber); }
+
+    .voice-btn .voice-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--sage);
+      flex-shrink: 0;
+    }
+
+    .voice-dropdown {
+      position: absolute;
+      top: calc(100% + 7px);
+      left: 0;
+      min-width: 220px;
+      background: var(--cream-light);
+      border: 1px solid var(--rule);
+      border-radius: 10px;
+      box-shadow: 0 8px 32px var(--shadow-md);
+      z-index: 1000;
+      overflow: hidden;
+      animation: obIn 0.15s cubic-bezier(.22,1,.36,1) both;
+    }
+
+    .voice-dropdown-header {
+      padding: 10px 14px 6px;
+      font-size: 9.5px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--ink-faint);
+      border-bottom: 1px solid var(--rule);
+    }
+
+    .voice-option {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 14px;
+      cursor: pointer;
+      transition: background 0.12s;
+      font-size: 13px;
+      color: var(--ink-mid);
+    }
+
+    .voice-option:hover { background: var(--cream-dark); }
+
+    .voice-option.active {
+      color: var(--amber);
+      font-weight: 500;
+    }
+
+    .voice-option .vo-check { color: var(--amber); font-size: 11px; width: 12px; }
+    .voice-option .vo-del {
+      margin-left: auto;
+      opacity: 0;
+      color: var(--ink-faint);
+      font-size: 14px;
+      padding: 0 2px;
+      transition: opacity 0.12s;
+    }
+    .voice-option:hover .vo-del { opacity: 1; }
+    .voice-option .vo-del:hover { color: #c0392b; }
+
+    .voice-add-btn {
+      display: flex; align-items: center; gap: 7px;
+      width: 100%; padding: 10px 14px;
+      border: none; border-top: 1px solid var(--rule);
+      background: none; cursor: pointer;
+      font-size: 12px; color: var(--amber);
+      font-family: 'DM Sans', sans-serif;
+      transition: background 0.12s;
+      text-align: left;
+    }
+
+    .voice-add-btn:hover { background: var(--amber-pale); }
+
+    /* ── Audio Player ────────────────────────────── */
+    #audioBar {
+      background: var(--cream-light);
+      border-top: 1px solid var(--rule);
+      padding: 10px 18px 10px;
+      display: none;
+      flex-direction: column;
+      gap: 8px;
+      flex-shrink: 0;
+      user-select: none;
+    }
+
+    #audioBar.visible { display: flex; }
+
+    .audio-top-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .audio-filename {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 14px;
+      font-style: italic;
+      color: var(--ink-mid);
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .audio-time {
+      font-size: 11px;
+      font-variant-numeric: tabular-nums;
+      color: var(--ink-soft);
+      flex-shrink: 0;
+      min-width: 90px;
+      text-align: right;
+    }
+
+    /* Waveform + loop canvas */
+    #waveformWrap {
+      position: relative;
+      height: 56px;
+      border-radius: 6px;
+      overflow: hidden;
+      cursor: crosshair;
+      background: var(--cream-dark);
+    }
+
+    #waveCanvas {
+      position: absolute;
+      inset: 0;
+      width: 100%; height: 100%;
+    }
+
+    /* Playhead */
+    #playhead {
+      position: absolute;
+      top: 0; bottom: 0;
+      width: 2px;
+      background: var(--amber);
+      pointer-events: none;
+      left: 0;
+      transition: none;
+    }
+
+    /* Loop region */
+    #loopRegion {
+      position: absolute;
+      top: 0; bottom: 0;
+      background: rgba(196, 96, 42, 0.13);
+      border-left: 2px solid var(--amber);
+      border-right: 2px solid var(--amber);
+      cursor: grab;
+      pointer-events: all;
+    }
+    #loopRegion:active { cursor: grabbing; }
+
+    /* Loop handles */
+    .loop-handle {
+      position: absolute;
+      top: 0; bottom: 0;
+      width: 28px;
+      cursor: ew-resize;
+      z-index: 11;
+      pointer-events: all;
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .loop-handle-bar {
+      width: 5px;
+      height: 42px;
+      border-radius: 3px;
+      background: var(--amber);
+      box-shadow: 0 2px 10px rgba(196,96,42,0.6);
+      transition: width 0.1s, background 0.1s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+    }
+
+    .loop-handle:hover .loop-handle-bar {
+      width: 7px;
+      background: var(--amber-soft);
+    }
+
+    .loop-handle-bar span {
+      display: block;
+      width: 2px; height: 2px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.75);
+    }
+
+    /* Controls row */
+    .audio-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .audio-btn {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      border: 1px solid var(--rule);
+      background: none;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px;
+      color: var(--ink-mid);
+      transition: all 0.13s;
+      flex-shrink: 0;
+    }
+
+    .audio-btn:hover { border-color: var(--amber); color: var(--amber); background: var(--amber-pale); }
+    .audio-btn.active { background: var(--ink); color: var(--cream); border-color: var(--ink); }
+    .audio-btn.play-btn { width: 38px; height: 38px; font-size: 15px; }
+    .audio-btn.play-btn.active { background: var(--amber); border-color: var(--amber); }
+
+    .audio-divider { width: 1px; height: 20px; background: var(--rule); flex-shrink: 0; }
+
+    .loop-info {
+      font-size: 10.5px;
+      color: var(--ink-soft);
+      font-variant-numeric: tabular-nums;
+      flex: 1;
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .loop-tag {
+      padding: 2px 7px;
+      border: 1px solid var(--rule);
+      border-radius: 4px;
+      font-size: 9.5px;
+      cursor: pointer;
+      transition: all 0.12s;
+      color: var(--ink-soft);
+    }
+
+    .loop-tag:hover { border-color: var(--amber); color: var(--amber); }
+    .loop-tag.loop-on { background: var(--amber-pale); border-color: var(--amber); color: var(--amber); }
+
+    .speed-select {
+      padding: 3px 6px;
+      border: 1px solid var(--rule);
+      border-radius: 4px;
+      background: none;
+      font-size: 11px;
+      color: var(--ink-soft);
+      font-family: 'DM Sans', sans-serif;
+      cursor: pointer;
+      outline: none;
+    }
+
+    .speed-select:focus { border-color: var(--amber); }
+
+    .audio-upload-btn {
+      padding: 6px 12px;
+      border: 1px dashed var(--rule);
+      border-radius: 6px;
+      background: none;
+      font-size: 12px;
+      color: var(--ink-soft);
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      transition: all 0.15s;
+      display: flex; align-items: center; gap: 5px;
+    }
+
+    .audio-upload-btn:hover { border-color: var(--amber); color: var(--amber); }
+
+    /* Topbar audio toggle */
+    .btn-audio {
+      padding: 7px 12px;
+      background: none;
+      border: 1px solid var(--rule);
+      border-radius: 6px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px;
+      color: var(--ink-soft);
+      cursor: pointer;
+      transition: all 0.15s;
+      display: flex; align-items: center; gap: 5px;
+    }
+
+    .btn-audio:hover { border-color: var(--amber); color: var(--amber); }
+    .btn-audio.has-audio { color: var(--sage); border-color: var(--sage-pale); }
+
+    /* ── Onboarding overlay ──────────────────────── */
+    #onboarding {
+      position: fixed; inset: 0; z-index: 20000;
+      background: var(--cream);
+      display: flex; align-items: center; justify-content: center;
+      overflow-y: auto;
+    }
+
+    .ob-wrap {
+      width: 100%; max-width: 640px;
+      padding: 48px 32px 64px;
+      animation: obIn 0.5s cubic-bezier(.22,1,.36,1) both;
+    }
+
+    @keyframes obIn {
+      from { opacity:0; transform:translateY(24px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+
+    .ob-progress {
+      display: flex; gap: 6px; margin-bottom: 40px;
+    }
+
+    .ob-pip {
+      height: 3px; flex: 1; border-radius: 2px;
+      background: var(--rule);
+      transition: background 0.4s;
+    }
+
+    .ob-pip.done { background: var(--ink); }
+    .ob-pip.active { background: var(--amber); }
+
+    .ob-eyebrow {
+      font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--amber); margin-bottom: 10px; font-weight: 500;
+    }
+
+    .ob-heading {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(28px, 5vw, 42px);
+      font-weight: 300; line-height: 1.15;
+      color: var(--ink); margin-bottom: 10px;
+    }
+
+    .ob-sub {
+      font-size: 14px; color: var(--ink-soft);
+      line-height: 1.6; margin-bottom: 32px;
+      max-width: 520px;
+    }
+
+    /* Text input */
+    .ob-input {
+      width: 100%;
+      background: none;
+      border: none;
+      border-bottom: 2px solid var(--rule);
+      padding: 10px 4px;
+      font-family: 'Crimson Pro', serif;
+      font-size: 22px;
+      color: var(--ink);
+      outline: none;
+      transition: border-color 0.2s;
+      caret-color: var(--amber);
+    }
+
+    .ob-input:focus { border-bottom-color: var(--amber); }
+    .ob-input::placeholder { color: var(--ink-faint); font-style: italic; }
+
+    /* Textarea */
+    .ob-textarea {
+      width: 100%;
+      background: var(--cream-light);
+      border: 1px solid var(--rule);
+      border-radius: 8px;
+      padding: 14px 16px;
+      font-family: 'Crimson Pro', serif;
+      font-size: 18px; line-height: 1.6;
+      color: var(--ink); outline: none;
+      resize: vertical; min-height: 100px;
+      transition: border-color 0.2s;
+      caret-color: var(--amber);
+    }
+
+    .ob-textarea:focus { border-color: var(--amber); }
+    .ob-textarea::placeholder { color: var(--ink-faint); font-style: italic; }
+
+    /* Choice cards */
+    .ob-choices {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .ob-choices.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+    .ob-choices.cols-1 { grid-template-columns: 1fr; }
+
+    .ob-card {
+      padding: 14px 16px;
+      border: 1.5px solid var(--rule);
+      border-radius: 10px;
+      cursor: pointer;
+      background: var(--cream-light);
+      transition: all 0.15s;
+      user-select: none;
+    }
+
+    .ob-card:hover { border-color: var(--amber-soft); background: var(--amber-pale); }
+
+    .ob-card.selected {
+      border-color: var(--amber);
+      background: var(--amber-pale);
+      box-shadow: inset 0 0 0 1px var(--amber);
+    }
+
+    .ob-card-label {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 16px; font-weight: 600;
+      color: var(--ink); margin-bottom: 4px;
+    }
+
+    .ob-card-desc {
+      font-size: 11.5px; color: var(--ink-soft);
+      line-height: 1.45;
+    }
+
+    /* Example lyric cards (pick your vibe) */
+    .ob-lyric-card {
+      padding: 16px 18px;
+      border: 1.5px solid var(--rule);
+      border-radius: 10px;
+      cursor: pointer;
+      background: var(--cream-light);
+      transition: all 0.15s;
+    }
+
+    .ob-lyric-card:hover { border-color: var(--amber-soft); }
+
+    .ob-lyric-card.selected {
+      border-color: var(--amber);
+      background: var(--amber-pale);
+    }
+
+    .ob-lyric-text {
+      font-family: 'Crimson Pro', serif;
+      font-size: 17px; font-style: italic;
+      line-height: 1.55; color: var(--ink);
+      margin-bottom: 8px;
+    }
+
+    .ob-lyric-attr {
+      font-size: 10px; letter-spacing: 0.08em;
+      color: var(--ink-faint); text-transform: uppercase;
+    }
+
+    /* Step hint */
+    .ob-hint {
+      font-size: 11px; color: var(--ink-faint);
+      margin-top: 10px; font-style: italic;
+    }
+
+    /* Nav */
+    .ob-nav {
+      display: flex; align-items: center;
+      gap: 12px; margin-top: 32px;
+    }
+
+    .ob-next {
+      padding: 12px 28px;
+      background: var(--ink); color: var(--cream);
+      border: none; border-radius: 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px; cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
+    }
+
+    .ob-next:hover:not(:disabled) { background: var(--amber); }
+    .ob-next:disabled { opacity: 0.35; cursor: default; pointer-events: none; }
+
+    .ob-back {
+      padding: 12px 18px;
+      background: none; border: 1px solid var(--rule);
+      border-radius: 8px; color: var(--ink-soft);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px; cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .ob-back:hover { border-color: var(--ink-soft); color: var(--ink); }
+
+    .ob-skip {
+      margin-left: auto;
+      background: none; border: none;
+      color: var(--ink-faint); font-size: 12px;
+      cursor: pointer; padding: 4px;
+      font-family: 'DM Sans', sans-serif;
+      transition: color 0.15s;
+    }
+
+    .ob-skip:hover { color: var(--ink-soft); }
+
+    /* Profile review */
+    .ob-profile-preview {
+      background: var(--cream-light);
+      border: 1px solid var(--rule);
+      border-radius: 10px;
+      padding: 18px 20px;
+      font-size: 13px; line-height: 1.7;
+      color: var(--ink-mid);
+    }
+
+    .ob-profile-preview strong {
+      color: var(--amber); font-weight: 500;
+    }
+    /* ── Responsive ──────────────────────────────── */
+    @media (max-width: 768px) {
+      .topbar { padding: 10px 14px; gap: 10px; flex-wrap: wrap; }
+      .meta-chips { display: none; }
+      .divider-v { display: none; }
+      .sidebar { display: none; }
+      .ai-panel { position: fixed; right: 0; top: 0; bottom: 0; z-index: 500; width: 300px; max-width: 85vw; box-shadow: -4px 0 24px var(--shadow-md); }
+      .ai-panel.collapsed { width: 0; }
+      .canvas-header { padding: 14px 18px 10px; }
+      .editor-area { padding: 16px 18px 32px; }
+      .section-title { font-size: 24px; }
+      .ai-fab { width: 48px; height: 48px; }
+      .intensifiers-fab { width: 44px; height: 44px; bottom: 74px; }
+      .ob-wrap { padding: 32px 18px 48px; }
+      .ob-choices { grid-template-columns: 1fr; }
+      .ob-choices.cols-3 { grid-template-columns: 1fr; }
+
+      /* Touch targets: ensure minimum 44px */
+      .chip, .btn-ghost, .btn-split, .btn-audio, .audio-btn, .move-arrow {
+        min-height: 44px;
+        min-width: 44px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .topbar-right { gap: 4px; }
+      .btn-split, .btn-audio { display: none; }
+      .voice-switcher { display: none; }
+      .logo { font-size: 18px; }
+      .section-title { font-size: 20px; }
+      .line-input { font-size: 18px; line-height: 32px; }
+      .lyric-line { min-height: 32px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Onboarding overlay -->
+<div id="onboarding" style="display:none" role="dialog" aria-label="Writer profile setup">
+  <div class="ob-wrap">
+    <div class="ob-progress" id="obProgress"></div>
+    <div id="obStep"></div>
+  </div>
+</div>
+
+<!-- Config bar removed — key is server-side -->
+<!-- Top Bar -->
+<nav class="topbar" aria-label="Song toolbar">
+  <div class="logo">
+    <div class="logo-mark">✦</div>
+    Inkwell
+  </div>
+  <div class="divider-v"></div>
+  <div class="song-picker-wrap" style="position:relative;display:flex;align-items:center;gap:6px;">
+    <input id="songTitle" type="text" placeholder="Untitled Song…" aria-label="Song title">
+    <button id="songPickerBtn" class="chip" onclick="toggleSongPicker()" style="padding:4px 8px;font-size:11px;" aria-label="Choose song">▾</button>
+    <div id="songPickerDropdown" style="display:none;position:absolute;top:calc(100% + 8px);left:0;background:var(--cream-light);border:1px solid var(--rule);border-radius:10px;box-shadow:0 10px 30px var(--shadow-md);z-index:1001;min-width:240px;max-height:320px;overflow-y:auto;"></div>
+  </div>
+  <div class="divider-v"></div>
+  <div class="meta-chips">
+    <button class="chip" id="chipKey" onclick="editMeta('key')">♩ Key of A</button>
+    <button class="chip" id="chipTempo" onclick="editMeta('tempo')">↯ 92 BPM</button>
+    <button class="chip" id="chipMood" onclick="editMeta('mood')" title="Mood — used by the AI co-writer to match the emotional tone of suggestions">◎ Melancholic</button>
+  </div>
+  <div class="topbar-right">
+    <div class="voice-switcher" id="voiceSwitcher">
+      <button class="voice-btn" id="voiceBtn" onclick="toggleVoiceDropdown()">
+        <span class="voice-dot"></span>
+        <span id="voiceBtnLabel">No voice</span>
+        <span style="font-size:9px;opacity:0.5">▾</span>
+      </button>
+      <div class="voice-dropdown" id="voiceDropdown" style="display:none"></div>
+    </div>
+    <button class="btn-audio" id="audioToggleBtn" onclick="toggleAudioBar()" title="Audio Player &amp; Recorder">⏺ Player / Recorder</button>
+    <button id="langToggleBtn" class="chip" onclick="setLang(getLang()==='fr'?'en':'fr')" style="letter-spacing:0.05em;" aria-label="Toggle language">FR</button>
+    <button class="btn-split" id="splitBtn" onclick="toggleSplit()" title="Split screen: section + full song">⊞ Split</button>
+    <div style="position:relative;" id="exportWrap">
+    <button class="btn-ghost" onclick="toggleExportMenu()" id="exportBtn">Export ▾</button>
+    <div id="exportMenu" style="display:none;position:absolute;top:calc(100% + 6px);right:0;
+      background:var(--cream-light);border:1px solid var(--rule);border-radius:8px;
+      box-shadow:0 8px 24px var(--shadow-md);z-index:1000;min-width:160px;overflow:hidden;">
+      <div onclick="exportLyrics('txt')" style="padding:10px 16px;cursor:pointer;font-size:13px;color:var(--ink-mid);font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:8px;" onmouseenter="this.style.background='var(--cream-dark)'" onmouseleave="this.style.background=''">
+        <span style="font-size:15px">📄</span> Plain text
+      </div>
+      <div onclick="exportLyrics('md')" style="padding:10px 16px;cursor:pointer;font-size:13px;color:var(--ink-mid);font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:8px;border-top:1px solid var(--rule);" onmouseenter="this.style.background='var(--cream-dark)'" onmouseleave="this.style.background=''">
+        <span style="font-size:15px">✦</span> Markdown
+      </div>
+      <div onclick="exportLyrics('pdf')" style="padding:10px 16px;cursor:pointer;font-size:13px;color:var(--ink-mid);font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:8px;border-top:1px solid var(--rule);" onmouseenter="this.style.background='var(--cream-dark)'" onmouseleave="this.style.background=''">
+        <span style="font-size:15px">📑</span> PDF
+      </div>
+    </div>
+  </div>
+    <button class="btn-primary" id="saveBtn" onclick="saveSong()"></button>
+  </div>
+</nav>
+
+<!-- Audio Player Bar -->
+<div id="audioBar">
+
+  <!-- Top row: import + record always visible -->
+  <div class="audio-top-row" style="align-items:center;gap:10px;">
+    <!-- Import button -->
+    <button class="audio-upload-btn" onclick="document.getElementById('audioFileInput').click()" title="Import backing track">
+      ♫ Import track
+    </button>
+    <input type="file" id="audioFileInput" accept="audio/*" style="display:none" onchange="loadAudioFile(this)" aria-label="Import audio file">
+
+    <!-- Filename (when loaded) -->
+    <span class="audio-filename" id="audioFilename" style="display:none"></span>
+
+    <div style="flex:1"></div>
+
+    <!-- Rec controls always here -->
+    <button id="recBtn" class="audio-btn" onclick="toggleRecording()" title="Record a take"
+      style="font-size:11px;width:auto;padding:0 13px;height:32px;border-radius:20px;letter-spacing:0.03em;font-family:'DM Sans',sans-serif;">
+      ● Record
+    </button>
+    <span id="recTimer" style="font-size:11px;font-variant-numeric:tabular-nums;color:#c4602a;min-width:36px;font-family:'DM Sans',sans-serif;font-weight:500;"></span>
+    <span class="audio-time" id="audioTimeDisplay" style="display:none">0:00 / 0:00</span>
+  </div>
+
+  <!-- Waveform (shown after file loaded) -->
+  <div id="waveformSection" style="display:none">
+    <div id="waveformWrap">
+      <canvas id="waveCanvas"></canvas>
+      <div id="playhead"></div>
+      <div id="loopRegion"></div>
+      <div class="loop-handle" id="loopHandleL">
+        <div class="loop-handle-bar"><span></span><span></span><span></span></div>
+      </div>
+      <div class="loop-handle" id="loopHandleR">
+        <div class="loop-handle-bar"><span></span><span></span><span></span></div>
+      </div>
+    </div>
+
+    <!-- Playback controls -->
+    <div class="audio-controls">
+      <button class="audio-btn" onclick="audioSkip(-5)" title="Back 5s">«</button>
+      <button class="audio-btn play-btn" id="playPauseBtn" onclick="togglePlayback()" title="Play / Pause">▶</button>
+      <button class="audio-btn" onclick="audioSkip(5)" title="Forward 5s">»</button>
+      <div class="audio-divider"></div>
+      <div class="loop-info">
+        <button class="loop-tag" id="loopToggleTag" onclick="toggleLoop()"></button>
+        <span id="loopRangeLabel" style="color:var(--ink-faint)"></span>
+      </div>
+      <div class="audio-divider"></div>
+      <select class="speed-select" id="speedSelect" onchange="setSpeed(this.value)">
+        <option value="0.5">0.5×</option>
+        <option value="0.75">0.75×</option>
+        <option value="1" selected>1×</option>
+        <option value="1.25">1.25×</option>
+        <option value="1.5">1.5×</option>
+      </select>
+      <button class="audio-btn" onclick="clearLoop()" title="Clear loop" style="font-size:10px;width:28px;height:28px">✕</button>
+    </div>
+  </div>
+
+  <!-- Takes list — always visible -->
+  <div id="takesSection">
+    <div id="takesList" style="padding:2px 0;max-height:130px;overflow-y:auto;"></div>
+  </div>
+
+</div>
+
+<!-- Main -->
+<div class="main">
+
+  <!-- Sidebar -->
+  <aside class="sidebar" aria-label="Song structure">
+    <div class="sidebar-header" id="sidebarHeader">Song Structure</div>
+    <ul class="section-list" id="sectionList"></ul>
+    <button class="add-section-btn" id="addSectionBtn" onclick="addSection()">+ Add Section</button>
+  </aside>
+
+  <!-- Writing Canvas -->
+  <main class="canvas-wrap" id="canvasWrap" aria-label="Lyric editor">
+    <!-- Section editor pane (always visible) -->
+    <div class="editor-pane" id="editorPane">
+      <div class="canvas-header">
+        <div class="section-title" id="sectionTitle">—</div>
+        <div class="section-badge" id="sectionBadge">—</div>
+        <div class="version-controls" id="versionControls" style="display:none;">
+          <div class="version-tabs" id="versionTabs"></div>
+          <button class="version-add-btn" id="versionAddBtn" onclick="addVersion()" title="Add new version">+</button>
+          <button class="version-compare-btn" id="versionCompareBtn" onclick="toggleVersionCompare()" title="Compare versions side by side">⊞</button>
+        </div>
+        <button class="fork-btn" id="forkBtn" onclick="forkVersion()" title="Create a new version of this section">⑂ Fork</button>
+      </div>
+      <div class="editor-area">
+        <div class="lyric-editor" id="lyricEditor"></div>
+      </div>
+      <button class="ai-fab" id="aiFab" onclick="toggleAI()" title="Open AI Co-Writer">✦</button>
+      <button class="intensifiers-fab" id="intensifiersFab" onclick="toggleIntensifiers()" title="Quick intensifiers">⚡</button>
+      <div class="intensifiers-panel" id="intensifiersPanel" style="display:none;">
+        <div class="intensifiers-header">
+          <span id="intensifiersTitle">⚡ Power Words</span>
+          <button class="intensifiers-close" onclick="toggleIntensifiers()">×</button>
+        </div>
+        <div class="intensifiers-body" id="intensifiersBody"></div>
+      </div>
+    </div>
+
+    <!-- Drag resizer (between editor and overview) -->
+    <div id="splitResizer"></div>
+
+    <!-- Song overview pane (split mode only) -->
+    <div class="song-overview" id="songOverview" style="display:none">
+      <div class="song-overview-header">
+        <span>Full Song</span>
+        <span id="ovLineCount" style="font-size:10px;color:var(--ink-faint)"></span>
+      </div>
+      <div class="song-overview-body" id="songOverviewBody"></div>
+    </div>
+  </main>
+
+  <!-- AI Panel -->
+  <aside class="ai-panel" id="aiPanel" aria-label="AI Co-Writer">
+    <div class="ai-panel-header">
+      <div class="ai-dot"></div>
+      <div class="ai-header-text">
+        <div class="ai-title" id="aiPanelTitle"></div>
+        <div class="ai-subtitle" id="aiPanelSub"></div>
+      </div>
+      <button class="ai-close" onclick="toggleAI()" aria-label="Close AI panel">×</button>
+    </div>
+
+    <div class="ai-tools" id="aiToolsList"></div>
+
+    <div class="ai-response" id="aiResponse">
+      <div class="ai-empty" id="aiEmptyMsg">Select a line, then choose a tool above.</div>
+    </div>
+
+    <!-- Scratch Pad -->
+    <div class="scratch-pad" id="scratchPad">
+      <div class="scratch-header" onclick="toggleScratchPad()">
+        <span class="scratch-icon">✦</span>
+        <span class="scratch-title" id="scratchTitle"></span>
+        <span class="scratch-count" id="scratchCount">0</span>
+        <span class="scratch-toggle" id="scratchToggle">▾</span>
+      </div>
+      <div class="scratch-body" id="scratchBody" style="display:none;">
+        <div class="scratch-empty" id="scratchEmpty"></div>
+        <div class="scratch-items" id="scratchItems"></div>
+      </div>
+    </div>
+  </aside>
+
+</div>
+
+<script>
+
+var AI_TOOLS = [
+  {
+    group: 'Line tools', i18n: 'ai.group.line',
+    tools: [
+      {
+        mode: 'match',
+        i18nLabel: 'tool.match.label',
+        i18nDesc: 'tool.match.desc',
+        icon: '◌',
+        label: 'Match this rhythm',
+        desc: '3 alternatives with the same syllable count',
+        infoTitle: 'Match this rhythm',
+        infoBody: 'Counts the syllables in your selected line, then generates 3 alternative lines with the same count — so they\'ll fit your melody just as naturally as the original.\n\nThis is the prosody tool: it solves the classic problem of "I know the melody, but these words don\'t quite land on the right beats."',
+        infoTip: '<strong>Best used when:</strong> You have a line that works melodically but the words feel wrong, or you\'re staring at a blank line and know exactly how many syllables you need.'
+      },
+      {
+        mode: 'rhyme',
+        i18nLabel: 'tool.rhyme.label',
+        i18nDesc: 'tool.rhyme.desc',
+        icon: '∿',
+        label: 'Find rhymes',
+        desc: 'Rhymes + slant rhymes for the last word',
+        infoTitle: 'Find rhymes',
+        infoBody: 'Takes the last word of your selected line and returns 8 rhyme options — including perfect rhymes, near-rhymes, and slant rhymes (words that share a sound but don\'t match exactly, like "home" and "alone").\n\nSlant rhymes often sound more natural and less forced than perfect rhymes, which is why the best songwriters lean on them heavily.',
+        infoTip: '<strong>Pro tip:</strong> Click any rhyme word to drop it directly into the end of your selected line. Then edit the line to make it yours.'
+      },
+      {
+        mode: 'rewrite',
+        i18nLabel: 'tool.rewrite.label',
+        i18nDesc: 'tool.rewrite.desc',
+        icon: '↻',
+        label: 'Rewrite 3 ways',
+        desc: 'Same meaning, 3 different angles or images',
+        infoTitle: 'Rewrite 3 ways',
+        infoBody: 'Takes your selected line and rewrites it 3 times — keeping the same core meaning or emotion, but approaching it from a different angle each time: different image, different metaphor, different emotional register.\n\nThis is a great way to find the version of a line that feels most like you, without starting from scratch.',
+        infoTip: '<strong>Best used when:</strong> You have a line that\'s almost right but not quite there — you know what you want to say, just not how to say it yet.'
+      },
+      {
+        mode: 'prosody',
+        i18nLabel: 'tool.prosody.label',
+        i18nDesc: 'tool.prosody.desc',
+        icon: '♩',
+        label: 'Fix the flow',
+        desc: 'Rewrite for natural melodic stress',
+        infoTitle: 'Fix the flow (Prosody)',
+        infoBody: 'Prosody is the relationship between where the natural stress falls in your words and where the strong beats fall in your melody. When they fight each other, the line feels awkward — even if the words are great.\n\nThis tool rewrites your selected line 3 ways, prioritising natural spoken stress, singable vowel sounds, and words that feel inevitable coming out of a singer\'s mouth.',
+        infoTip: '<strong>Example:</strong> "I remember the day that you left me behind" might stress the wrong syllables. A prosody fix might suggest "The day you left, I stood at the window" — same feeling, better fit.'
+      },
+      {
+        mode: 'phrases',
+        i18nLabel: 'tool.phrases.label',
+        i18nDesc: 'tool.phrases.desc',
+        icon: '❝',
+        label: 'Find phrases',
+        desc: 'Idioms & sayings with this word',
+        infoTitle: 'Find phrases',
+        infoBody: 'Every word carries baggage — idioms, sayings, clichés, and song hooks that have been attached to it over the years. Sometimes that\'s what you want: a familiar phrase twisted in a new direction.\n\nThis tool takes a key word from your selected line and returns 12-15 phrases, idioms, and expressions containing it. Use them as-is, flip them, or let them spark something unexpected.',
+        infoTip: '<strong>Example:</strong> Search "rain" and you get "right as rain", "rain on my parade", "purple rain", "let it rain", "singing in the rain" — raw material for your own twist.'
+      },
+      {
+        mode: 'wordfamily',
+        i18nLabel: 'tool.wordfamily.label',
+        i18nDesc: 'tool.wordfamily.desc',
+        icon: '◈',
+        label: 'Word families',
+        desc: 'Creative replacements beyond synonyms',
+        infoTitle: 'Word families',
+        infoBody: 'A thesaurus gives you synonyms. Word families go further — words that could replace your target word MORE CREATIVELY, even if they\'re not exact synonyms.\n\nThis tool takes a key word from your line and returns three categories:\n• Primary: close synonyms that fit most contexts\n• Extended: unexpected replacements that add color\n• Intensifiers: stronger or softer versions for emphasis',
+        infoTip: '<strong>Example:</strong> "sad" → Primary: melancholy, sorrowful. Extended: hollow, fading, winter-grey. Intensifiers: devastated, gutted (stronger) or wistful, tender (softer).'
+      },
+      {
+        mode: 'simile',
+        i18nLabel: 'tool.simile.label',
+        i18nDesc: 'tool.simile.desc',
+        icon: '∼',
+        label: 'As a simile',
+        desc: 'Rewrite using "like" or "as"',
+        infoTitle: 'Rewrite as a simile',
+        infoBody: 'A simile compares two things using "like" or "as" — it makes abstract emotions concrete and gives listeners a vivid mental image.\n\nThis tool takes your selected line and rewrites it 3 ways using simile, keeping the core emotion but making it land more tangibly.',
+        infoTip: '<strong>Example:</strong> "I feel empty" → "I feel hollow like a bell that forgot how to ring"'
+      },
+      {
+        mode: 'alliteration',
+        i18nLabel: 'tool.alliteration.label',
+        i18nDesc: 'tool.alliteration.desc',
+        icon: '≋',
+        label: 'Add alliteration',
+        desc: 'Repeat sounds for rhythm & punch',
+        infoTitle: 'Add alliteration',
+        infoBody: 'Alliteration — repeating consonant sounds at the start of words — creates rhythm, memorability, and punch. Think "wild and wicked" or "safe and sound."\n\nThis tool rewrites your selected line 3 ways with alliterative patterns woven in naturally.',
+        infoTip: '<strong>Why it works:</strong> Our brains love patterns. Alliteration makes lyrics stickier without being obvious about it.'
+      },
+    ]
+  },
+  {
+    group: 'Section tools', i18n: 'ai.group.section',
+    tools: [
+      {
+        mode: 'specific',
+        i18nLabel: 'tool.specific.label',
+        i18nDesc: 'tool.specific.desc',
+        icon: '✦',
+        label: 'Get specific',
+        desc: 'Questions to make your lyrics more concrete',
+        infoTitle: 'Get specific',
+        infoBody: 'The #1 difference between amateur and professional lyrics is specificity. "I\'m so in love" tells us nothing. "You left your coffee on my desk for three days" tells us everything.\n\nThis tool reads your current section and asks 3 targeted questions to help you find the concrete, specific details hiding inside your abstract emotions: the exact moment, the object in the room, the sensory detail that makes it real.',
+        infoTip: '<strong>Research finding:</strong> Over 80% of chart-topping songs succeed because of deeply personal, specific storytelling — not clever rhymes or big hooks.'
+      },
+      {
+        mode: 'perspective',
+        i18nLabel: 'tool.perspective.label',
+        i18nDesc: 'tool.perspective.desc',
+        icon: '◈',
+        label: 'Shift perspective',
+        desc: 'Rewrite from a different POV',
+        infoTitle: 'Shift perspective',
+        infoBody: 'One of the most powerful moves in songwriting is changing who\'s speaking — or what\'s speaking.\n\nThis tool offers 2 different perspective rewrites of your section: second-person ("you did this to me"), third-person observer, an inanimate object in the scene, or your future self looking back. Each version reveals something the original couldn\'t.',
+        infoTip: '<strong>Classic example:</strong> "The River" by Bruce Springsteen is ostensibly about a couple — but it\'s really the river watching them. The object-perspective creates distance that makes the emotion hit harder.'
+      },
+      {
+        mode: 'hook',
+        i18nLabel: 'tool.hook.label',
+        i18nDesc: 'tool.hook.desc',
+        icon: '⌁',
+        label: 'Write a hook',
+        desc: 'Title-worthy lines from this section\'s theme',
+        infoTitle: 'Write a hook',
+        infoBody: 'A hook is the line people repeat after they leave. It\'s the song\'s title, its emotional core, its most memorable moment — usually 4–8 syllables, emotionally loaded, and specific enough to be surprising.\n\nThis tool reads your current section, identifies the emotional core, and generates 4 potential hook lines — the kind that would make someone want to hear the whole song.',
+        infoTip: '<strong>What makes a great hook:</strong> Specific enough to be surprising, universal enough to be relatable. "Yesterday" works because everyone has a yesterday. "The Night We Met" works because it names a shared but particular moment.'
+      },
+      {
+        mode: 'metaphor',
+        i18nLabel: 'tool.metaphor.label',
+        i18nDesc: 'tool.metaphor.desc',
+        icon: '◎',
+        label: 'Find a metaphor',
+        desc: 'Fresh unexpected images for this theme',
+        infoTitle: 'Find a metaphor',
+        infoBody: 'Clichéd metaphors (storms, fire, broken hearts, open roads) slide past listeners without registering. A fresh, unexpected image makes them stop and feel.\n\nThis tool reads your section\'s core theme and suggests 3 original metaphors — concrete objects, unusual comparisons, or extended images that haven\'t been overused. Each comes with an example line so you can hear it in action.',
+        infoTip: '<strong>Rule of thumb:</strong> If you\'ve heard the metaphor in 3 other songs, skip it. The goal is an image so specific it couldn\'t exist in anyone else\'s song.'
+      },
+      {
+        mode: 'bridge',
+        i18nLabel: 'tool.bridge.label',
+        i18nDesc: 'tool.bridge.desc',
+        icon: '⤷',
+        label: 'Suggest a bridge',
+        desc: 'Contrasting section before the final chorus',
+        infoTitle: 'Suggest a bridge',
+        infoBody: 'A bridge should feel like a revelation — a shift in time, perspective, or emotional register that makes the final chorus hit differently than the first one. It\'s the "but wait" moment of the song.\n\nThis tool reads your entire song, not just one section, and writes 3 full bridge drafts (4 lines each) that provide genuine contrast without feeling disconnected.',
+        infoTip: '<strong>Bridge checklist:</strong> Does it reveal something new? Does it change the emotional angle? Does it make the listener feel the final chorus was earned? If yes to all three, it\'s working.'
+      },
+      {
+        mode: 'unstuck',
+        i18nLabel: 'tool.unstuck.label',
+        i18nDesc: 'tool.unstuck.desc',
+        icon: '↺',
+        label: 'I\'m stuck',
+        desc: '3 completely different directions',
+        infoTitle: 'I\'m stuck',
+        infoBody: 'When you\'re staring at the same lines and can\'t move forward, sometimes you need to blow up the approach entirely — not fix what\'s there, but try something completely different.\n\nThis tool reads your current section and offers 3 conceptual directions that are genuinely distinct from each other: different emotion, different metaphor, different structural idea. It gives you concepts, not lines — so you\'re still doing the writing.',
+        infoTip: '<strong>Important:</strong> This tool gives you directions to explore, not lyrics to copy. Pick the one that sparks something and run with it in your own voice.'
+      },
+    ]
+  }
+];
+
+
+// ══════════════════════════════════════════════════
+// ONBOARDING — Writer Soul Wizard
+// ══════════════════════════════════════════════════
+
+const OB_STEPS = [
+  // ── Step 0: Language pick ─────────────────────────
+  {
+    id: 'lang',
+    type: 'lang-pick',
+    eyebrow: '',
+    heading: '',
+    sub: '',
+  },
+  // ── Welcome ───────────────────────────────────────
+  {
+    id: 'welcome',
+    eyebrow: 'Welcome to Inkwell',
+    heading: 'Let\'s set up your\nwriting voice.',
+    sub: 'A few questions will help the AI write with you, not for you — suggestions that sound like you, not like a robot.',
+    i18nEyebrow: 'ob.welcome.eyebrow',
+    i18nHeading: 'ob.welcome.heading',
+    i18nSub: 'ob.welcome.sub',
+    type: 'intro',
+  },
+  // ── Profile name + your name ─────────────────────
+  {
+    id: 'profileName',
+    eyebrow: 'Step 1 of 11',
+    heading: 'Name this voice profile.',
+    sub: 'You can have multiple profiles — one for folk, one for pop, one for late-night songs. What\'s this one called?',
+    type: 'text',
+    placeholder: 'e.g. Folk voice, Late-night pop, Country…',
+    key: 'profileName',
+    optional: false,
+  },
+  {
+    id: 'name',
+    eyebrow: 'Step 2 of 11',
+    heading: 'What do people call you?',
+    sub: 'Just a name so Inkwell can address you properly.',
+    type: 'text',
+    placeholder: 'Your name…',
+    key: 'name',
+    optional: false,
+  },
+  // ── Part 1: Territory + Sonic World ──────────────
+  {
+    id: 'genre',
+    eyebrow: 'Step 3 of 11',
+    heading: 'What\'s your territory?',
+    sub: 'Pick everything that resonates. Don\'t overthink it.',
+    type: 'multi',
+    key: 'genres',
+    cols: 3,
+    choices: [
+      { label:'Folk / Indie',      desc:'Storytelling, fingerpicking, open roads' },
+      { label:'Pop',               desc:'Hooks, clarity, the three-minute rush' },
+      { label:'Country',           desc:'Specifics, heartbreak, trucks optional' },
+      { label:'R&B / Soul',        desc:'Groove, longing, late-night feels' },
+      { label:'Rock',              desc:'Tension, release, electric energy' },
+      { label:'Hip-Hop / Rap',     desc:'Rhythm, wordplay, bars that land' },
+      { label:'Singer-Songwriter', desc:'Just you and the song, no frills' },
+      { label:'Experimental',      desc:'Rules are suggestions' },
+      { label:'Other',             desc:'It doesn\'t fit a box' },
+    ],
+  },
+  {
+    id: 'sonic',
+    eyebrow: 'Step 4 of 11',
+    heading: 'What does your music\nsound like emotionally?',
+    sub: 'Pick up to three. This shapes the emotional register of every suggestion.',
+    type: 'multi',
+    key: 'sonic',
+    cols: 3,
+    choices: [
+      { label:'Warm & intimate',   desc:'Like a late conversation' },
+      { label:'Melancholic',       desc:'Beautiful sadness, not despair' },
+      { label:'Hopeful',           desc:'Light at the end' },
+      { label:'Restless',          desc:'Can\'t stay still, always moving' },
+      { label:'Anthemic',          desc:'Made to be sung by a crowd' },
+      { label:'Dark & unsettled',  desc:'Something isn\'t right' },
+      { label:'Playful',           desc:'Wit, lightness, a wink' },
+      { label:'Spiritual',         desc:'Bigger than everyday life' },
+      { label:'Cinematic',         desc:'Wide-screen, scene-setting' },
+    ],
+  },
+  // ── Part 2: Lyric instincts ───────────────────────
+  {
+    id: 'vibe',
+    eyebrow: 'Step 5 of 11',
+    heading: 'Which of these feels\nclosest to your writing?',
+    sub: 'Pick the ones you\'d be proud to have written.',
+    type: 'lyric-pick',
+    key: 'vibes',
+    choices: [
+      {
+        text: '"I found God\nat the bottom of a bottle\nof red wine\nand a cigarette."',
+        attr: 'Confessional · Specific · Raw',
+        tags: ['confessional','specific','raw','direct'],
+      },
+      {
+        text: '"The moths around the porch light\ndance like they\'re praying\nto something\nwe forgot the name of."',
+        attr: 'Imagistic · Spiritual · Quiet',
+        tags: ['imagistic','metaphor','spiritual','literary'],
+      },
+      {
+        text: '"You left your sweater on the chair.\nI moved it Tuesday.\nPut it back on Thursday."',
+        attr: 'Understated · Emotional · Precise',
+        tags: ['understated','precise','emotional','showing-not-telling'],
+      },
+      {
+        text: '"Every city I\'ve been to\nhad a version of your face.\nI keep leaving anyway."',
+        attr: 'Wandering · Longing · Cinematic',
+        tags: ['wandering','cinematic','longing','bittersweet'],
+      },
+    ],
+  },
+  {
+    id: 'language',
+    eyebrow: 'Step 6 of 11',
+    heading: 'How do you use language?',
+    sub: 'Pick everything that describes your natural voice.',
+    type: 'multi',
+    key: 'languageStyle',
+    cols: 2,
+    choices: [
+      { label:'Conversational',    desc:'Sounds like how people actually talk' },
+      { label:'Poetic / literary', desc:'Careful with every word' },
+      { label:'Imagistic',         desc:'Pictures, not statements' },
+      { label:'Direct & plain',    desc:'No flourishes, just the truth' },
+      { label:'Metaphor-heavy',    desc:'Everything stands for something else' },
+      { label:'Narrative',         desc:'I tell stories, scenes, characters' },
+      { label:'Abstract',          desc:'Feeling over fact' },
+      { label:'Playful / witty',   desc:'Wordplay, double meanings, lightness' },
+    ],
+  },
+  {
+    id: 'detail',
+    eyebrow: 'Step 7 of 11',
+    heading: 'How specific do you get?',
+    sub: 'Great lyrics live in the details. Where are you on this spectrum?',
+    type: 'single',
+    key: 'specificity',
+    cols: 1,
+    choices: [
+      { label:'Very specific',     desc:'Brand names, street names, exact moments — the more concrete the better' },
+      { label:'Specific in bursts', desc:'I anchor with one sharp detail, then open up' },
+      { label:'Mostly general',    desc:'I prefer the universal feeling over particular facts' },
+      { label:'Purely abstract',   desc:'Emotion and image without any concrete anchor' },
+    ],
+  },
+  // ── Part 3: Process ───────────────────────────────
+  {
+    id: 'approach',
+    eyebrow: 'Step 8 of 11',
+    heading: 'How do you usually start?',
+    sub: 'There\'s no right answer — this shapes how the AI meets you where you are.',
+    type: 'single',
+    key: 'approach',
+    cols: 2,
+    choices: [
+      { label:'Melody first',      desc:'I hum or play something, then find words to fit' },
+      { label:'Feeling first',     desc:'I know the emotion before I know anything else' },
+      { label:'Story first',       desc:'I have something to say and find the music around it' },
+      { label:'Line first',        desc:'One phrase arrives and I build from there' },
+      { label:'Title first',       desc:'The name of the song is where it all starts' },
+      { label:'Jamming first',     desc:'Something emerges when I\'m not looking for it' },
+    ],
+  },
+  {
+    id: 'struggle',
+    eyebrow: 'Step 9 of 11',
+    heading: 'Where do you usually\nget stuck?',
+    sub: 'Pick all that apply. Inkwell will keep these in mind.',
+    type: 'multi',
+    key: 'struggles',
+    cols: 2,
+    choices: [
+      { label:'The blank page',          desc:'Starting is the hardest part' },
+      { label:'The bridge',              desc:'Getting unstuck after the chorus' },
+      { label:'Fitting words to melody', desc:'Syllables that scan and feel natural' },
+      { label:'Being too vague',         desc:'Big emotions without concrete details' },
+      { label:'Finishing',               desc:'Getting 80% done and abandoning it' },
+      { label:'Rhyming naturally',       desc:'Rhymes that don\'t feel forced' },
+    ],
+  },
+  {
+    id: 'influences',
+    eyebrow: 'Step 10 of 11',
+    heading: 'Who are you\nwriting in the shadow of?',
+    sub: 'Songwriters, poets, authors — anyone whose work lives in your bones.',
+    type: 'textarea',
+    placeholder: 'e.g. Joni Mitchell, Raymond Carver, Paul Simon, Leonard Cohen…',
+    key: 'influences',
+    optional: true,
+  },
+  {
+    id: 'sample',
+    eyebrow: 'Step 11 of 11',
+    heading: 'Paste a line\nyou\'ve written.',
+    sub: 'A lyric, a poem fragment, anything in your voice. This is the single most powerful thing you can give Inkwell. Skip it if you\'d rather not.',
+    type: 'textarea',
+    placeholder: 'A line from an old song, a poem, anything…',
+    key: 'sample',
+    optional: true,
+  },
+  // ── Done ──────────────────────────────────────────
+  {
+    id: 'done',
+    type: 'review',
+    eyebrow: 'Your writing voice',
+    heading: 'Here\'s what the AI\nnow knows about you.',
+    sub: 'You can update this anytime from the voice menu. Every suggestion will now be shaped by this profile.',
+  },
+];
+
+let obStep = 0;
+let writerSoul = {};
+let editingProfileId = null; // null = new profile
+
+// ── Voice profile storage ─────────────────────────
+function getProfiles() {
+  return JSON.parse(localStorage.getItem('inkwell_profiles') || '{}');
+}
+
+function saveProfile(id, data) {
+  const profiles = getProfiles();
+  profiles[id] = data;
+  localStorage.setItem('inkwell_profiles', JSON.stringify(profiles));
+}
+
+function deleteProfile(id) {
+  const profiles = getProfiles();
+  delete profiles[id];
+  localStorage.setItem('inkwell_profiles', JSON.stringify(profiles));
+  if (getActiveProfileId() === id) {
+    const remaining = Object.keys(profiles);
+    localStorage.setItem('inkwell_active_profile', remaining[0] || '');
+  }
+  renderVoiceSwitcher();
+}
+
+function getActiveProfileId() {
+  return localStorage.getItem('inkwell_active_profile') || '';
+}
+
+function setActiveProfile(id) {
+  localStorage.setItem('inkwell_active_profile', id);
+  renderVoiceSwitcher();
+}
+
+function getActiveProfile() {
+  const id = getActiveProfileId();
+  return getProfiles()[id] || null;
+}
+
+// ── Voice switcher UI ─────────────────────────────
+function renderVoiceSwitcher() {
+  const profiles = getProfiles();
+  const activeId = getActiveProfileId();
+  const label = document.getElementById('voiceBtnLabel');
+  label.textContent = profiles[activeId]?.profileName || 'No voice';
+
+  const dd = document.getElementById('voiceDropdown');
+  dd.innerHTML = '';
+
+  const hdr = document.createElement('div');
+  hdr.className = 'voice-dropdown-header';
+  hdr.textContent = 'Writing voices';
+  dd.appendChild(hdr);
+
+  Object.entries(profiles).forEach(([id, profile]) => {
+    const opt = document.createElement('div');
+    opt.className = 'voice-option' + (id === activeId ? ' active' : '');
+
+    const check = document.createElement('span');
+    check.className = 'vo-check';
+    check.textContent = id === activeId ? '✓' : '';
+
+    const name = document.createElement('span');
+    name.textContent = profile.profileName || 'Unnamed';
+
+    const del = document.createElement('span');
+    del.className = 'vo-del';
+    del.textContent = '×';
+    del.title = 'Delete';
+    del.addEventListener('click', e => {
+      e.stopPropagation();
+      if (confirm(`Delete "${profile.profileName}"?`)) {
+        deleteProfile(id);
+      }
+    });
+
+    opt.appendChild(check);
+    opt.appendChild(name);
+    opt.appendChild(del);
+
+    opt.addEventListener('click', () => {
+      setActiveProfile(id);
+      closeVoiceDropdown();
+    });
+
+    dd.appendChild(opt);
+  });
+
+  // Edit active profile
+  if (activeId && profiles[activeId]) {
+    const editBtn = document.createElement('button');
+    editBtn.className = 'voice-add-btn';
+    editBtn.style.color = 'var(--ink-soft)';
+    editBtn.innerHTML = '✎ Edit this voice';
+    editBtn.addEventListener('click', () => {
+      closeVoiceDropdown();
+      editingProfileId = activeId;
+      writerSoul = { ...profiles[activeId] };
+      obStep = 0;
+      document.getElementById('onboarding').style.display = 'flex';
+      renderObStep();
+    });
+    dd.appendChild(editBtn);
+  }
+
+  const addBtn = document.createElement('button');
+  addBtn.className = 'voice-add-btn';
+  addBtn.innerHTML = '+ New voice profile';
+  addBtn.addEventListener('click', () => {
+    closeVoiceDropdown();
+    startOnboarding();
+  });
+  dd.appendChild(addBtn);
+
+  const divider = document.createElement('div');
+  divider.style.cssText = 'border-top:1px solid var(--rule);margin:6px 0';
+  dd.appendChild(divider);
+
+  const resetBtn = document.createElement('button');
+  resetBtn.className = 'voice-add-btn';
+  resetBtn.style.cssText = 'color:var(--ink-faint);font-size:12px';
+  resetBtn.innerHTML = '↺ Restart onboarding';
+  resetBtn.addEventListener('click', () => {
+    closeVoiceDropdown();
+    localStorage.removeItem('inkwell_onboarded');
+    startOnboarding();
+  });
+  dd.appendChild(resetBtn);
+}
+
+function toggleVoiceDropdown() {
+  const dd = document.getElementById('voiceDropdown');
+  if (dd.style.display === 'none') {
+    renderVoiceSwitcher();
+    dd.style.display = 'block';
+    setTimeout(() => document.addEventListener('click', closeOnOutsideClick), 0);
+  } else {
+    closeVoiceDropdown();
+  }
+}
+
+function closeVoiceDropdown() {
+  document.getElementById('voiceDropdown').style.display = 'none';
+  document.removeEventListener('click', closeOnOutsideClick);
+}
+
+function closeOnOutsideClick(e) {
+  if (!document.getElementById('voiceSwitcher').contains(e.target)) {
+    closeVoiceDropdown();
+  }
+}
+
+function startOnboarding() {
+  editingProfileId = null;
+  writerSoul = {};
+  obStep = 0;
+  document.getElementById('onboarding').style.display = 'flex';
+  renderObStep();
+}
+
+function finishOnboarding() {
+  // Save to profiles store
+  const id = editingProfileId || ('profile_' + Date.now());
+  saveProfile(id, writerSoul);
+  setActiveProfile(id);
+  localStorage.setItem('inkwell_onboarded', '1');
+  document.getElementById('onboarding').style.display = 'none';
+  renderVoiceSwitcher();
+  editingProfileId = null;
+}
+
+function renderObStep() {
+  const step = OB_STEPS[obStep];
+  const total = OB_STEPS.filter(s => s.eyebrow).length;
+
+  // Progress pips
+  const prog = document.getElementById('obProgress');
+  prog.innerHTML = '';
+  OB_STEPS.forEach((s, i) => {
+    if (!s.eyebrow) return;
+    const pip = document.createElement('div');
+    pip.className = 'ob-pip' + (i < obStep ? ' done' : i === obStep ? ' active' : '');
+    prog.appendChild(pip);
+  });
+
+  const container = document.getElementById('obStep');
+  container.innerHTML = '';
+  container.style.animation = 'none';
+  requestAnimationFrame(() => {
+    container.style.animation = 'obIn 0.35s cubic-bezier(.22,1,.36,1) both';
+  });
+
+  // Eyebrow — use translation if available
+  const eyebrowText = step.i18nEyebrow && typeof t === 'function' ? t(step.i18nEyebrow) : step.eyebrow;
+  if (eyebrowText) {
+    const ey = document.createElement('div');
+    ey.className = 'ob-eyebrow';
+    ey.textContent = eyebrowText;
+    container.appendChild(ey);
+  }
+
+  // Heading
+  const headingText = step.i18nHeading && typeof t === 'function' ? t(step.i18nHeading) : step.heading;
+  if (headingText) {
+    const h = document.createElement('div');
+    h.className = 'ob-heading';
+    h.style.whiteSpace = 'pre-line';
+    h.textContent = headingText;
+    container.appendChild(h);
+  }
+
+  // Sub
+  const subText = step.i18nSub && typeof t === 'function' ? t(step.i18nSub) : step.sub;
+  if (subText) {
+    const s = document.createElement('div');
+    s.className = 'ob-sub';
+    s.textContent = subText;
+    container.appendChild(s);
+  }
+
+  // Content
+  if (step.type === 'lang-pick') {
+    // Full-screen language selector — no progress pips, no nav buttons
+    prog.innerHTML = ''; // hide progress
+
+    container.innerHTML = '';
+    container.style.textAlign = 'center';
+    container.style.paddingTop = '20px';
+
+    const logo = document.createElement('div');
+    logo.style.cssText = 'font-size:32px;margin-bottom:8px';
+    logo.textContent = '✦';
+
+    const name = document.createElement('div');
+    name.style.cssText = 'font-family:"Cormorant Garamond",serif;font-size:44px;font-weight:300;color:var(--ink);margin-bottom:6px';
+    name.textContent = 'Inkwell';
+
+    const tagEN = document.createElement('div');
+    tagEN.style.cssText = 'font-size:13px;color:var(--ink-faint);font-style:italic;font-family:"Cormorant Garamond",serif;margin-bottom:48px';
+    tagEN.textContent = 'Write better songs. In your voice.';
+
+    const question = document.createElement('div');
+    question.id = 'langQuestion';
+    question.style.cssText = 'font-size:15px;color:var(--ink-soft);margin-bottom:24px;font-family:"DM Sans",sans-serif;';
+    question.textContent = 'Choose your language / Choisissez votre langue';
+
+    const btns = document.createElement('div');
+    btns.style.cssText = 'display:flex;gap:16px;justify-content:center;';
+
+    ['English', 'Français'].forEach((label, i) => {
+      const lang = i === 0 ? 'en' : 'fr';
+      const btn = document.createElement('button');
+      btn.style.cssText = `
+        padding:18px 40px;
+        border:1.5px solid var(--rule);
+        border-radius:12px;
+        background:var(--cream-light);
+        font-family:'Cormorant Garamond',serif;
+        font-size:22px;
+        font-weight:500;
+        color:var(--ink);
+        cursor:pointer;
+        transition:all 0.15s;
+        min-width:160px;
+      `;
+      btn.textContent = label;
+      btn.onmouseenter = () => { btn.style.borderColor='var(--amber)'; btn.style.background='var(--amber-pale)'; btn.style.color='var(--amber)'; };
+      btn.onmouseleave = () => { btn.style.borderColor='var(--rule)'; btn.style.background='var(--cream-light)'; btn.style.color='var(--ink)'; };
+      btn.onclick = () => {
+        // Inline lang set — don't depend on translations.js being loaded
+        try { localStorage.setItem('inkwell_lang', lang); } catch(e) {}
+        if (typeof setLang === 'function') setLang(lang);
+        obStep++;
+        renderObStep();
+      };
+      btns.appendChild(btn);
+    });
+
+    // Skip setup link
+    const skipLink = document.createElement('button');
+    skipLink.style.cssText = 'margin-top:40px;background:none;border:none;color:var(--ink-faint);font-size:13px;cursor:pointer;text-decoration:underline;font-family:"DM Sans",sans-serif;';
+    skipLink.textContent = 'Skip setup →';
+    skipLink.onclick = () => {
+      localStorage.setItem('inkwell_onboarded', '1');
+      document.getElementById('onboarding').style.display = 'none';
+    };
+
+    container.appendChild(logo);
+    container.appendChild(name);
+    container.appendChild(tagEN);
+    container.appendChild(question);
+    container.appendChild(btns);
+    container.appendChild(skipLink);
+    return; // No nav row for this step
+
+  } else if (step.type === 'intro') {
+    // just nav
+  } else if (step.type === 'text') {
+    const inp = document.createElement('input');
+    inp.className = 'ob-input';
+    inp.type = 'text';
+    inp.placeholder = step.placeholder;
+    inp.value = writerSoul[step.key] || '';
+    inp.addEventListener('input', () => { writerSoul[step.key] = inp.value.trim(); });
+    inp.addEventListener('keydown', e => { if (e.key === 'Enter') obNext(); });
+    container.appendChild(inp);
+    setTimeout(() => inp.focus(), 100);
+
+  } else if (step.type === 'textarea') {
+    const ta = document.createElement('textarea');
+    ta.className = 'ob-textarea';
+    ta.placeholder = step.placeholder;
+    ta.value = writerSoul[step.key] || '';
+    ta.rows = 5;
+    ta.addEventListener('input', () => { writerSoul[step.key] = ta.value.trim(); });
+    container.appendChild(ta);
+    const hint = document.createElement('div');
+    hint.className = 'ob-hint';
+    hint.textContent = 'This stays private. It\'s only used to shape AI suggestions.';
+    container.appendChild(hint);
+
+  } else if (step.type === 'single' || step.type === 'multi') {
+    const grid = document.createElement('div');
+    grid.className = 'ob-choices' + (step.cols === 3 ? ' cols-3' : step.cols === 1 ? ' cols-1' : '');
+    const current = writerSoul[step.key] || (step.type === 'multi' ? [] : null);
+
+    step.choices.forEach(choice => {
+      const card = document.createElement('div');
+      card.className = 'ob-card';
+      const isSelected = step.type === 'multi'
+        ? current.includes(choice.label)
+        : current === choice.label;
+      if (isSelected) card.classList.add('selected');
+
+      card.innerHTML = `<div class="ob-card-label">${choice.label}</div><div class="ob-card-desc">${choice.desc}</div>`;
+
+      card.addEventListener('click', () => {
+        if (step.type === 'single') {
+          grid.querySelectorAll('.ob-card').forEach(c => c.classList.remove('selected'));
+          card.classList.add('selected');
+          writerSoul[step.key] = choice.label;
+        } else {
+          card.classList.toggle('selected');
+          const sel = [...grid.querySelectorAll('.ob-card.selected')].map(c =>
+            c.querySelector('.ob-card-label').textContent);
+          writerSoul[step.key] = sel;
+        }
+      });
+
+      grid.appendChild(card);
+    });
+    container.appendChild(grid);
+
+  } else if (step.type === 'lyric-pick') {
+    const grid = document.createElement('div');
+    grid.className = 'ob-choices cols-1';
+    const current = writerSoul[step.key] || [];
+
+    step.choices.forEach(choice => {
+      const card = document.createElement('div');
+      card.className = 'ob-lyric-card';
+      if (current.some(v => v.text === choice.text)) card.classList.add('selected');
+
+      const txt = document.createElement('div');
+      txt.className = 'ob-lyric-text';
+      txt.style.whiteSpace = 'pre-line';
+      txt.textContent = choice.text;
+
+      const attr = document.createElement('div');
+      attr.className = 'ob-lyric-attr';
+      attr.textContent = choice.attr;
+
+      card.appendChild(txt);
+      card.appendChild(attr);
+
+      card.addEventListener('click', () => {
+        card.classList.toggle('selected');
+        const sel = [...grid.querySelectorAll('.ob-lyric-card.selected')].map(c => ({
+          text: c.querySelector('.ob-lyric-text').textContent,
+          tags: choice.tags,
+        }));
+        writerSoul[step.key] = sel;
+      });
+
+      grid.appendChild(card);
+    });
+    container.appendChild(grid);
+
+  } else if (step.type === 'review') {
+    const box = document.createElement('div');
+    box.className = 'ob-profile-preview';
+    box.innerHTML = buildSoulPreview();
+    container.appendChild(box);
+  }
+
+  // Nav
+  const nav = document.createElement('div');
+  nav.className = 'ob-nav';
+
+  if (obStep > 0 && step.type !== 'review') {
+    const back = document.createElement('button');
+    back.className = 'ob-back';
+    back.textContent = typeof t === 'function' ? t('ob.back') : '← Back';
+    back.addEventListener('click', () => { obStep--; renderObStep(); });
+    nav.appendChild(back);
+  }
+
+  const next = document.createElement('button');
+  next.className = 'ob-next';
+
+  if (step.type === 'intro') {
+    next.textContent = typeof t === 'function' ? t('ob.welcome.btn') : 'Let\'s do it →';
+  } else if (step.type === 'review') {
+    next.textContent = typeof t === 'function' ? t('ob.done.btn') : 'Start writing ✦';
+    next.addEventListener('click', finishOnboarding);
+    nav.appendChild(next);
+    container.appendChild(nav);
+    return;
+  } else {
+    next.textContent = typeof t === 'function' ? t('ob.continue') : 'Continue →';
+  }
+
+  next.addEventListener('click', obNext);
+  nav.appendChild(next);
+
+  if (step.optional) {
+    const skip = document.createElement('button');
+    skip.className = 'ob-skip';
+    skip.textContent = typeof t === 'function' ? t('ob.skip') : 'Skip this step';
+    skip.addEventListener('click', () => { obStep++; renderObStep(); });
+    nav.appendChild(skip);
+  }
+
+  container.appendChild(nav);
+}
+
+function obNext() {
+  const step = OB_STEPS[obStep];
+  // Basic validation for required text
+  if (step.type === 'text' && !step.optional && !writerSoul[step.key]) return;
+  obStep++;
+  renderObStep();
+}
+
+function buildSoulPreview() {
+  const s = writerSoul;
+  const lines = [];
+  if (s.profileName) lines.push(`<strong>Profile:</strong> ${s.profileName}`);
+  if (s.name) lines.push(`<strong>Writer:</strong> ${s.name}`);
+  if (s.genres?.length) lines.push(`<strong>Territory:</strong> ${s.genres.join(', ')}`);
+  if (s.vibes?.length) {
+    const tags = [...new Set(s.vibes.flatMap(v => v.tags || []))];
+    lines.push(`<strong>Voice instincts:</strong> ${tags.join(', ')}`);
+  }
+  if (s.approach) lines.push(`<strong>How you start:</strong> ${s.approach}`);
+  if (s.struggles?.length) lines.push(`<strong>Watch out for:</strong> ${s.struggles.join(', ')}`);
+  if (s.sample) lines.push(`<strong>Your voice sample:</strong><br><em style="font-family:'Crimson Pro',serif; font-size:16px; color:var(--ink)">${s.sample}</em>`);
+  return lines.map(l => `<div style="margin-bottom:10px">${l}</div>`).join('');
+}
+
+function buildSoulPrompt() {
+  const s = getActiveProfile();
+  if (!s || !Object.keys(s).length) return '';
+
+  let prompt = '\n\n--- WRITER PROFILE ---\n';
+  if (s.profileName) prompt += `Voice profile: ${s.profileName}\n`;
+  if (s.name) prompt += `Writer: ${s.name}\n`;
+  if (s.genres?.length) prompt += `Musical territory: ${s.genres.join(', ')}\n`;
+  if (s.vibes?.length) {
+    const tags = [...new Set(s.vibes.flatMap(v => v.tags || []))];
+    prompt += `Voice qualities: ${tags.join(', ')}\n`;
+    const samples = s.vibes.map(v => v.text.replace(/\n/g, ' ').trim()).join(' | ');
+    prompt += `Style resonances: ${samples}\n`;
+  }
+  if (s.approach) prompt += `Songwriting approach: ${s.approach.toLowerCase()}\n`;
+  if (s.struggles?.length) prompt += `Known struggles: ${s.struggles.join(', ')}\n`;
+  if (s.sample) prompt += `Voice sample from the writer: "${s.sample}"\n`;
+  prompt += 'Match the suggestions to this writer\'s voice and the profile\'s genre/territory. Reference their style, not generic clichés.\n--- END PROFILE ---';
+  return prompt;
+}
+
+// ── State ─────────────────────────────────────────
+// lines: array of strings
+// sources: parallel array — 'human' | 'ai'
+function getDefaultSections() {
+  // Use hardcoded defaults — translation happens via applyTranslations() after load
+  return [
+    { name:'Verse 1',    badge:'Verse',   lines:['','','',''], sources:['human','human','human','human'] },
+    { name:'Pre-Chorus', badge:'Pre-Ch',  lines:['','',''],    sources:['human','human','human'] },
+    { name:'Chorus',     badge:'Chorus',  lines:['','','',''], sources:['human','human','human','human'] },
+    { name:'Verse 2',    badge:'Verse',   lines:['','','',''], sources:['human','human','human','human'] },
+    { name:'Bridge',     badge:'Bridge',  lines:['','',''],    sources:['human','human','human'] },
+    { name:'Outro',      badge:'Outro',   lines:['',''],       sources:['human','human'] },
+  ];
+}
+let sections = getDefaultSections();
+
+let current = 0;
+let selectedLine = null;
+let aiOpen = true;
+let splitOpen = false;
+let apiKey = localStorage.getItem('inkwell_key') || '';
+
+// ── Undo stack ────────────────────────────────────
+const undoStack = [];
+const MAX_UNDO = 60;
+
+function snapshot() {
+  undoStack.push({ current, lines: sections.map(s => ({ ...s, lines: [...s.lines] })) });
+  if (undoStack.length > MAX_UNDO) undoStack.shift();
+}
+
+function undo() {
+  if (!undoStack.length) return;
+  const state = undoStack.pop();
+  sections = state.lines;
+  current = state.current;
+  renderSidebar();
+  selectSection(current, true);
+}
+
+document.addEventListener('keydown', e => {
+  if ((e.metaKey || e.ctrlKey) && e.key === 'z' && !e.shiftKey) {
+    e.preventDefault();
+    undo();
+  }
+  // Escape closes modals/dropdowns
+  if (e.key === 'Escape') {
+    document.getElementById('useModal')?.remove();
+    document.getElementById('metaModal')?.remove();
+    document.getElementById('toolInfoModal')?.remove();
+    if (compareOpen) closeVersionCompare();
+    closeVoiceDropdown();
+    closeSongPicker();
+    closeExportMenu();
+  }
+});
+
+// API key handled server-side via Netlify functions
+
+// ── Safety: show app after 3s even if Firebase hasn't resolved ──────
+setTimeout(() => {
+  if (document.body.style.display === 'none' || !document.body.style.display) {
+    document.body.style.display = 'flex';
+    document.body.style.flexDirection = 'column';
+    document.body.style.height = '100vh';
+  }
+}, 3000);
+
+// ── Boot ──────────────────────────────────────────
+(function() {
+function init() {
+  // Migrate old single soul file → profiles store
+  const oldSoul = localStorage.getItem('inkwell_soul');
+  if (oldSoul) {
+    try {
+      const s = JSON.parse(oldSoul);
+      if (Object.keys(s).length && !Object.keys(getProfiles()).length) {
+        s.profileName = s.profileName || 'My voice';
+        const id = 'profile_migrated';
+        saveProfile(id, s);
+        setActiveProfile(id);
+      }
+    } catch(e) {}
+    localStorage.removeItem('inkwell_soul');
+  }
+
+  loadSaved();
+  renderSidebar();
+  selectSection(0);
+  renderVoiceSwitcher();
+  // Build tools after full script parse
+  setTimeout(() => { buildAITools(); applyTranslations(); }, 0);
+
+  // Show onboarding if never completed
+  if (!localStorage.getItem('inkwell_onboarded')) {
+    setTimeout(startOnboarding, 400);
+  }
+
+  // Guaranteed re-render: poll until DOM is populated
+  let _renderAttempts = 0;
+  const _ensureRendered = setInterval(() => {
+    _renderAttempts++;
+    const hasSections = document.querySelectorAll('.section-item').length > 0;
+    const hasTools = document.getElementById('aiToolsList')?.children?.length > 0;
+    if (!hasSections) renderSidebar();
+    if (!hasTools) buildAITools();
+    if ((hasSections && hasTools) || _renderAttempts > 20) clearInterval(_ensureRendered);
+  }, 100);
+}
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
+}
+})();
+
+// ── Sidebar ───────────────────────────────────────
+function renderSidebar() {
+  const list = document.getElementById('sectionList');
+  list.innerHTML = '';
+  sections.forEach((sec, i) => {
+    const li = document.createElement('li');
+    li.className = 'section-item' + (i === current ? ' active' : '');
+    li.dataset.idx = i;
+    li.setAttribute('tabindex', '0');
+    li.setAttribute('role', 'button');
+    li.innerHTML = `
+      <div class="section-label">${sec.name}</div>
+      <div class="section-lines" id="lc${i}">—</div>`;
+    li.onclick = () => selectSection(i);
+    li.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selectSection(i); } };
+    list.appendChild(li);
+  });
+  updateLineCounts();
+}
+
+function selectSection(idx, silent) {
+  current = idx;
+  selectedLine = null;
+  document.querySelectorAll('.section-item').forEach((el, i) => {
+    el.classList.toggle('active', i === idx);
+  });
+  document.getElementById('sectionTitle').textContent = sections[idx].name;
+  document.getElementById('sectionBadge').textContent = sections[idx].badge;
+  renderVersionTabs();
+  renderEditor();
+  renderOverview();
+  if (!silent) resetAIPanel();
+}
+
+// ── Versioning ────────────────────────────────────
+function hasVersions(sec) {
+  return sec.versions && sec.versions.length > 1;
+}
+
+function getActiveVersion(sec) {
+  if (!sec.versions || !sec.versions.length) return null;
+  return sec.versions[sec.activeVersion || 0];
+}
+
+function getCurrentLines() {
+  const sec = sections[current];
+  if (hasVersions(sec)) {
+    const v = getActiveVersion(sec);
+    return { lines: v.lines, sources: v.sources };
+  }
+  return { lines: sec.lines, sources: sec.sources };
+}
+
+function setCurrentLines(lines, sources) {
+  const sec = sections[current];
+  if (hasVersions(sec)) {
+    const v = getActiveVersion(sec);
+    v.lines = lines;
+    v.sources = sources;
+  } else {
+    sec.lines = lines;
+    sec.sources = sources;
+  }
+}
+
+function renderVersionTabs() {
+  const sec = sections[current];
+  const controls = document.getElementById('versionControls');
+  const tabs = document.getElementById('versionTabs');
+  const forkBtn = document.getElementById('forkBtn');
+  
+  if (!hasVersions(sec)) {
+    controls.style.display = 'none';
+    forkBtn.classList.remove('hidden');
+    return;
+  }
+  
+  controls.style.display = 'flex';
+  forkBtn.classList.add('hidden');
+  tabs.innerHTML = '';
+  
+  sec.versions.forEach((v, i) => {
+    const tab = document.createElement('button');
+    tab.className = 'version-tab' + (i === (sec.activeVersion || 0) ? ' active' : '');
+    tab.textContent = v.name || String.fromCharCode(65 + i); // A, B, C...
+    tab.onclick = () => switchVersion(i);
+    tabs.appendChild(tab);
+  });
+}
+
+function forkVersion() {
+  const sec = sections[current];
+  
+  // Convert to versioned format if not already
+  if (!sec.versions) {
+    sec.versions = [{
+      name: 'A',
+      lines: [...sec.lines],
+      sources: [...(sec.sources || sec.lines.map(() => 'human'))]
+    }];
+  }
+  
+  // Create new version as copy of current
+  const currentV = sec.versions[sec.activeVersion || 0];
+  const newName = String.fromCharCode(65 + sec.versions.length); // Next letter
+  sec.versions.push({
+    name: newName,
+    lines: [...currentV.lines],
+    sources: [...currentV.sources]
+  });
+  
+  // Switch to new version
+  sec.activeVersion = sec.versions.length - 1;
+  renderVersionTabs();
+  renderEditor();
+  renderSidebar();
+}
+
+function addVersion() {
+  forkVersion();
+}
+
+function switchVersion(idx) {
+  const sec = sections[current];
+  if (!sec.versions || idx >= sec.versions.length) return;
+  sec.activeVersion = idx;
+  renderVersionTabs();
+  renderEditor();
+  renderOverview();
+}
+
+function deleteVersion(idx) {
+  const sec = sections[current];
+  if (!sec.versions || sec.versions.length <= 1) return;
+  
+  sec.versions.splice(idx, 1);
+  if (sec.activeVersion >= sec.versions.length) {
+    sec.activeVersion = sec.versions.length - 1;
+  }
+  
+  // If only one version left, convert back to simple format
+  if (sec.versions.length === 1) {
+    sec.lines = sec.versions[0].lines;
+    sec.sources = sec.versions[0].sources;
+    delete sec.versions;
+    delete sec.activeVersion;
+  }
+  
+  renderVersionTabs();
+  renderEditor();
+  renderSidebar();
+}
+
+let compareOpen = false;
+
+function toggleVersionCompare() {
+  const sec = sections[current];
+  if (!hasVersions(sec)) return;
+  
+  compareOpen = !compareOpen;
+  const panel = document.getElementById('versionComparePanel');
+  const btn = document.getElementById('versionCompareBtn');
+  
+  if (compareOpen) {
+    panel.classList.add('open');
+    btn.classList.add('active');
+    renderVersionCompare();
+  } else {
+    closeVersionCompare();
+  }
+}
+
+function closeVersionCompare() {
+  compareOpen = false;
+  document.getElementById('versionComparePanel').classList.remove('open');
+  document.getElementById('versionCompareBtn')?.classList.remove('active');
+}
+
+function renderVersionCompare() {
+  const sec = sections[current];
+  if (!hasVersions(sec)) return;
+  
+  const title = document.getElementById('compareTitle');
+  title.textContent = `${sec.name} — Compare Versions`;
+  
+  const body = document.getElementById('compareBody');
+  body.innerHTML = '';
+  
+  // Show all versions side by side
+  sec.versions.forEach((v, vi) => {
+    const col = document.createElement('div');
+    col.className = 'compare-column';
+    
+    const header = document.createElement('div');
+    header.className = 'compare-version-header';
+    header.innerHTML = `Version ${v.name || String.fromCharCode(65 + vi)}`;
+    if (vi === (sec.activeVersion || 0)) {
+      header.innerHTML += ' <span style="color:var(--amber)">(active)</span>';
+    }
+    col.appendChild(header);
+    
+    // Find max lines across all versions for alignment
+    const maxLines = Math.max(...sec.versions.map(ver => ver.lines.length));
+    
+    for (let i = 0; i < maxLines; i++) {
+      const line = v.lines[i] || '';
+      const div = document.createElement('div');
+      div.className = 'compare-line';
+      
+      if (!line.trim()) {
+        div.classList.add('empty');
+        div.textContent = '—';
+      } else {
+        // Check if this line differs from other versions
+        const differs = sec.versions.some((otherV, ovi) => {
+          if (ovi === vi) return false;
+          return (otherV.lines[i] || '') !== line;
+        });
+        if (differs) div.classList.add('diff');
+        div.textContent = line;
+      }
+      
+      col.appendChild(div);
+    }
+    
+    // Add "Use this version" button
+    const useBtn = document.createElement('button');
+    useBtn.style.cssText = 'margin-top:16px;padding:8px 16px;background:var(--ink);color:var(--cream);border:none;border-radius:6px;font-size:12px;cursor:pointer;width:100%;';
+    useBtn.textContent = vi === (sec.activeVersion || 0) ? '✓ Active' : 'Switch to this version';
+    useBtn.disabled = vi === (sec.activeVersion || 0);
+    if (vi !== (sec.activeVersion || 0)) {
+      useBtn.onmouseenter = () => { useBtn.style.background = 'var(--amber)'; };
+      useBtn.onmouseleave = () => { useBtn.style.background = 'var(--ink)'; };
+      useBtn.onclick = () => {
+        switchVersion(vi);
+        renderVersionCompare();
+      };
+    } else {
+      useBtn.style.background = 'var(--sage)';
+      useBtn.style.cursor = 'default';
+    }
+    col.appendChild(useBtn);
+    
+    body.appendChild(col);
+  });
+}
+
+function updateLineCounts() {
+  sections.forEach((sec, i) => {
+    const filled = sec.lines.filter(l => l.trim()).length;
+    const el = document.getElementById('lc' + i);
+    if (el) el.textContent = filled ? filled + (filled===1?' line':' lines') : '—';
+  });
+}
+
+// ── Editor ────────────────────────────────────────
+function renderEditor() {
+  const editor = document.getElementById('lyricEditor');
+  const sec = sections[current];
+  
+  // Get lines from active version if versioned
+  let lines, sources;
+  if (hasVersions(sec)) {
+    const v = getActiveVersion(sec);
+    lines = v.lines;
+    sources = v.sources || v.lines.map(() => 'human');
+  } else {
+    lines = sec.lines;
+    sources = sec.sources || sec.lines.map(() => 'human');
+    if (!sec.sources) sec.sources = sources;
+  }
+  
+  editor.innerHTML = '';
+
+  lines.forEach((text, i) => {
+    const isAI = sources[i] === 'ai';
+
+    const row = document.createElement('div');
+    row.className = 'lyric-line';
+    row.id = `row${i}`;
+
+    const num = document.createElement('div');
+    num.className = 'line-num';
+    num.textContent = i + 1;
+
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.className = 'line-input' + (isAI ? ' ai-line' : '');
+    input.value = text;
+    input.placeholder = i === 0 ? t('editor.placeholder.0') : i === 1 ? t('editor.placeholder.1') : '';
+    input.dataset.idx = i;
+
+    // When the user edits an AI line, it becomes human
+    input.addEventListener('keypress', () => {
+      if (sources[i] === 'ai') {
+        sources[i] = 'human';
+        input.classList.remove('ai-line');
+        const badge = document.getElementById(`badge${i}`);
+        if (badge) badge.textContent = '';
+      }
+    });
+
+    // AI badge (✦ for AI lines)
+    const badge = document.createElement('div');
+    badge.className = 'ai-badge';
+    badge.id = `badge${i}`;
+    badge.textContent = isAI ? '✦' : '';
+
+    const syl = document.createElement('div');
+    syl.className = 'syl-count' + (text ? ' filled' : '');
+    syl.id = `syl${i}`;
+    syl.textContent = text ? countSyl(text) : '';
+
+    input.addEventListener('focus', () => {
+      selectedLine = i;
+      document.querySelectorAll('.lyric-line').forEach((r, j) =>
+        r.classList.toggle('focused', j === i));
+    });
+
+    let snapTimer = null;
+    input.addEventListener('input', e => {
+      // Debounced snapshot for typing (every 1s of inactivity)
+      clearTimeout(snapTimer);
+      snapTimer = setTimeout(() => snapshot(), 1000);
+      lines[i] = e.target.value;
+      const n = e.target.value ? countSyl(e.target.value) : '';
+      syl.textContent = n;
+      syl.className = 'syl-count' + (e.target.value ? ' filled' : '');
+      updateLineCounts();
+      renderOverview();
+    });
+
+    input.addEventListener('keydown', e => {
+      if (e.key === 'Enter') {
+        snapshot();
+        lines.splice(i + 1, 0, '');
+        sources.splice(i + 1, 0, 'human');
+        renderEditor();
+        focusLine(i + 1);
+      } else if (e.key === 'Backspace' && !e.target.value && lines.length > 1) {
+        snapshot();
+        lines.splice(i, 1);
+        sources.splice(i, 1);
+        renderEditor();
+        focusLine(Math.max(0, i - 1));
+      }
+    });
+
+    // Move up / down arrows
+    const arrows = document.createElement('div');
+    arrows.className = 'line-move-arrows';
+
+    const upBtn = document.createElement('button');
+    upBtn.className = 'move-arrow';
+    upBtn.textContent = '▲';
+    upBtn.title = 'Move line up';
+    upBtn.addEventListener('click', () => moveLine(i, -1));
+
+    const dnBtn = document.createElement('button');
+    dnBtn.className = 'move-arrow';
+    dnBtn.textContent = '▼';
+    dnBtn.title = 'Move line down';
+    dnBtn.addEventListener('click', () => moveLine(i, 1));
+
+    if (i > 0) arrows.appendChild(upBtn);
+    if (i < sec.lines.length - 1) arrows.appendChild(dnBtn);
+
+    row.appendChild(num);
+    row.appendChild(input);
+    row.appendChild(arrows);
+    row.appendChild(badge);
+    row.appendChild(syl);
+    editor.appendChild(row);
+  });
+}
+
+function focusLine(idx) {
+  setTimeout(() => {
+    const inputs = document.querySelectorAll('.line-input');
+    if (inputs[idx]) { inputs[idx].focus(); selectedLine = idx; }
+  }, 0);
+}
+
+function moveLine(idx, dir) {
+  const sec = sections[current];
+  const newIdx = idx + dir;
+  if (newIdx < 0 || newIdx >= sec.lines.length) return;
+  snapshot();
+  // Swap lines
+  [sec.lines[idx], sec.lines[newIdx]] = [sec.lines[newIdx], sec.lines[idx]];
+  if (sec.sources) [sec.sources[idx], sec.sources[newIdx]] = [sec.sources[newIdx], sec.sources[idx]];
+  renderEditor();
+  focusLine(newIdx);
+  renderOverview();
+}
+
+// ── Syllable counter (English) ────────────────────
+function countSyl(str) {
+  let total = 0;
+  for (const w of str.toLowerCase().split(/\s+/)) {
+    const clean = w.replace(/[^a-z]/g, '');
+    if (!clean) continue;
+    if (clean.length <= 2) { total += 1; continue; }
+    let s = clean.replace(/(?:[^laeiouy]es|ed|[^laeiouy]e)$/, '');
+    s = s.replace(/^y/, '');
+    const m = s.match(/[aeiouy]{1,2}/g);
+    total += m ? m.length : 1;
+  }
+  return total || 1;
+}
+
+// ── AI Tools definition ───────────────────────────
+function buildAITools() {
+  try {
+  const container = document.getElementById('aiToolsList');
+  if (!container) return;
+  container.innerHTML = '';
+
+  AI_TOOLS.forEach((group, gi) => {
+    const lbl = document.createElement('div');
+    lbl.className = 'ai-tools-group-label';
+    if (gi > 0) lbl.style.marginTop = '8px';
+    lbl.textContent = typeof t === 'function' ? (gi === 0 ? t('ai.group.line') : t('ai.group.section')) || group.group : group.group;
+    container.appendChild(lbl);
+
+    group.tools.forEach(tool => {
+      const btn = document.createElement('button');
+      btn.className = 'ai-tool-btn';
+      btn.style.position = 'relative';
+
+      const labelRow = document.createElement('div');
+      labelRow.className = 'tool-label';
+
+      const iconSpan = document.createElement('span');
+      iconSpan.className = 'tool-icon';
+      iconSpan.textContent = tool.icon;
+
+      const nameSpan = document.createElement('span');
+      nameSpan.textContent = ' ' + (typeof t === 'function' && tool.i18nLabel ? t(tool.i18nLabel) || tool.label : tool.label);
+
+      const infoBtn = document.createElement('button');
+      infoBtn.className = 'tool-info-btn';
+      infoBtn.textContent = 'i';
+      infoBtn.title = 'Learn more';
+      infoBtn.addEventListener('click', e => {
+        e.stopPropagation();
+        showToolInfo(tool);
+      });
+
+      labelRow.appendChild(iconSpan);
+      labelRow.appendChild(nameSpan);
+      labelRow.appendChild(infoBtn);
+
+      const descDiv = document.createElement('div');
+      descDiv.className = 'tool-desc';
+      descDiv.textContent = (typeof t === 'function' && tool.i18nDesc) ? t(tool.i18nDesc) || tool.desc : tool.desc;
+
+      btn.appendChild(labelRow);
+      btn.appendChild(descDiv);
+      btn.addEventListener('click', () => runAI(tool.mode));
+
+      container.appendChild(btn);
+    });
+  });
+  } catch (err) {
+    /* buildAITools error silenced */
+  }
+}
+
+function showToolInfo(tool) {
+  document.getElementById('toolInfoModal')?.remove();
+
+  const overlay = document.createElement('div');
+  overlay.className = 'info-modal-overlay';
+  overlay.id = 'toolInfoModal';
+
+  const box = document.createElement('div');
+  box.className = 'info-modal-box';
+
+  const icon = document.createElement('div');
+  icon.className = 'info-modal-icon';
+  icon.textContent = tool.icon;
+
+  // Use translated strings if available
+  const infoKey = 'info.' + tool.mode;
+  const titleText = t(infoKey + '.title') !== infoKey + '.title' ? t(infoKey + '.title') : tool.infoTitle;
+  const bodyText = t(infoKey + '.body') !== infoKey + '.body' ? t(infoKey + '.body') : tool.infoBody;
+  const tipText = t(infoKey + '.tip') !== infoKey + '.tip' ? t(infoKey + '.tip') : tool.infoTip;
+
+  const title = document.createElement('div');
+  title.className = 'info-modal-title';
+  title.textContent = titleText;
+
+  const body = document.createElement('div');
+  body.className = 'info-modal-body';
+  // Split on \n for paragraphs
+  bodyText.split('\n\n').forEach(para => {
+    const p = document.createElement('p');
+    p.style.marginBottom = '10px';
+    p.textContent = para;
+    body.appendChild(p);
+  });
+
+  const tip = document.createElement('div');
+  tip.className = 'info-modal-tip';
+  tip.innerHTML = tipText;
+
+  const closeBtn = document.createElement('button');
+  closeBtn.className = 'info-modal-close';
+  closeBtn.textContent = t('info.gotit');
+  closeBtn.addEventListener('click', () => overlay.remove());
+
+  box.appendChild(icon);
+  box.appendChild(title);
+  box.appendChild(body);
+  box.appendChild(tip);
+  box.appendChild(closeBtn);
+  overlay.appendChild(box);
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+  document.body.appendChild(overlay);
+}
+
+// ── AI Panel ──────────────────────────────────────
+function toggleAI() {
+  aiOpen = !aiOpen;
+  document.getElementById('aiPanel').classList.toggle('collapsed', !aiOpen);
+  document.getElementById('aiFab').textContent = aiOpen ? '×' : '✦';
+}
+
+// ── Split screen ──────────────────────────────────
+function toggleSplit() {
+  splitOpen = !splitOpen;
+  const wrap = document.getElementById('canvasWrap');
+  const ov   = document.getElementById('songOverview');
+  const btn  = document.getElementById('splitBtn');
+  wrap.classList.toggle('split-active', splitOpen);
+  ov.style.display = splitOpen ? 'flex' : 'none';
+  ov.style.flexDirection = 'column';
+  btn.classList.toggle('active', splitOpen);
+  btn.textContent = splitOpen ? '⊟ Split' : '⊞ Split';
+  if (splitOpen) renderOverview();
+}
+
+// ── Split resizer drag ────────────────────────────
+(function initSplitResizer() {
+  let dragging = false;
+  let startX = 0;
+  let startOvW = 0;
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const resizer = document.getElementById('splitResizer');
+    const ov = document.getElementById('songOverview');
+    const wrap = document.getElementById('canvasWrap');
+
+    resizer.addEventListener('mousedown', e => {
+      if (!splitOpen) return;
+      dragging = true;
+      startX = e.clientX;
+      startOvW = ov.offsetWidth;
+      resizer.classList.add('dragging');
+      document.body.style.cursor = 'col-resize';
+      document.body.style.userSelect = 'none';
+      e.preventDefault();
+    });
+
+    document.addEventListener('mousemove', e => {
+      if (!dragging) return;
+      const dx = startX - e.clientX; // dragging left = overview gets bigger
+      const newW = Math.max(120, Math.min(wrap.offsetWidth * 0.7, startOvW + dx));
+      ov.style.width = newW + 'px';
+    });
+
+    document.addEventListener('mouseup', () => {
+      if (dragging) {
+        dragging = false;
+        resizer.classList.remove('dragging');
+        document.body.style.cursor = '';
+        document.body.style.userSelect = '';
+      }
+    });
+  });
+})();
+
+function renderOverview() {
+  if (!splitOpen) return;
+  const body = document.getElementById('songOverviewBody');
+  body.innerHTML = '';
+  let totalLines = 0;
+
+  sections.forEach((sec, si) => {
+    // Get lines from active version if versioned
+    let lines, sources;
+    if (hasVersions(sec)) {
+      const v = sec.versions[sec.activeVersion || 0];
+      lines = v.lines;
+      sources = v.sources || [];
+    } else {
+      lines = sec.lines;
+      sources = sec.sources || [];
+    }
+    
+    const filled = lines.filter(l => l.trim());
+    if (!filled.length && si !== current) return;
+
+    const block = document.createElement('div');
+    block.className = 'ov-section';
+
+    const lbl = document.createElement('div');
+    lbl.className = 'ov-section-label' + (si === current ? ' current' : '');
+    if (si === current) {
+      const dot = document.createElement('span');
+      dot.className = 'ov-dot';
+      lbl.appendChild(dot);
+    }
+    // Show version indicator if versioned
+    let labelText = sec.name;
+    if (hasVersions(sec)) {
+      const vName = sec.versions[sec.activeVersion || 0].name || 'A';
+      labelText += ` (${vName})`;
+    }
+    lbl.appendChild(document.createTextNode(labelText));
+    block.appendChild(lbl);
+
+    if (!filled.length) {
+      const emp = document.createElement('div');
+      emp.className = 'ov-empty';
+      emp.textContent = 'empty';
+      block.appendChild(emp);
+    } else {
+      lines.forEach((line, li) => {
+        if (!line.trim()) return;
+        totalLines++;
+        const isAI = sources[li] === 'ai';
+
+        const row = document.createElement('div');
+        row.className = 'ov-line' + (isAI ? ' ai-ov' : '');
+        row.title = 'Click to jump to this section';
+
+        const txt = document.createElement('span');
+        txt.className = 'ov-line-text';
+        txt.textContent = line;
+        row.appendChild(txt);
+
+        // Move to editor button (→ arrow when hovering)
+        const toEditor = document.createElement('button');
+        toEditor.className = 'ov-move-btn';
+        toEditor.textContent = '→';
+        toEditor.title = 'Move to editor section';
+        toEditor.addEventListener('click', e => {
+          e.stopPropagation();
+          selectSection(si);
+          focusLine(li);
+        });
+        row.appendChild(toEditor);
+
+        row.addEventListener('click', () => {
+          selectSection(si);
+          setTimeout(() => focusLine(li), 50);
+        });
+
+        block.appendChild(row);
+      });
+    }
+
+    body.appendChild(block);
+  });
+
+  const cnt = document.getElementById('ovLineCount');
+  cnt.textContent = totalLines + (totalLines === 1 ? ' line' : ' lines');
+}
+
+function resetAIPanel() {
+  document.getElementById('aiResponse').innerHTML =
+    '<div class="ai-empty">' + (typeof t === 'function' ? t('ai.empty') : 'Select a line, then choose a tool above.') + '</div>';
+}
+
+async function runAI(mode) {
+  if (!aiOpen) toggleAI();
+
+  const sec = sections[current];
+  const line = selectedLine !== null ? sec.lines[selectedLine] : '';
+  const allLines = sec.lines.filter(l => l.trim()).join('\n');
+
+  const lang = typeof currentLang === 'function' ? currentLang() : 'en';
+  const langInstruction = lang === 'fr' ? ' R\xc3\xa9ponds enti\xc3\xa8rement en fran\xc3\xa7ais.' : '';
+  const system = `You are an expert lyric writing collaborator. You value specificity over abstraction — concrete details (places, names, objects, sensations) over generic emotions. Keep responses SHORT and immediately useful. Never write AI-sounding filler.` + langInstruction + `${buildSoulPrompt()}`;
+
+  let user = '';
+  if (mode === 'match') {
+    const n = line ? countSyl(line) : 8;
+    user = `Section: "${sec.name}"\nSelected line: "${line || '(empty)'}"\nAll lines:\n${allLines||'(none yet)'}\n\nWrite 3 alternative lines with ~${n} syllables that fit this section. Be specific, evocative, not generic. Return ONLY the 3 lines numbered 1. 2. 3.`;
+  }
+  if (mode === 'specific') {
+    user = `Section: "${sec.name}"\nCurrent lyrics:\n${allLines||'(none yet)'}\n\nAsk the songwriter 3 SHORT questions (under 15 words each) to make these lyrics more specific and concrete. Think: what exact moment? what's the object/place/person? what's the sensory detail? Return ONLY the questions numbered 1. 2. 3.`;
+  }
+  if (mode === 'rhyme') {
+    // Use Datamuse API directly — much better rhyme data
+    const lastWord = (line.trim().split(/\s+/).pop() || 'love').replace(/[^a-zA-Z]/g,'');
+    runRhymeBrowser(lastWord);
+    return;
+  }
+  if (mode === 'unstuck') {
+    user = `Section: "${sec.name}"\nCurrent lyrics:\n${allLines||'(none yet)'}\n\nThe writer is stuck. Give 3 completely different creative directions for this section — different emotions, perspectives, or metaphors. Each: 1-2 sentences of concept, NOT actual lyrics. Make them genuinely distinct. Number them 1. 2. 3.`;
+  }
+  if (mode === 'rewrite') {
+    user = `Selected line: "${line || '(empty)'}"\nSection: "${sec.name}"\n\nRewrite this line 3 ways — same core meaning but with a different angle, image, or emotional texture each time. Keep syllable count similar. Be concrete and specific, not generic. Number them 1. 2. 3.`;
+  }
+  if (mode === 'prosody') {
+    user = `Selected line: "${line || '(empty)'}"\n\nThis line may not sit naturally on a melody. Rewrite it 3 ways with better prosody — natural spoken stress, good vowel sounds on strong beats, words that feel inevitable in the mouth of a singer. Keep the meaning close. Number them 1. 2. 3.`;
+  }
+  if (mode === 'phrases') {
+    // Extract the most interesting word from the line (skip common words)
+    const stopwords = ['the','a','an','i','you','we','they','he','she','it','is','are','was','were','be','been','have','has','had','do','does','did','will','would','could','should','can','may','might','must','and','or','but','if','then','so','to','of','in','on','at','by','for','with','about','from','into','through','during','before','after','above','below','up','down','out','off','over','under','again','further','once','just','now','very','too','also','my','your','his','her','its','our','their','this','that','these','those','am','not','no','all','each','every','both','few','more','most','other','some','such','only','own','same','than','when','where','why','how','what','which','who','whom'];
+    const words = (line || '').toLowerCase().replace(/[^a-z\s]/g, '').split(/\s+/).filter(w => w.length > 2 && !stopwords.includes(w));
+    const keyword = words[words.length - 1] || words[0] || 'love';
+    user = `Give me 15 idioms, phrases, sayings, clichés, and song hooks that contain the word "${keyword}". Include common expressions, twists on familiar phrases, and memorable lines from famous songs. Mix well-known and lesser-known phrases. Return as a numbered list 1-15, one phrase per line. Just the phrases, no explanations.`;
+  }
+  if (mode === 'wordfamily') {
+    // Extract the most interesting word from the line
+    const stopwords = ['the','a','an','i','you','we','they','he','she','it','is','are','was','were','be','been','have','has','had','do','does','did','will','would','could','should','can','may','might','must','and','or','but','if','then','so','to','of','in','on','at','by','for','with','about','from','into','through','during','before','after','above','below','up','down','out','off','over','under','again','further','once','just','now','very','too','also','my','your','his','her','its','our','their','this','that','these','those','am','not','no','all','each','every','both','few','more','most','other','some','such','only','own','same','than','when','where','why','how','what','which','who','whom'];
+    const words = (line || '').toLowerCase().replace(/[^a-z\s]/g, '').split(/\s+/).filter(w => w.length > 2 && !stopwords.includes(w));
+    const keyword = words[words.length - 1] || words[0] || 'love';
+    // Use special mode - will be handled differently
+    runWordFamily(keyword);
+    return;
+  }
+  if (mode === 'simile') {
+    user = `Selected line: "${line || '(empty)'}"\n\nRewrite this line 3 ways using a SIMILE (comparison using "like" or "as"). Make the comparisons fresh and unexpected — avoid clichés like "heart like stone" or "free as a bird". Each simile should make the emotion more vivid and concrete. Number them 1. 2. 3.`;
+  }
+  if (mode === 'alliteration') {
+    user = `Selected line: "${line || '(empty)'}"\n\nRewrite this line 3 ways with ALLITERATION woven in naturally — repeating consonant sounds at the start of words. Don't force it; the alliteration should feel organic, not like a tongue twister. Keep the meaning close. Number them 1. 2. 3.`;
+  }
+  if (mode === 'perspective') {
+    user = `Section: "${sec.name}"\nCurrent lyrics:\n${allLines||'(none yet)'}\n\nRewrite this section (or suggest how to rewrite it) from a completely different point of view. Options: second-person "you", third-person observer, an inanimate object in the scene, or the writer's future self looking back. Give 2 options, each with a label and 2-3 example lines. Don't be generic.`;
+  }
+  if (mode === 'hook') {
+    user = `Section: "${sec.name}"\nCurrent lyrics:\n${allLines||'(none yet)'}\n\nBased on this section's theme and emotion, suggest 4 short hook or title lines — the kind that would make someone want to hear the whole song. They should be specific, surprising, and memorable. Not generic. Return ONLY the 4 lines numbered 1. 2. 3. 4.`;
+  }
+  if (mode === 'metaphor') {
+    user = `Section: "${sec.name}"\nCurrent lyrics:\n${allLines||'(none yet)'}\n\nSuggest 3 fresh, unexpected metaphors or extended images for the core theme of this section. Avoid clichés (broken hearts, storms, fire, etc). Think concrete objects, specific places, unusual comparisons. For each: one sentence explaining the metaphor + one example line using it. Number them 1. 2. 3.`;
+  }
+  if (mode === 'bridge') {
+    user = `Full song context:\n${sections.map(s => `[${s.name}]\n${s.lines.filter(l=>l.trim()).join('\n')}`).join('\n\n') || '(none yet)'}\n\nWrite 3 possible bridge sections (4 lines each) that provide contrast — a shift in perspective, time, or emotional register — before the final chorus. The bridge should feel earned, not forced. Number each bridge 1. 2. 3.`;
+  }
+
+  setAIHtml('<div class="loading-row"><span></span><span></span><span></span></div>');
+
+  try {
+    const res = await fetch('/.netlify/functions/ai', {
+      method: 'POST',
+      headers: { 'Content-Type':'application/json' },
+      body: JSON.stringify({
+        model: 'gpt-4o-mini',
+        messages: [{ role:'system', content: system }, { role:'user', content: user }],
+        max_tokens: 350,
+        temperature: 0.88
+      })
+    });
+
+    if (!res.ok) throw new Error(`API ${res.status}`);
+    const data = await res.json();
+    renderAIResult(data.choices[0].message.content.trim(), mode);
+  } catch(err) {
+    setAIHtml(`<div class="ai-empty">⚠️ ${err.message || 'Something went wrong.'}</div>`);
+  }
+}
+
+function renderAIResult(text, mode) {
+  const container = document.getElementById('aiResponse');
+  container.innerHTML = '';
+
+  if (mode === 'rhyme') {
+    const rhymes = text.split(',').map(r => r.trim()).filter(Boolean);
+    const cloud = document.createElement('div');
+    cloud.className = 'rhyme-cloud';
+    rhymes.forEach(r => {
+      const tag = document.createElement('span');
+      tag.className = 'rhyme-tag';
+      tag.textContent = r;
+      tag.onclick = () => insertRhyme(r);
+      cloud.appendChild(tag);
+    });
+    container.appendChild(cloud);
+    return;
+  }
+
+  if (mode === 'phrases') {
+    const phrases = text.split('\n').map(l => l.replace(/^\d+\.\s*/, '').trim()).filter(Boolean);
+    const card = document.createElement('div');
+    card.className = 'phrases-card';
+    const lbl = document.createElement('div');
+    lbl.className = 'phrases-label';
+    lbl.textContent = '❝ ' + t('tool.phrases.label');
+    card.appendChild(lbl);
+    
+    const grid = document.createElement('div');
+    grid.className = 'phrases-grid';
+    
+    phrases.forEach(phrase => {
+      const chip = document.createElement('div');
+      chip.className = 'phrase-chip';
+      
+      const phraseText = document.createElement('span');
+      phraseText.className = 'phrase-text';
+      phraseText.textContent = phrase;
+      
+      const actions = document.createElement('span');
+      actions.className = 'phrase-actions';
+      
+      const collectBtn = document.createElement('button');
+      collectBtn.className = 'phrase-btn' + (isCollected(phrase) ? ' collected' : '');
+      collectBtn.textContent = '⭐';
+      collectBtn.title = 'Collect';
+      collectBtn.onclick = (e) => {
+        e.stopPropagation();
+        toggleCollect(phrase);
+        collectBtn.classList.toggle('collected');
+      };
+      
+      const useBtn = document.createElement('button');
+      useBtn.className = 'phrase-btn use';
+      useBtn.textContent = '↑';
+      useBtn.title = 'Use this phrase';
+      useBtn.onclick = (e) => {
+        e.stopPropagation();
+        useSuggestion(phrase);
+      };
+      
+      actions.appendChild(collectBtn);
+      actions.appendChild(useBtn);
+      chip.appendChild(phraseText);
+      chip.appendChild(actions);
+      grid.appendChild(chip);
+    });
+    
+    card.appendChild(grid);
+    container.appendChild(card);
+    return;
+  }
+
+  if (mode === 'specific') {
+    const card = document.createElement('div');
+    card.className = 'specificity-card';
+    card.innerHTML = `<div class="spec-label">✦ Get Specific</div>`;
+    text.split('\n').filter(l => l.trim()).forEach(q => {
+      const clean = q.replace(/^\d+\.\s*/, '').trim();
+      if (!clean) return;
+      const p = document.createElement('div');
+      p.className = 'spec-question';
+      p.textContent = clean;
+      card.appendChild(p);
+    });
+    container.appendChild(card);
+    return;
+  }
+
+  // prose modes — no "Use this" button, just readable cards
+  if (mode === 'perspective' || mode === 'metaphor' || mode === 'bridge') {
+    const card = document.createElement('div');
+    card.className = 'specificity-card';
+    card.style.borderColor = 'var(--ink-mid)';
+    card.style.background = 'var(--cream)';
+    const lbl = document.createElement('div');
+    lbl.className = 'spec-label';
+    lbl.style.color = 'var(--ink-mid)';
+    lbl.textContent = mode === 'perspective' ? '◈ Perspectives' : mode === 'metaphor' ? '◎ Metaphors' : '⤷ Bridge ideas';
+    card.appendChild(lbl);
+    text.split('\n').filter(l => l.trim()).forEach(q => {
+      const p = document.createElement('div');
+      p.className = 'spec-question';
+      p.style.fontStyle = 'normal';
+      p.style.fontSize = '14px';
+      p.textContent = q;
+      card.appendChild(p);
+    });
+    container.appendChild(card);
+    return;
+  }
+
+  // match + unstuck + rewrite + prosody + hook — show as usable suggestion cards
+  text.split('\n').filter(l => l.trim()).forEach(line => {
+    const clean = line.replace(/^\d+\.\s*/, '').trim();
+    if (!clean) return;
+    const card = document.createElement('div');
+    card.className = 'ai-suggestion';
+    const textDiv = document.createElement('div');
+    textDiv.className = 'ai-suggestion-text';
+    textDiv.textContent = clean;
+    const meta = document.createElement('div');
+    meta.className = 'ai-suggestion-meta';
+    meta.textContent = `${countSyl(clean)} syllables`;
+    
+    // Collect button
+    const collectBtn = document.createElement('button');
+    collectBtn.className = 'collect-btn' + (isCollected(clean) ? ' collected' : '');
+    collectBtn.textContent = '⭐';
+    collectBtn.title = isCollected(clean) ? 'Already collected' : 'Add to scratch pad';
+    collectBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleCollect(clean);
+      collectBtn.classList.toggle('collected');
+      collectBtn.title = collectBtn.classList.contains('collected') ? 'Already collected' : 'Add to scratch pad';
+    });
+    meta.appendChild(collectBtn);
+    
+    const btn = document.createElement('button');
+    btn.className = 'use-btn';
+    btn.textContent = t('modal.use.btn') + ' ↑';
+    btn.addEventListener('click', () => useSuggestion(clean));
+    meta.appendChild(btn);
+    card.appendChild(textDiv);
+    card.appendChild(meta);
+    container.appendChild(card);
+  });
+}
+
+function useSuggestion(text) {
+  if (selectedLine === null) {
+    alert(t('modal.use.alert'));
+    return;
+  }
+  showUseModal(text);
+}
+
+function showUseModal(text) {
+  // capture selectedLine at modal-open time
+  const targetLine = selectedLine;
+
+  document.getElementById('useModal')?.remove();
+
+  const modal = document.createElement('div');
+  modal.id = 'useModal';
+  modal.style.cssText = `
+    position:fixed; inset:0; z-index:10000;
+    display:flex; align-items:center; justify-content:center;
+    background:rgba(26,21,16,0.45); backdrop-filter:blur(3px);
+  `;
+
+  const box = document.createElement('div');
+  box.style.cssText = `
+    background:var(--cream-light); border:1px solid var(--rule);
+    border-radius:12px; padding:22px 24px; max-width:400px; width:90%;
+    box-shadow:0 20px 60px rgba(26,21,16,0.25);
+    animation: modalIn 0.18s cubic-bezier(.34,1.4,.64,1) both;
+  `;
+
+  // Label
+  const lbl = document.createElement('div');
+  lbl.style.cssText = `font-family:'Cormorant Garamond',serif; font-size:11px; letter-spacing:0.12em; text-transform:uppercase; color:var(--ink-faint); margin-bottom:10px;`;
+  lbl.textContent = t('modal.use.label');
+
+  // Preview
+  const preview = document.createElement('div');
+  preview.style.cssText = `font-family:'Crimson Pro',serif; font-size:20px; color:var(--ink); margin-bottom:18px; line-height:1.4; font-style:italic;`;
+  preview.textContent = text;
+
+  // Buttons row
+  const row = document.createElement('div');
+  row.style.cssText = `display:flex; gap:8px; flex-wrap:wrap;`;
+
+  const mkBtn = (label, primary) => {
+    const b = document.createElement('button');
+    b.textContent = label;
+    b.style.cssText = primary
+      ? `flex:1; padding:10px; background:var(--ink); color:var(--cream); border:none; border-radius:7px; font-family:'DM Sans',sans-serif; font-size:13px; cursor:pointer;`
+      : `flex:1; padding:10px; background:var(--cream); border:1px solid var(--rule); border-radius:7px; font-family:'DM Sans',sans-serif; font-size:13px; color:var(--ink-mid); cursor:pointer;`;
+    if (primary) {
+      b.addEventListener('mouseenter', () => b.style.background = 'var(--amber)');
+      b.addEventListener('mouseleave', () => b.style.background = 'var(--ink)');
+    } else {
+      b.addEventListener('mouseenter', () => b.style.borderColor = 'var(--amber)');
+      b.addEventListener('mouseleave', () => b.style.borderColor = 'var(--rule)');
+    }
+    return b;
+  };
+
+  const replaceBtn = mkBtn(t('modal.use.replace') + ` ${targetLine + 1}`, true);
+  replaceBtn.addEventListener('click', () => {
+    applySuggestion('replace', text, targetLine);
+    modal.remove();
+  });
+
+  const belowBtn = mkBtn(t('modal.use.below'), false);
+  belowBtn.addEventListener('click', () => {
+    applySuggestion('below', text, targetLine);
+    modal.remove();
+  });
+
+  const cancelBtn = document.createElement('button');
+  cancelBtn.textContent = t('modal.use.cancel');
+  cancelBtn.style.cssText = `padding:10px 14px; background:none; border:none; color:var(--ink-faint); cursor:pointer; font-size:13px; font-family:'DM Sans',sans-serif;`;
+  cancelBtn.addEventListener('click', () => modal.remove());
+
+  row.appendChild(replaceBtn);
+  row.appendChild(belowBtn);
+  row.appendChild(cancelBtn);
+  box.appendChild(lbl);
+  box.appendChild(preview);
+  box.appendChild(row);
+
+  // Animation keyframe (once)
+  if (!document.getElementById('modalStyle')) {
+    const s = document.createElement('style');
+    s.id = 'modalStyle';
+    s.textContent = `@keyframes modalIn { from{opacity:0;transform:scale(0.92) translateY(8px)} to{opacity:1;transform:scale(1) translateY(0)} }`;
+    document.head.appendChild(s);
+  }
+
+  modal.appendChild(box);
+  modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
+  document.body.appendChild(modal);
+}
+
+function applySuggestion(mode, text, lineIdx) {
+  snapshot();
+  const sec = sections[current];
+  if (!sec.sources) sec.sources = sec.lines.map(() => 'human');
+
+  if (mode === 'replace') {
+    sec.lines[lineIdx] = text;
+    sec.sources[lineIdx] = 'ai';
+    renderEditor();
+    focusLine(lineIdx);
+  } else {
+    sec.lines.splice(lineIdx + 1, 0, text);
+    sec.sources.splice(lineIdx + 1, 0, 'ai');
+    renderEditor();
+    focusLine(lineIdx + 1);
+  }
+  updateLineCounts();
+  renderOverview();
+}
+
+// ── Intensifiers Panel ────────────────────────────
+let intensifiersOpen = false;
+
+const INTENSIFIERS_BY_MOOD = {
+  // Verbs and adjectives grouped by emotional tone
+  melancholic: {
+    verbs: ['ache', 'fade', 'drown', 'shatter', 'crumble', 'wither', 'haunt', 'linger'],
+    adjectives: ['hollow', 'fading', 'broken', 'silent', 'empty', 'grey', 'heavy', 'cold']
+  },
+  hopeful: {
+    verbs: ['rise', 'bloom', 'glow', 'soar', 'ignite', 'awaken', 'breathe', 'begin'],
+    adjectives: ['golden', 'bright', 'warm', 'open', 'new', 'alive', 'free', 'light']
+  },
+  anthemic: {
+    verbs: ['roar', 'burn', 'fight', 'stand', 'rise', 'blaze', 'conquer', 'thunder'],
+    adjectives: ['fierce', 'wild', 'unstoppable', 'bold', 'loud', 'brave', 'endless', 'true']
+  },
+  bittersweet: {
+    verbs: ['remember', 'release', 'let go', 'accept', 'cherish', 'forgive', 'move on'],
+    adjectives: ['tender', 'bittersweet', 'gentle', 'soft', 'quiet', 'wistful', 'grateful']
+  },
+  raw: {
+    verbs: ['scream', 'bleed', 'tear', 'rip', 'crash', 'explode', 'expose', 'confess'],
+    adjectives: ['raw', 'naked', 'brutal', 'unfiltered', 'real', 'honest', 'messy', 'true']
+  },
+  dreamy: {
+    verbs: ['float', 'drift', 'wander', 'dissolve', 'shimmer', 'whisper', 'melt', 'blur'],
+    adjectives: ['hazy', 'soft', 'golden', 'distant', 'ethereal', 'velvet', 'quiet', 'slow']
+  },
+  urgent: {
+    verbs: ['race', 'rush', 'chase', 'grab', 'seize', 'run', 'escape', 'reach'],
+    adjectives: ['fast', 'desperate', 'urgent', 'now', 'fierce', 'sharp', 'electric', 'alive']
+  },
+  tender: {
+    verbs: ['hold', 'touch', 'whisper', 'caress', 'cradle', 'shelter', 'keep', 'stay'],
+    adjectives: ['soft', 'gentle', 'warm', 'close', 'quiet', 'safe', 'small', 'tender']
+  },
+  dark: {
+    verbs: ['lurk', 'creep', 'consume', 'devour', 'poison', 'corrupt', 'destroy', 'bury'],
+    adjectives: ['dark', 'black', 'twisted', 'cold', 'dead', 'hollow', 'sharp', 'bitter']
+  },
+  playful: {
+    verbs: ['dance', 'spin', 'laugh', 'play', 'tease', 'skip', 'bounce', 'twirl'],
+    adjectives: ['bright', 'quick', 'fizzy', 'sweet', 'wild', 'fun', 'light', 'silly']
+  }
+};
+
+function toggleIntensifiers() {
+  intensifiersOpen = !intensifiersOpen;
+  const panel = document.getElementById('intensifiersPanel');
+  panel.style.display = intensifiersOpen ? 'block' : 'none';
+  if (intensifiersOpen) renderIntensifiers();
+}
+
+function renderIntensifiers() {
+  const body = document.getElementById('intensifiersBody');
+  const moodText = document.getElementById('chipMood')?.textContent?.replace('◎', '').trim().toLowerCase() || 'melancholic';
+  
+  // Find matching mood or default
+  let words = INTENSIFIERS_BY_MOOD[moodText] || INTENSIFIERS_BY_MOOD.melancholic;
+  
+  // Try partial match if exact not found
+  if (!INTENSIFIERS_BY_MOOD[moodText]) {
+    const key = Object.keys(INTENSIFIERS_BY_MOOD).find(k => moodText.includes(k) || k.includes(moodText));
+    if (key) words = INTENSIFIERS_BY_MOOD[key];
+  }
+  
+  body.innerHTML = `
+    <div class="intensifiers-group">
+      <div class="intensifiers-group-label">${t('intensifiers.verbs')}</div>
+      <div class="intensifiers-words">
+        ${words.verbs.map(w => `<span class="intensifier-word verb" onclick="insertWordAtCursor('${w}')">${w}</span>`).join('')}
+      </div>
+    </div>
+    <div class="intensifiers-group">
+      <div class="intensifiers-group-label">${t('intensifiers.adjectives')}</div>
+      <div class="intensifiers-words">
+        ${words.adjectives.map(w => `<span class="intensifier-word adj" onclick="insertWordAtCursor('${w}')">${w}</span>`).join('')}
+      </div>
+    </div>
+  `;
+}
+
+// ── Word Family ───────────────────────────────────
+let wordFamilyData = { primary: [], extended: [], intensifiers: [] };
+let wordFamilyFilter = 'all';
+let currentFamilyWord = '';
+
+async function runWordFamily(word) {
+  currentFamilyWord = word;
+  wordFamilyFilter = 'all';
+  
+  const container = document.getElementById('aiResponse');
+  container.innerHTML = `
+    <div class="wordfamily-browser">
+      <div class="wordfamily-header">
+        <span class="wordfamily-word">◈ ${t('tool.wordfamily.label')}: <strong>${word}</strong></span>
+      </div>
+      <div class="wordfamily-filters">
+        <button class="wf-filter active" data-cat="all">${t('wordfamily.all')}</button>
+        <button class="wf-filter" data-cat="primary">${t('wordfamily.primary')}</button>
+        <button class="wf-filter" data-cat="extended">${t('wordfamily.extended')}</button>
+        <button class="wf-filter" data-cat="intensifiers">${t('wordfamily.intensifiers')}</button>
+      </div>
+      <div class="rhyme-loading"><span></span><span></span><span></span></div>
+      <div class="wordfamily-results" id="wordfamilyResults"></div>
+    </div>
+  `;
+  
+  // Attach filter handlers
+  container.querySelectorAll('.wf-filter').forEach(btn => {
+    btn.onclick = () => {
+      container.querySelectorAll('.wf-filter').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      wordFamilyFilter = btn.dataset.cat;
+      renderWordFamilyResults();
+    };
+  });
+  
+  // Fetch from AI
+  const lang = typeof currentLang === 'function' ? currentLang() : 'en';
+  const langInstruction = lang === 'fr' ? ' Réponds entièrement en français.' : '';
+  
+  try {
+    const res = await fetch('/.netlify/functions/ai', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'gpt-4o-mini',
+        messages: [{
+          role: 'system',
+          content: 'You are a creative writing assistant specializing in vocabulary expansion for songwriters.' + langInstruction
+        }, {
+          role: 'user',
+          content: `For the word "${word}", provide creative replacements in three categories. Return ONLY valid JSON, no markdown:
+
+{
+  "primary": ["word1", "word2", "word3", "word4", "word5"],
+  "extended": ["word1", "word2", "word3", "word4", "word5"],
+  "intensifiers": {
+    "stronger": ["word1", "word2", "word3"],
+    "softer": ["word1", "word2", "word3"]
+  }
+}
+
+PRIMARY: 5 close synonyms that could replace the word in most contexts.
+EXTENDED: 5 unexpected, creative replacements — not exact synonyms, but words that could replace the original MORE VIVIDLY or POETICALLY. Think metaphorical, evocative, or surprising choices.
+INTENSIFIERS: 3 stronger versions (more intense emotion) and 3 softer versions (gentler, subtler).
+
+Be creative with EXTENDED — these should surprise and inspire a songwriter.`
+        }],
+        max_tokens: 400,
+        temperature: 0.9
+      })
+    });
+    
+    const data = await res.json();
+    const text = data.choices?.[0]?.message?.content || '{}';
+    
+    // Parse JSON
+    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      const parsed = JSON.parse(jsonMatch[0]);
+      wordFamilyData.primary = (parsed.primary || []).map(w => ({ word: w, category: 'primary' }));
+      wordFamilyData.extended = (parsed.extended || []).map(w => ({ word: w, category: 'extended' }));
+      
+      const stronger = (parsed.intensifiers?.stronger || []).map(w => ({ word: w, category: 'stronger' }));
+      const softer = (parsed.intensifiers?.softer || []).map(w => ({ word: w, category: 'softer' }));
+      wordFamilyData.intensifiers = [...stronger, ...softer];
+    }
+    
+    container.querySelector('.rhyme-loading').style.display = 'none';
+    renderWordFamilyResults();
+    
+  } catch (err) {
+    container.querySelector('.rhyme-loading').innerHTML = 
+      `<span style="color:var(--ink-faint);font-size:13px;">Could not load word family. Try again.</span>`;
+  }
+}
+
+function renderWordFamilyResults() {
+  const container = document.getElementById('wordfamilyResults');
+  if (!container) return;
+  
+  container.innerHTML = '';
+  
+  const categories = wordFamilyFilter === 'all' 
+    ? ['primary', 'extended', 'intensifiers']
+    : [wordFamilyFilter];
+  
+  categories.forEach(cat => {
+    const data = wordFamilyData[cat] || [];
+    if (!data.length) return;
+    
+    const section = document.createElement('div');
+    section.className = 'wf-section';
+    
+    const label = document.createElement('div');
+    label.className = 'wf-section-label';
+    label.textContent = t('wordfamily.' + cat);
+    section.appendChild(label);
+    
+    const grid = document.createElement('div');
+    grid.className = 'wf-grid';
+    
+    data.forEach(item => {
+      const tag = document.createElement('div');
+      tag.className = 'wf-tag ' + (item.category || cat);
+      tag.innerHTML = `
+        <span class="wf-word">${item.word}</span>
+        <span class="wf-badge">${item.category === 'stronger' ? '↑' : item.category === 'softer' ? '↓' : ''}</span>
+      `;
+      tag.onclick = () => insertWordAtCursor(item.word);
+      tag.oncontextmenu = (e) => {
+        e.preventDefault();
+        addToScratchPad(item.word);
+        tag.classList.add('collected');
+        setTimeout(() => tag.classList.remove('collected'), 600);
+      };
+      grid.appendChild(tag);
+    });
+    
+    section.appendChild(grid);
+    container.appendChild(section);
+  });
+  
+  if (container.children.length === 0) {
+    container.innerHTML = `<div class="rhyme-empty">${t('wordfamily.empty')}</div>`;
+  }
+}
+
+function insertWordAtCursor(word) {
+  if (selectedLine === null) return;
+  const input = document.querySelectorAll('.line-input')[selectedLine];
+  if (!input) return;
+  
+  // Insert at cursor position or end
+  const start = input.selectionStart || input.value.length;
+  const before = input.value.slice(0, start);
+  const after = input.value.slice(start);
+  
+  // Add space if needed
+  const needsSpaceBefore = before.length > 0 && !before.endsWith(' ');
+  const needsSpaceAfter = after.length > 0 && !after.startsWith(' ');
+  
+  input.value = before + (needsSpaceBefore ? ' ' : '') + word + (needsSpaceAfter ? ' ' : '') + after;
+  
+  // Update data
+  const sec = sections[current];
+  let lines = hasVersions(sec) ? getActiveVersion(sec).lines : sec.lines;
+  lines[selectedLine] = input.value;
+  
+  input.focus();
+  updateLineCounts();
+  renderOverview();
+}
+
+// ── Rhyme Browser (Datamuse API) ──────────────────
+let rhymeData = { perfect: [], near: [], all: [] };
+let rhymeFilters = { type: 'all', syllables: 0 };
+let currentRhymeWord = '';
+
+async function runRhymeBrowser(word) {
+  currentRhymeWord = word;
+  rhymeFilters = { type: 'all', syllables: 0 };
+  
+  const container = document.getElementById('aiResponse');
+  container.innerHTML = `
+    <div class="rhyme-browser">
+      <div class="rhyme-header">
+        <span class="rhyme-word">∿ ${t('tool.rhyme.label')}: <strong>${word}</strong></span>
+      </div>
+      <div class="rhyme-filters">
+        <div class="rhyme-filter-group">
+          <button class="rhyme-filter active" data-type="all">${t('rhyme.all')}</button>
+          <button class="rhyme-filter" data-type="perfect">${t('rhyme.perfect')}</button>
+          <button class="rhyme-filter" data-type="near">${t('rhyme.near')}</button>
+        </div>
+        <div class="rhyme-filter-group">
+          <button class="rhyme-syl-btn active" data-syl="0">${t('rhyme.anysyl')}</button>
+          <button class="rhyme-syl-btn" data-syl="1">1</button>
+          <button class="rhyme-syl-btn" data-syl="2">2</button>
+          <button class="rhyme-syl-btn" data-syl="3">3</button>
+          <button class="rhyme-syl-btn" data-syl="4">4+</button>
+        </div>
+      </div>
+      <div class="rhyme-loading"><span></span><span></span><span></span></div>
+      <div class="rhyme-results" id="rhymeResults"></div>
+    </div>
+  `;
+  
+  // Attach filter handlers
+  container.querySelectorAll('.rhyme-filter').forEach(btn => {
+    btn.onclick = () => {
+      container.querySelectorAll('.rhyme-filter').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      rhymeFilters.type = btn.dataset.type;
+      renderRhymeResults();
+    };
+  });
+  
+  container.querySelectorAll('.rhyme-syl-btn').forEach(btn => {
+    btn.onclick = () => {
+      container.querySelectorAll('.rhyme-syl-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      rhymeFilters.syllables = parseInt(btn.dataset.syl);
+      renderRhymeResults();
+    };
+  });
+  
+  // Fetch from Datamuse API
+  try {
+    const [perfectRes, nearRes] = await Promise.all([
+      fetch(`https://api.datamuse.com/words?rel_rhy=${encodeURIComponent(word)}&max=50&md=s`),
+      fetch(`https://api.datamuse.com/words?rel_nry=${encodeURIComponent(word)}&max=50&md=s`)
+    ]);
+    
+    const perfectData = await perfectRes.json();
+    const nearData = await nearRes.json();
+    
+    // Parse results with syllable counts
+    rhymeData.perfect = perfectData.map(r => ({
+      word: r.word,
+      syllables: r.numSyllables || countSyl(r.word),
+      score: r.score || 0
+    }));
+    
+    rhymeData.near = nearData.map(r => ({
+      word: r.word,
+      syllables: r.numSyllables || countSyl(r.word),
+      score: r.score || 0
+    }));
+    
+    // Combine for "all" view, removing duplicates
+    const seen = new Set();
+    rhymeData.all = [];
+    [...rhymeData.perfect, ...rhymeData.near].forEach(r => {
+      if (!seen.has(r.word)) {
+        seen.add(r.word);
+        rhymeData.all.push(r);
+      }
+    });
+    
+    // Sort by score
+    rhymeData.all.sort((a, b) => b.score - a.score);
+    
+    container.querySelector('.rhyme-loading').style.display = 'none';
+    renderRhymeResults();
+    
+  } catch (err) {
+    container.querySelector('.rhyme-loading').innerHTML = 
+      `<span style="color:var(--ink-faint);font-size:13px;">Could not load rhymes. Try again.</span>`;
+  }
+}
+
+function renderRhymeResults() {
+  const container = document.getElementById('rhymeResults');
+  if (!container) return;
+  
+  let data = rhymeData[rhymeFilters.type] || rhymeData.all;
+  
+  // Filter by syllables
+  if (rhymeFilters.syllables > 0) {
+    if (rhymeFilters.syllables === 4) {
+      data = data.filter(r => r.syllables >= 4);
+    } else {
+      data = data.filter(r => r.syllables === rhymeFilters.syllables);
+    }
+  }
+  
+  if (data.length === 0) {
+    container.innerHTML = `<div class="rhyme-empty">${t('rhyme.none')}</div>`;
+    return;
+  }
+  
+  container.innerHTML = '';
+  const grid = document.createElement('div');
+  grid.className = 'rhyme-grid';
+  
+  data.slice(0, 40).forEach(r => {
+    const tag = document.createElement('div');
+    tag.className = 'rhyme-tag-v2';
+    tag.innerHTML = `
+      <span class="rhyme-word-text">${r.word}</span>
+      <span class="rhyme-syl-badge">${r.syllables}</span>
+    `;
+    tag.onclick = () => insertRhyme(r.word);
+    
+    // Add collect on right-click or long-press
+    tag.oncontextmenu = (e) => {
+      e.preventDefault();
+      addToScratchPad(r.word);
+      tag.classList.add('collected');
+      setTimeout(() => tag.classList.remove('collected'), 600);
+    };
+    
+    grid.appendChild(tag);
+  });
+  
+  container.appendChild(grid);
+  
+  // Show count
+  const countEl = document.createElement('div');
+  countEl.className = 'rhyme-count';
+  countEl.textContent = data.length + ' ' + (data.length === 1 ? t('rhyme.result') : t('rhyme.results'));
+  container.appendChild(countEl);
+}
+
+function insertRhyme(word) {
+  if (selectedLine === null) return;
+  const input = document.querySelectorAll('.line-input')[selectedLine];
+  if (!input) return;
+  const parts = input.value.trim().split(/\s+/);
+  if (parts.length > 0) parts[parts.length - 1] = word;
+  input.value = parts.join(' ') + ' ';
+  sections[current].lines[selectedLine] = input.value;
+  input.dispatchEvent(new Event('input'));
+  input.focus();
+}
+
+function setAIHtml(html) {
+  document.getElementById('aiResponse').innerHTML = html;
+}
+
+// ── Add Section ───────────────────────────────────
+function addSection() {
+  const promptText = typeof t === 'function' ? t('section.add.prompt') : 'Section name:';
+  const defaultText = typeof t === 'function' ? t('section.add.default') : 'Bridge 2';
+  const name = prompt(promptText, defaultText);
+  if (!name?.trim()) return;
+  const badge = name.length > 7 ? name.slice(0,6).trim() + '…' : name;
+  sections.push({ name: name.trim(), badge, lines:['','',''], sources:['human','human','human'] });
+  renderSidebar();
+  selectSection(sections.length - 1);
+}
+
+// ── Meta editing ──────────────────────────────────
+function editMeta(type) {
+  const id  = { key:'chipKey', tempo:'chipTempo', mood:'chipMood' };
+  const pre = { key:'♩ ', tempo:'↯ ', mood:'◎ ' };
+  const labels = { key:'Key', tempo:'Tempo (BPM)', mood:'Mood' };
+  const current = document.getElementById(id[type])?.textContent?.replace(pre[type], '').trim() || '';
+
+  // Remove existing
+  document.getElementById('metaModal')?.remove();
+
+  const modal = document.createElement('div');
+  modal.id = 'metaModal';
+  modal.style.cssText = 'position:fixed;inset:0;z-index:10002;display:flex;align-items:center;justify-content:center;background:rgba(26,21,16,0.35);backdrop-filter:blur(2px);';
+
+  const box = document.createElement('div');
+  box.style.cssText = 'background:var(--cream-light);border:1px solid var(--rule);border-radius:10px;padding:20px 22px;min-width:260px;box-shadow:0 16px 48px rgba(26,21,16,0.2);';
+
+  const lbl = document.createElement('div');
+  lbl.style.cssText = 'font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:10px;font-family:"DM Sans",sans-serif;';
+  lbl.textContent = labels[type];
+
+  const inp = document.createElement('input');
+  inp.type = 'text';
+  inp.value = current;
+  inp.style.cssText = 'width:100%;background:none;border:none;border-bottom:2px solid var(--amber);padding:6px 2px;font-family:"Crimson Pro",serif;font-size:20px;color:var(--ink);outline:none;caret-color:var(--amber);';
+
+  // Mood suggestions (persistent, user can add)
+  let suggestions = null;
+  if (type === 'mood') {
+    const DEFAULT_MOODS = ['Melancholic','Hopeful','Anthemic','Bittersweet','Raw','Dreamy','Urgent','Tender','Dark','Playful'];
+    const storedMoods = JSON.parse(localStorage.getItem('inkwell_moods') || 'null') || DEFAULT_MOODS;
+    let moods = [...storedMoods];
+
+    suggestions = document.createElement('div');
+    suggestions.style.cssText = 'margin-top:12px;';
+
+    function renderMoodTags() {
+      suggestions.innerHTML = '';
+      const cloud = document.createElement('div');
+      cloud.style.cssText = 'display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px;';
+
+      moods.forEach(m => {
+        const tag = document.createElement('button');
+        tag.textContent = m;
+        const isActive = m === current;
+        tag.style.cssText = 'padding:4px 11px;border:1px solid ' + (isActive ? 'var(--amber)' : 'var(--rule)') + ';border-radius:20px;background:' + (isActive ? 'var(--amber-pale)' : 'none') + ';font-size:11.5px;color:' + (isActive ? 'var(--amber)' : 'var(--ink-soft)') + ';cursor:pointer;font-family:"DM Sans",sans-serif;position:relative;';
+
+        tag.onmouseenter = () => { tag.style.borderColor='var(--amber)'; tag.style.color='var(--amber)'; };
+        tag.onmouseleave = () => { if (inp.value !== m) { tag.style.borderColor=isActive?'var(--amber)':'var(--rule)'; tag.style.color=isActive?'var(--amber)':'var(--ink-soft)'; } };
+        tag.onclick = () => { inp.value = m; save(); };
+        cloud.appendChild(tag);
+      });
+
+      // Add new mood row
+      const addRow = document.createElement('div');
+      addRow.style.cssText = 'display:flex;gap:6px;align-items:center;border-top:1px solid var(--rule);padding-top:10px;';
+
+      const addInp = document.createElement('input');
+      addInp.type = 'text';
+      addInp.placeholder = 'Add a mood…';
+      addInp.style.cssText = 'flex:1;background:none;border:none;border-bottom:1px solid var(--rule);padding:4px 2px;font-family:"DM Sans",sans-serif;font-size:12px;color:var(--ink);outline:none;caret-color:var(--amber);';
+
+      const addBtn = document.createElement('button');
+      addBtn.textContent = '+ Add';
+      addBtn.style.cssText = 'padding:4px 10px;background:none;border:1px solid var(--rule);border-radius:20px;font-size:11px;color:var(--ink-soft);cursor:pointer;font-family:"DM Sans",sans-serif;flex-shrink:0;';
+      addBtn.onmouseenter = () => { addBtn.style.borderColor='var(--amber)'; addBtn.style.color='var(--amber)'; };
+      addBtn.onmouseleave = () => { addBtn.style.borderColor='var(--rule)'; addBtn.style.color='var(--ink-soft)'; };
+
+      function addMood() {
+        const val = addInp.value.trim();
+        if (!val || moods.includes(val)) { addInp.focus(); return; }
+        moods.push(val);
+        localStorage.setItem('inkwell_moods', JSON.stringify(moods));
+        inp.value = val;
+        renderMoodTags();
+        // Highlight the new tag
+        addInp.value = '';
+      }
+
+      addBtn.onclick = addMood;
+      addInp.addEventListener('keydown', e => { if (e.key === 'Enter') { e.stopPropagation(); addMood(); } });
+
+      addRow.appendChild(addInp);
+      addRow.appendChild(addBtn);
+      suggestions.appendChild(cloud);
+      suggestions.appendChild(addRow);
+    }
+
+    renderMoodTags();
+  }
+
+  const row = document.createElement('div');
+  row.style.cssText = 'display:flex;gap:8px;margin-top:14px;';
+
+  const saveBtn = document.createElement('button');
+  saveBtn.textContent = t('meta.btn.set');
+  saveBtn.style.cssText = 'flex:1;padding:8px;background:var(--ink);color:var(--cream);border:none;border-radius:6px;font-family:"DM Sans",sans-serif;font-size:13px;cursor:pointer;';
+  saveBtn.onmouseenter = () => saveBtn.style.background = 'var(--amber)';
+  saveBtn.onmouseleave = () => saveBtn.style.background = 'var(--ink)';
+
+  const cancelBtn = document.createElement('button');
+  cancelBtn.textContent = t('meta.btn.cancel');
+  cancelBtn.style.cssText = 'padding:8px 14px;background:none;border:1px solid var(--rule);border-radius:6px;font-family:"DM Sans",sans-serif;font-size:13px;color:var(--ink-soft);cursor:pointer;';
+  cancelBtn.onclick = () => modal.remove();
+
+  function save() {
+    const val = inp.value.trim();
+    if (val) document.getElementById(id[type]).textContent = pre[type] + val;
+    modal.remove();
+  }
+
+  saveBtn.onclick = save;
+  inp.addEventListener('keydown', e => { if (e.key === 'Enter') save(); if (e.key === 'Escape') modal.remove(); });
+
+  row.appendChild(saveBtn);
+  row.appendChild(cancelBtn);
+  box.appendChild(lbl);
+  box.appendChild(inp);
+  if (suggestions) box.appendChild(suggestions);
+  box.appendChild(row);
+  modal.appendChild(box);
+  modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
+  document.body.appendChild(modal);
+  setTimeout(() => inp.focus(), 50);
+}
+
+// ── Save / Export ─────────────────────────────────
+function saveSong() {
+  localStorage.setItem('inkwell_song', JSON.stringify({
+    title: document.getElementById('songTitle').value,
+    sections
+  }));
+  const btn = document.getElementById('saveBtn');
+  btn.textContent = 'Saved ✓';
+  setTimeout(() => btn.textContent = 'Save', 1600);
+}
+
+function loadSaved() {
+  const raw = localStorage.getItem('inkwell_song');
+  if (!raw) return;
+  try {
+    const d = JSON.parse(raw);
+    if (d.title) document.getElementById('songTitle').value = d.title;
+    if (d.sections?.length) sections = d.sections;
+  } catch(e) {}
+}
+
+function toggleExportMenu() {
+  const menu = document.getElementById('exportMenu');
+  if (menu.style.display === 'none') {
+    menu.style.display = 'block';
+    setTimeout(() => document.addEventListener('click', closeExportMenu, { once: true }), 10);
+  } else {
+    menu.style.display = 'none';
+  }
+}
+function closeExportMenu() {
+  const menu = document.getElementById('exportMenu');
+  if (menu) menu.style.display = 'none';
+}
+
+function exportLyrics(fmt) {
+  document.getElementById('exportMenu').style.display = 'none';
+  const title = document.getElementById('songTitle').value || 'Untitled Song';
+  const slug  = title.replace(/[^a-z0-9]/gi, '_');
+
+  if (fmt === 'md') {
+    let out = '# ' + title + '\n\n';
+    const key   = document.getElementById('chipKey')?.textContent?.trim() || '';
+    const tempo = document.getElementById('chipTempo')?.textContent?.trim() || '';
+    const mood  = document.getElementById('chipMood')?.textContent?.trim() || '';
+    if (key || tempo || mood) out += '> ' + [key, tempo, mood].filter(Boolean).join(' · ') + '\n\n';
+    sections.forEach(sec => {
+      const lines = sec.lines.filter(l => l.trim());
+      if (lines.length) out += '## ' + sec.name + '\n\n' + lines.join('  \n') + '\n\n';
+    });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([out], { type: 'text/markdown' }));
+    a.download = slug + '.md';
+    a.click();
+
+  } else if (fmt === 'pdf') {
+    const win = window.open('', '_blank');
+    const key   = document.getElementById('chipKey')?.textContent?.trim() || '';
+    const tempo = document.getElementById('chipTempo')?.textContent?.trim() || '';
+    const mood  = document.getElementById('chipMood')?.textContent?.trim() || '';
+    let body = '';
+    sections.forEach(sec => {
+      const lines = sec.lines.filter(l => l.trim());
+      if (lines.length) body += '<h3>' + sec.name + '</h3><p>' + lines.join('<br>') + '</p>';
+    });
+    win.document.write(
+      '<!DOCTYPE html><html><head><title>' + title + '</title>' +
+      '<style>body{font-family:Georgia,serif;max-width:600px;margin:60px auto;color:#1a1510;line-height:1.8}h1{font-size:28px;font-weight:normal;margin-bottom:4px}.meta{color:#7a6d5e;font-size:13px;margin-bottom:36px;font-style:italic}h3{font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:#b8a99a;margin:28px 0 8px}p{margin:0;font-size:18px}</style>' +
+      '</head><body><h1>' + title + '</h1>' +
+      '<div class="meta">' + [key,tempo,mood].filter(Boolean).join(' - ') + '</div>' +
+      body + '</body></html>'
+    );
+    win.document.close();
+    win.focus();
+    setTimeout(() => win.print(), 400);
+
+  } else {
+    // Plain text (default)
+    let out = title.toUpperCase() + '\n' + '─'.repeat(title.length) + '\n\n';
+    sections.forEach(sec => {
+      const lines = sec.lines.filter(l => l.trim());
+      if (lines.length) out += '[' + sec.name.toUpperCase() + ']\n' + lines.join('\n') + '\n\n';
+    });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([out], { type: 'text/plain' }));
+    a.download = slug + '.txt';
+    a.click();
+  }
+}
+
+// ── API Key ───────────────────────────────────────
+function saveKey() {
+  apiKey = document.getElementById('apiKeyInput').value.trim();
+  localStorage.setItem('inkwell_key', apiKey);
+  (document.getElementById('configBar')||{style:{}}).style.display = 'none';
+}
+
+// ── Scratch Pad ───────────────────────────────────
+let scratchOpen = false;
+
+function getScratchPad() {
+  const songId = currentSongId || 'default';
+  try {
+    const all = JSON.parse(localStorage.getItem('inkwell_scratch') || '{}');
+    return all[songId] || [];
+  } catch(e) { return []; }
+}
+
+function saveScratchPad(items) {
+  const songId = currentSongId || 'default';
+  try {
+    const all = JSON.parse(localStorage.getItem('inkwell_scratch') || '{}');
+    all[songId] = items;
+    localStorage.setItem('inkwell_scratch', JSON.stringify(all));
+  } catch(e) {}
+}
+
+function isCollected(text) {
+  return getScratchPad().some(item => item.text === text);
+}
+
+function toggleCollect(text) {
+  const items = getScratchPad();
+  const idx = items.findIndex(item => item.text === text);
+  if (idx >= 0) {
+    items.splice(idx, 1);
+  } else {
+    items.push({ text, addedAt: new Date().toISOString() });
+    // Auto-expand when adding
+    if (!scratchOpen) {
+      scratchOpen = true;
+      document.getElementById('scratchBody').style.display = 'block';
+      document.getElementById('scratchToggle').classList.add('open');
+    }
+  }
+  saveScratchPad(items);
+  renderScratchPad();
+}
+
+function addToScratchPad(text) {
+  if (isCollected(text)) return;
+  const items = getScratchPad();
+  items.push({ text, addedAt: new Date().toISOString() });
+  saveScratchPad(items);
+  renderScratchPad();
+  // Auto-expand when adding
+  if (!scratchOpen) {
+    scratchOpen = true;
+    document.getElementById('scratchBody').style.display = 'block';
+    document.getElementById('scratchToggle').classList.add('open');
+  }
+}
+
+function removeFromScratchPad(text) {
+  const items = getScratchPad().filter(item => item.text !== text);
+  saveScratchPad(items);
+  renderScratchPad();
+}
+
+function toggleScratchPad() {
+  scratchOpen = !scratchOpen;
+  const body = document.getElementById('scratchBody');
+  const toggle = document.getElementById('scratchToggle');
+  body.style.display = scratchOpen ? 'block' : 'none';
+  toggle.classList.toggle('open', scratchOpen);
+  if (scratchOpen) renderScratchPad();
+}
+
+function renderScratchPad() {
+  const items = getScratchPad();
+  const count = document.getElementById('scratchCount');
+  const empty = document.getElementById('scratchEmpty');
+  const list = document.getElementById('scratchItems');
+  
+  count.textContent = items.length;
+  count.classList.toggle('has-items', items.length > 0);
+  
+  if (items.length === 0) {
+    empty.style.display = 'block';
+    empty.textContent = t('scratch.empty');
+    list.innerHTML = '';
+    return;
+  }
+  
+  empty.style.display = 'none';
+  list.innerHTML = '';
+  
+  items.forEach((item, idx) => {
+    const div = document.createElement('div');
+    div.className = 'scratch-item';
+    div.draggable = true;
+    div.dataset.text = item.text;
+    
+    const textSpan = document.createElement('div');
+    textSpan.className = 'scratch-item-text';
+    textSpan.textContent = item.text;
+    
+    const actions = document.createElement('div');
+    actions.className = 'scratch-item-actions';
+    
+    const insertBtn = document.createElement('button');
+    insertBtn.className = 'scratch-item-btn';
+    insertBtn.textContent = t('scratch.insert');
+    insertBtn.onclick = (e) => {
+      e.stopPropagation();
+      insertFromScratch(item.text);
+    };
+    
+    const deleteBtn = document.createElement('button');
+    deleteBtn.className = 'scratch-item-btn delete';
+    deleteBtn.textContent = t('scratch.delete');
+    deleteBtn.onclick = (e) => {
+      e.stopPropagation();
+      removeFromScratchPad(item.text);
+    };
+    
+    actions.appendChild(insertBtn);
+    actions.appendChild(deleteBtn);
+    div.appendChild(textSpan);
+    div.appendChild(actions);
+    
+    // Drag handlers
+    div.addEventListener('dragstart', (e) => {
+      e.dataTransfer.setData('text/plain', item.text);
+      e.dataTransfer.effectAllowed = 'copy';
+      div.classList.add('dragging');
+    });
+    div.addEventListener('dragend', () => {
+      div.classList.remove('dragging');
+    });
+    
+    list.appendChild(div);
+  });
+}
+
+function insertFromScratch(text) {
+  if (selectedLine === null) {
+    // No line selected — show modal to choose where
+    showUseModal(text);
+  } else {
+    // Line selected — insert below
+    snapshot();
+    const sec = sections[current];
+    if (!sec.sources) sec.sources = sec.lines.map(() => 'human');
+    sec.lines.splice(selectedLine + 1, 0, text);
+    sec.sources.splice(selectedLine + 1, 0, 'ai');
+    renderEditor();
+    focusLine(selectedLine + 1);
+    updateLineCounts();
+    renderOverview();
+  }
+}
+
+// Initialize scratch pad on load
+(function initScratchPad() {
+  setTimeout(() => {
+    renderScratchPad();
+    // Set initial title
+    const title = document.getElementById('scratchTitle');
+    if (title) title.textContent = t('scratch.title');
+  }, 100);
+})();
+
+// ── Song Library ──────────────────────────────────
+let currentSongId = null;
+
+function getSongLibrary() {
+  try {
+    return JSON.parse(localStorage.getItem('inkwell_songs') || '{}');
+  } catch(e) { return {}; }
+}
+
+function saveSongLibrary(lib) {
+  localStorage.setItem('inkwell_songs', JSON.stringify(lib));
+}
+
+function generateSongId() {
+  return 'song_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
+}
+
+function getCurrentSongData() {
+  return {
+    title: document.getElementById('songTitle').value || t('song.untitled'),
+    sections: sections,
+    key: document.getElementById('chipKey')?.textContent || '',
+    tempo: document.getElementById('chipTempo')?.textContent || '',
+    mood: document.getElementById('chipMood')?.textContent || '',
+    updatedAt: new Date().toISOString()
+  };
+}
+
+function saveSongToLibrary() {
+  const lib = getSongLibrary();
+  if (!currentSongId) {
+    currentSongId = generateSongId();
+  }
+  lib[currentSongId] = getCurrentSongData();
+  saveSongLibrary(lib);
+  localStorage.setItem('inkwell_current_song_id', currentSongId);
+  
+  // Visual feedback
+  const btn = document.getElementById('saveBtn');
+  btn.textContent = t('btn.saved');
+  setTimeout(() => btn.textContent = t('btn.save'), 1600);
+}
+
+function loadSongFromLibrary(songId) {
+  const lib = getSongLibrary();
+  const song = lib[songId];
+  if (!song) return;
+  
+  currentSongId = songId;
+  localStorage.setItem('inkwell_current_song_id', songId);
+  
+  document.getElementById('songTitle').value = song.title || '';
+  if (song.sections?.length) sections = song.sections;
+  if (song.key) document.getElementById('chipKey').textContent = song.key;
+  if (song.tempo) document.getElementById('chipTempo').textContent = song.tempo;
+  if (song.mood) document.getElementById('chipMood').textContent = song.mood;
+  
+  renderSidebar();
+  selectSection(0);
+  closeSongPicker();
+}
+
+function createNewSong() {
+  // Save current song first
+  if (currentSongId) {
+    const lib = getSongLibrary();
+    lib[currentSongId] = getCurrentSongData();
+    saveSongLibrary(lib);
+  }
+  
+  // Reset to new song
+  currentSongId = generateSongId();
+  localStorage.setItem('inkwell_current_song_id', currentSongId);
+  
+  document.getElementById('songTitle').value = '';
+  sections = [
+    { name: t('section.verse1'), lines: ['', '', '', ''], sources: ['human','human','human','human'] },
+    { name: t('section.prechorus'), lines: ['', ''], sources: ['human','human'] },
+    { name: t('section.chorus'), lines: ['', '', '', ''], sources: ['human','human','human','human'] },
+    { name: t('section.verse2'), lines: ['', '', '', ''], sources: ['human','human','human','human'] },
+    { name: t('section.bridge'), lines: ['', ''], sources: ['human','human'] },
+    { name: t('section.outro'), lines: ['', ''], sources: ['human','human'] },
+  ];
+  current = 0;
+  
+  renderSidebar();
+  selectSection(0);
+  closeSongPicker();
+}
+
+function deleteSong(songId, e) {
+  e.stopPropagation();
+  const lib = getSongLibrary();
+  const song = lib[songId];
+  if (!song) return;
+  
+  const title = song.title || t('song.untitled');
+  if (!confirm(t('song.delete.confirm').replace('{title}', title))) return;
+  
+  delete lib[songId];
+  saveSongLibrary(lib);
+  
+  // If deleting current song, create new one
+  if (songId === currentSongId) {
+    const remaining = Object.keys(lib);
+    if (remaining.length) {
+      loadSongFromLibrary(remaining[0]);
+    } else {
+      createNewSong();
+    }
+  }
+  
+  renderSongPicker();
+}
+
+function toggleSongPicker() {
+  const dropdown = document.getElementById('songPickerDropdown');
+  if (dropdown.style.display === 'none') {
+    renderSongPicker();
+    dropdown.style.display = 'block';
+    setTimeout(() => document.addEventListener('click', closeSongPickerOutside, { once: true }), 10);
+  } else {
+    closeSongPicker();
+  }
+}
+
+function closeSongPicker() {
+  document.getElementById('songPickerDropdown').style.display = 'none';
+}
+
+function closeSongPickerOutside(e) {
+  const wrap = document.querySelector('.song-picker-wrap');
+  if (wrap && !wrap.contains(e.target)) {
+    closeSongPicker();
+  }
+}
+
+function renderSongPicker() {
+  const dropdown = document.getElementById('songPickerDropdown');
+  const lib = getSongLibrary();
+  const songs = Object.entries(lib).sort((a, b) => 
+    new Date(b[1].updatedAt || 0) - new Date(a[1].updatedAt || 0)
+  );
+  
+  let html = `
+    <div style="padding:10px 14px;border-bottom:1px solid var(--rule);display:flex;justify-content:space-between;align-items:center;">
+      <span style="font-family:'Cormorant Garamond',serif;font-size:13px;color:var(--ink-soft);letter-spacing:0.05em;">${t('song.library')}</span>
+      <span style="font-size:11px;color:var(--ink-faint);">${songs.length} ${songs.length === 1 ? t('song.count.one') : t('song.count.many')}</span>
+    </div>
+    <div onclick="createNewSong()" style="padding:12px 14px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--amber);display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--rule);" onmouseenter="this.style.background='var(--cream-dark)'" onmouseleave="this.style.background=''">
+      ${t('song.new')}
+    </div>
+  `;
+  
+  songs.forEach(([id, song]) => {
+    const isCurrent = id === currentSongId;
+    const title = song.title || t('song.untitled');
+    const date = song.updatedAt ? new Date(song.updatedAt).toLocaleDateString() : '';
+    html += `
+      <div onclick="loadSongFromLibrary('${id}')" style="padding:10px 14px;cursor:pointer;display:flex;align-items:center;gap:10px;${isCurrent ? 'background:var(--cream-dark);' : ''}" onmouseenter="this.style.background='var(--cream-dark)'" onmouseleave="this.style.background='${isCurrent ? 'var(--cream-dark)' : ''}'">
+        <span style="font-size:14px;color:${isCurrent ? 'var(--amber)' : 'var(--ink-faint)'};">${isCurrent ? '●' : '○'}</span>
+        <div style="flex:1;min-width:0;">
+          <div style="font-family:'Crimson Pro',serif;font-size:15px;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;${isCurrent ? 'font-weight:600;' : ''}">${title}</div>
+          <div style="font-size:11px;color:var(--ink-faint);">${date}</div>
+        </div>
+        ${!isCurrent ? `<button onclick="deleteSong('${id}', event)" style="padding:4px 8px;background:none;border:1px solid var(--rule);border-radius:4px;font-size:10px;color:var(--ink-faint);cursor:pointer;" onmouseenter="this.style.borderColor='#c44';this.style.color='#c44'" onmouseleave="this.style.borderColor='var(--rule)';this.style.color='var(--ink-faint)'">${t('song.delete')}</button>` : ''}
+      </div>
+    `;
+  });
+  
+  if (songs.length === 0) {
+    html += `<div style="padding:20px;text-align:center;color:var(--ink-faint);font-size:13px;">${t('song.empty')}</div>`;
+  }
+  
+  dropdown.innerHTML = html;
+}
+
+// Override saveSong to use library
+saveSong = function() {
+  saveSongToLibrary();
+};
+
+// On load, restore current song from library
+(function initSongLibrary() {
+  const savedId = localStorage.getItem('inkwell_current_song_id');
+  const lib = getSongLibrary();
+  
+  // Migrate old single-song format to library
+  const oldSong = localStorage.getItem('inkwell_song');
+  if (oldSong && Object.keys(lib).length === 0) {
+    try {
+      const d = JSON.parse(oldSong);
+      const id = generateSongId();
+      lib[id] = {
+        title: d.title || '',
+        sections: d.sections || sections,
+        updatedAt: new Date().toISOString()
+      };
+      saveSongLibrary(lib);
+      currentSongId = id;
+      localStorage.setItem('inkwell_current_song_id', id);
+      localStorage.removeItem('inkwell_song'); // Clean up old format
+    } catch(e) {}
+  } else if (savedId && lib[savedId]) {
+    currentSongId = savedId;
+  } else if (Object.keys(lib).length > 0) {
+    currentSongId = Object.keys(lib)[0];
+  }
+  
+  if (currentSongId && lib[currentSongId]) {
+    const song = lib[currentSongId];
+    if (song.sections?.length) sections = song.sections;
+  }
+})();
+</script>
+<script src="/audio.js"></script>
+<script src="/recording.js"></script>
+
+<!-- Version Compare Panel -->
+<div class="version-compare-panel" id="versionComparePanel" role="dialog" aria-label="Compare versions">
+  <div class="compare-header">
+    <div class="compare-title" id="compareTitle">Compare Versions</div>
+    <button class="compare-close" onclick="closeVersionCompare()" aria-label="Close comparison">×</button>
+  </div>
+  <div class="compare-body" id="compareBody"></div>
+</div>
+
+</body>
+</html>

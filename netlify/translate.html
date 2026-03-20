@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inkwell App — Translation Editor</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    :root {
+      --bg: #1a1a1a;
+      --bg-card: #242424;
+      --bg-input: #2a2a2a;
+      --border: #333;
+      --text: #e5e5e5;
+      --text-dim: #888;
+      --accent: #7c5cff;
+      --accent-hover: #9580ff;
+      --green: #4ade80;
+      --red: #f87171;
+      --amber: #fbbf24;
+    }
+    
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+    
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--border);
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    
+    h1 {
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+    
+    .stats {
+      font-size: 13px;
+      color: var(--text-dim);
+    }
+    
+    .header-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+    
+    .btn {
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 500;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      background: var(--accent-hover);
+    }
+    
+    .btn-secondary {
+      background: var(--bg-input);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    
+    .btn-secondary:hover {
+      background: var(--border);
+    }
+    
+    .status {
+      font-size: 13px;
+      padding: 6px 12px;
+      border-radius: 6px;
+      background: var(--bg-input);
+      color: var(--text-dim);
+    }
+    
+    .status.saved {
+      background: rgba(74, 222, 128, 0.15);
+      color: var(--green);
+    }
+    
+    .status.unsaved {
+      background: rgba(248, 113, 113, 0.15);
+      color: var(--red);
+    }
+    
+    .toolbar {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    
+    .search-bar {
+      flex: 1;
+      min-width: 200px;
+    }
+    
+    .search-bar input {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 14px;
+      background: var(--bg-input);
+      color: var(--text);
+    }
+    
+    .search-bar input:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    
+    .search-bar input::placeholder {
+      color: var(--text-dim);
+    }
+    
+    .filter-btns {
+      display: flex;
+      gap: 4px;
+    }
+    
+    .filter-btn {
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    
+    .filter-btn:hover {
+      color: var(--text);
+    }
+    
+    .filter-btn.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: white;
+    }
+    
+    .translations-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    
+    .translation-item {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 18px;
+      transition: border-color 0.2s;
+    }
+    
+    .translation-item:hover {
+      border-color: #444;
+    }
+    
+    .translation-item.modified {
+      border-color: var(--amber);
+    }
+    
+    .translation-item.missing-fr {
+      border-left: 3px solid var(--red);
+    }
+    
+    .translation-key {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--accent);
+      margin-bottom: 10px;
+      font-family: 'SF Mono', Monaco, Consolas, monospace;
+      letter-spacing: 0.02em;
+    }
+    
+    .translation-fields {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    
+    .field label {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-dim);
+    }
+    
+    .field textarea {
+      width: 100%;
+      min-height: 50px;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-family: inherit;
+      font-size: 13px;
+      line-height: 1.5;
+      resize: vertical;
+      background: var(--bg-input);
+      color: var(--text);
+    }
+    
+    .field textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    
+    .field textarea.fr {
+      background: rgba(124, 92, 255, 0.08);
+    }
+    
+    .field textarea.fr:focus {
+      background: var(--bg-input);
+    }
+    
+    .field textarea.missing {
+      border-color: var(--red);
+      background: rgba(248, 113, 113, 0.08);
+    }
+    
+    @media (max-width: 768px) {
+      .translation-fields {
+        grid-template-columns: 1fr;
+      }
+      
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+    
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: var(--accent);
+      color: white;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      opacity: 0;
+      transition: all 0.3s ease;
+      z-index: 100;
+    }
+    
+    .toast.visible {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+    
+    .section-header {
+      margin: 24px 0 12px;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-dim);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <div class="header-left">
+        <h1>✦ Inkwell App Translations</h1>
+        <span class="stats" id="stats">Loading...</span>
+      </div>
+      <div class="header-actions">
+        <span class="status" id="status">Loading...</span>
+        <button class="btn btn-secondary" id="download-btn">Download JS</button>
+        <button class="btn btn-primary" id="save-btn">Save to Cloud</button>
+      </div>
+    </header>
+    
+    <div class="toolbar">
+      <div class="search-bar">
+        <input type="text" id="search" placeholder="Search by key or text...">
+      </div>
+      <div class="filter-btns">
+        <button class="filter-btn active" data-filter="all">All</button>
+        <button class="filter-btn" data-filter="missing">Missing FR</button>
+        <button class="filter-btn" data-filter="modified">Modified</button>
+      </div>
+    </div>
+    
+    <div class="translations-list" id="translations-list">
+      <!-- Populated by JS -->
+    </div>
+  </div>
+  
+  <div class="toast" id="toast">Saved!</div>
+
+  <script>
+    const FIREBASE_API_KEY = 'AIzaSyDBLCnPauZJeg2JGriKp9KM-QFjYmSf12s';
+    const FIREBASE_PROJECT = 'charlotte-dashboard';
+    const FIRESTORE_BASE = `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT}/databases/(default)/documents`;
+    
+    let translations = { en: {}, fr: {} };
+    let originalTranslations = { en: {}, fr: {} };
+    let hasUnsavedChanges = false;
+    let currentFilter = 'all';
+    
+    // Parse the translations.js file format into our structure
+    function parseTranslationsJS(jsContent) {
+      const result = { en: {}, fr: {} };
+      
+      // Extract English translations
+      const enMatch = jsContent.match(/en:\s*\{([^}]+(?:\{[^}]*\}[^}]*)*)\}/s);
+      if (enMatch) {
+        const enContent = enMatch[1];
+        const keyValueRegex = /'([^']+)':\s*['"`]([^'"`]*)['"`]/g;
+        let match;
+        while ((match = keyValueRegex.exec(enContent)) !== null) {
+          result.en[match[1]] = match[2];
+        }
+      }
+      
+      // Extract French translations
+      const frMatch = jsContent.match(/fr:\s*\{([^}]+(?:\{[^}]*\}[^}]*)*)\}/s);
+      if (frMatch) {
+        const frContent = frMatch[1];
+        const keyValueRegex = /'([^']+)':\s*['"`]([^'"`]*)['"`]/g;
+        let match;
+        while ((match = keyValueRegex.exec(frContent)) !== null) {
+          result.fr[match[1]] = match[2];
+        }
+      }
+      
+      return result;
+    }
+    
+    // Load translations from Firestore or fall back to translations.js
+    async function loadTranslations() {
+      try {
+        // Try Firestore first
+        const firestoreUrl = `${FIRESTORE_BASE}/inkwell_app/translations?key=${FIREBASE_API_KEY}`;
+        const res = await fetch(firestoreUrl);
+        
+        if (res.ok) {
+          const data = await res.json();
+          if (data.fields?.en?.stringValue && data.fields?.fr?.stringValue) {
+            translations.en = JSON.parse(data.fields.en.stringValue);
+            translations.fr = JSON.parse(data.fields.fr.stringValue);
+            originalTranslations = JSON.parse(JSON.stringify(translations));
+            updateStatus('saved');
+            renderTranslations();
+            updateStats();
+            return;
+          }
+        }
+        
+        // Fall back to translations.js
+        const jsRes = await fetch('translations.js');
+        if (jsRes.ok) {
+          const jsContent = await jsRes.text();
+          translations = parseTranslationsJS(jsContent);
+          originalTranslations = JSON.parse(JSON.stringify(translations));
+          
+          // Save to Firestore for future use
+          await saveToFirestore(true);
+          
+          updateStatus('saved');
+          renderTranslations();
+          updateStats();
+        }
+      } catch (err) {
+        console.error('Failed to load translations:', err);
+        updateStatus('error');
+      }
+    }
+    
+    function updateStats() {
+      const enKeys = Object.keys(translations.en);
+      const frKeys = Object.keys(translations.fr);
+      const missingFr = enKeys.filter(k => !translations.fr[k] || translations.fr[k].trim() === '').length;
+      
+      document.getElementById('stats').textContent = 
+        `${enKeys.length} keys • ${missingFr} missing FR`;
+    }
+    
+    function getSection(key) {
+      const parts = key.split('.');
+      if (parts.length > 1) {
+        return parts[0];
+      }
+      return 'other';
+    }
+    
+    function renderTranslations(filter = '') {
+      const container = document.getElementById('translations-list');
+      const filterLower = filter.toLowerCase();
+      
+      // Get all unique keys from both languages
+      const allKeys = [...new Set([...Object.keys(translations.en), ...Object.keys(translations.fr)])];
+      
+      // Filter keys
+      let filteredKeys = allKeys.filter(key => {
+        const enVal = translations.en[key] || '';
+        const frVal = translations.fr[key] || '';
+        
+        // Text search
+        if (filter && !key.toLowerCase().includes(filterLower) && 
+            !enVal.toLowerCase().includes(filterLower) && 
+            !frVal.toLowerCase().includes(filterLower)) {
+          return false;
+        }
+        
+        // Filter buttons
+        if (currentFilter === 'missing') {
+          return !frVal || frVal.trim() === '';
+        }
+        if (currentFilter === 'modified') {
+          return JSON.stringify({ en: enVal, fr: frVal }) !== 
+                 JSON.stringify({ en: originalTranslations.en[key], fr: originalTranslations.fr[key] });
+        }
+        
+        return true;
+      });
+      
+      // Sort by key
+      filteredKeys.sort();
+      
+      // Group by section
+      const sections = {};
+      filteredKeys.forEach(key => {
+        const section = getSection(key);
+        if (!sections[section]) sections[section] = [];
+        sections[section].push(key);
+      });
+      
+      // Render
+      let html = '';
+      Object.entries(sections).sort().forEach(([section, keys]) => {
+        html += `<div class="section-header">${section}</div>`;
+        keys.forEach(key => {
+          const enVal = translations.en[key] || '';
+          const frVal = translations.fr[key] || '';
+          const isModified = JSON.stringify({ en: enVal, fr: frVal }) !== 
+                            JSON.stringify({ en: originalTranslations.en[key], fr: originalTranslations.fr[key] });
+          const isMissingFr = !frVal || frVal.trim() === '';
+          
+          html += `
+            <div class="translation-item ${isModified ? 'modified' : ''} ${isMissingFr ? 'missing-fr' : ''}" data-key="${key}">
+              <div class="translation-key">${key}</div>
+              <div class="translation-fields">
+                <div class="field">
+                  <label>English (EN)</label>
+                  <textarea class="en" data-key="${key}" data-lang="en">${escapeHtml(enVal)}</textarea>
+                </div>
+                <div class="field">
+                  <label>Français (FR)</label>
+                  <textarea class="fr ${isMissingFr ? 'missing' : ''}" data-key="${key}" data-lang="fr">${escapeHtml(frVal)}</textarea>
+                </div>
+              </div>
+            </div>
+          `;
+        });
+      });
+      
+      container.innerHTML = html || '<p style="color: var(--text-dim); padding: 20px;">No translations match your filter.</p>';
+      
+      // Add event listeners
+      container.querySelectorAll('textarea').forEach(textarea => {
+        textarea.addEventListener('input', handleInput);
+      });
+    }
+    
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+    
+    function handleInput(e) {
+      const key = e.target.dataset.key;
+      const lang = e.target.dataset.lang;
+      translations[lang][key] = e.target.value;
+      
+      hasUnsavedChanges = JSON.stringify(translations) !== JSON.stringify(originalTranslations);
+      updateStatus(hasUnsavedChanges ? 'unsaved' : 'saved');
+      updateStats();
+      
+      // Update visual state
+      const item = e.target.closest('.translation-item');
+      const enVal = translations.en[key] || '';
+      const frVal = translations.fr[key] || '';
+      const isModified = JSON.stringify({ en: enVal, fr: frVal }) !== 
+                        JSON.stringify({ en: originalTranslations.en[key], fr: originalTranslations.fr[key] });
+      const isMissingFr = !frVal || frVal.trim() === '';
+      
+      item.classList.toggle('modified', isModified);
+      item.classList.toggle('missing-fr', isMissingFr);
+      
+      if (lang === 'fr') {
+        e.target.classList.toggle('missing', isMissingFr);
+      }
+    }
+    
+    function updateStatus(state) {
+      const statusEl = document.getElementById('status');
+      statusEl.className = 'status ' + state;
+      
+      switch (state) {
+        case 'saved':
+          statusEl.textContent = '✓ Saved';
+          break;
+        case 'unsaved':
+          statusEl.textContent = '● Unsaved';
+          break;
+        case 'saving':
+          statusEl.textContent = 'Saving...';
+          break;
+        case 'error':
+          statusEl.textContent = '✗ Error';
+          break;
+        default:
+          statusEl.textContent = state;
+      }
+    }
+    
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.classList.add('visible');
+      setTimeout(() => toast.classList.remove('visible'), 3000);
+    }
+    
+    async function saveToFirestore(silent = false) {
+      if (!silent) updateStatus('saving');
+      
+      try {
+        const url = `${FIRESTORE_BASE}/inkwell_app/translations?key=${FIREBASE_API_KEY}`;
+        const payload = {
+          fields: {
+            en: { stringValue: JSON.stringify(translations.en) },
+            fr: { stringValue: JSON.stringify(translations.fr) },
+            updatedAt: { timestampValue: new Date().toISOString() }
+          }
+        };
+        
+        const res = await fetch(url, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        
+        if (!res.ok) throw new Error('Failed to save to Firestore');
+        
+        originalTranslations = JSON.parse(JSON.stringify(translations));
+        hasUnsavedChanges = false;
+        if (!silent) {
+          updateStatus('saved');
+          showToast('Saved! App will use updated translations.');
+          renderTranslations(document.getElementById('search').value);
+        }
+      } catch (err) {
+        console.error('Save failed:', err);
+        if (!silent) {
+          updateStatus('error');
+          showToast('Failed to save. Check console.');
+        }
+      }
+    }
+    
+    function downloadJS() {
+      // Generate translations.js format
+      let js = `// Inkwell — i18n translations
+// Auto-generated from translation editor
+// Last updated: ${new Date().toISOString()}
+
+const TRANSLATIONS = {
+  en: {
+`;
+      
+      Object.keys(translations.en).sort().forEach(key => {
+        const val = translations.en[key].replace(/'/g, "\\'").replace(/\n/g, '\\n');
+        js += `    '${key}': '${val}',\n`;
+      });
+      
+      js += `  },
+
+  fr: {
+`;
+      
+      Object.keys(translations.fr).sort().forEach(key => {
+        const val = translations.fr[key].replace(/'/g, "\\'").replace(/\n/g, '\\n');
+        js += `    '${key}': '${val}',\n`;
+      });
+      
+      js += `  }
+};
+
+// ... rest of translation system code would go here
+`;
+      
+      const blob = new Blob([js], { type: 'text/javascript' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'translations.js';
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast('Downloaded translations.js');
+    }
+    
+    // Event listeners
+    document.getElementById('search').addEventListener('input', (e) => {
+      renderTranslations(e.target.value);
+    });
+    
+    document.getElementById('save-btn').addEventListener('click', () => saveToFirestore());
+    document.getElementById('download-btn').addEventListener('click', downloadJS);
+    
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentFilter = btn.dataset.filter;
+        renderTranslations(document.getElementById('search').value);
+      });
+    });
+    
+    // Warn before leaving with unsaved changes
+    window.addEventListener('beforeunload', (e) => {
+      if (hasUnsavedChanges) {
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    });
+    
+    // Initialize
+    loadTranslations();
+  </script>
+
+</body>
+</html>
