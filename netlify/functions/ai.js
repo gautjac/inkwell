@@ -7,7 +7,6 @@ const CORS_HEADERS = {
 };
 
 exports.handler = async (event) => {
-  // Handle CORS preflight
   if (event.httpMethod === 'OPTIONS') {
     return { statusCode: 204, headers: CORS_HEADERS, body: '' };
   }
@@ -16,18 +15,18 @@ exports.handler = async (event) => {
     return { statusCode: 405, headers: CORS_HEADERS, body: 'Method Not Allowed' };
   }
 
-  const apiKey = process.env.OPENAI_API_KEY;
+  const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
     return {
       statusCode: 500,
       headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ error: 'OPENAI_API_KEY not configured' }),
+      body: JSON.stringify({ error: 'ANTHROPIC_API_KEY not configured' }),
     };
   }
 
-  let payload;
+  let incoming;
   try {
-    payload = JSON.parse(event.body);
+    incoming = JSON.parse(event.body);
   } catch (e) {
     return {
       statusCode: 400,
@@ -36,15 +35,29 @@ exports.handler = async (event) => {
     };
   }
 
+  // Extract system message and user/assistant messages from OpenAI-format payload
+  const messages = incoming.messages || [];
+  const systemMsg = messages.find(m => m.role === 'system');
+  const conversationMsgs = messages.filter(m => m.role !== 'system');
+
+  const anthropicPayload = {
+    model: 'claude-haiku-4-5',
+    max_tokens: incoming.max_tokens || 1024,
+    messages: conversationMsgs,
+    ...(systemMsg ? { system: systemMsg.content } : {}),
+  };
+
+  const bodyStr = JSON.stringify(anthropicPayload);
+
   return new Promise((resolve) => {
-    const bodyStr = JSON.stringify(payload);
     const options = {
-      hostname: 'api.openai.com',
-      path: '/v1/chat/completions',
+      hostname: 'api.anthropic.com',
+      path: '/v1/messages',
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`,
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
         'Content-Length': Buffer.byteLength(bodyStr),
       },
     };
@@ -53,10 +66,31 @@ exports.handler = async (event) => {
       let data = '';
       res.on('data', (chunk) => { data += chunk; });
       res.on('end', () => {
+        if (res.statusCode !== 200) {
+          resolve({
+            statusCode: res.statusCode,
+            headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
+            body: data,
+          });
+          return;
+        }
+
+        // Transform Anthropic response → OpenAI-compatible shape
+        let responseBody;
+        try {
+          const anthropicResponse = JSON.parse(data);
+          const text = anthropicResponse.content?.[0]?.text || '';
+          responseBody = JSON.stringify({
+            choices: [{ message: { role: 'assistant', content: text } }],
+          });
+        } catch (e) {
+          responseBody = JSON.stringify({ error: 'Failed to parse Anthropic response' });
+        }
+
         resolve({
-          statusCode: res.statusCode,
+          statusCode: 200,
           headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
-          body: data,
+          body: responseBody,
         });
       });
     });

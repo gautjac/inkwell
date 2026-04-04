@@ -1,13 +1,11 @@
 // Inkwell Recording Engine — standalone + overdub
 // Stores takes in IndexedDB
 
-let mediaRecorder = null;
-let recChunks = [];
-let recStartTime = 0;
-let recTimerInterval = null;
-let recDb = null;
-let overdubSourceId = null;   // take id being overdubbed
-let overdubAudio = null;      // Audio element playing the backing take
+// Shared vars declared in audio.js (from audio-engine.js):
+// mediaRecorder, recChunks, recStartTime, recTimerInterval, recDb
+// Recording-specific vars:
+var overdubSourceId = null;
+var overdubAudio = null;
 
 // ── IndexedDB ─────────────────────────────────────
 function openRecDb() {
@@ -142,6 +140,29 @@ async function finalizeRecording(stream) {
   await saveTake(blob, label);
   overdubSourceId = null;
   renderTakesList();
+
+  // Auto-load into waveform player
+  loadBlobIntoWaveformPlayer(blob, label);
+}
+
+// Load a blob into the main audio player with waveform
+function loadBlobIntoWaveformPlayer(blob, label) {
+  console.log('[Waveform] Loading blob:', blob.type, blob.size, 'bytes');
+  const reader = new FileReader();
+  reader.onload = e => {
+    console.log('[Waveform] FileReader loaded, decoding...');
+    const ctx = window.audioCtx || (window.audioCtx = new AudioContext());
+    ctx.decodeAudioData(e.target.result, buffer => {
+      console.log('[Waveform] Decoded! Duration:', buffer.duration);
+      // Call the loadAudioBuffer function from audio.js
+      if (typeof loadAudioBuffer === 'function') {
+        loadAudioBuffer(buffer, label);
+      } else {
+        console.error('[Waveform] loadAudioBuffer not found');
+      }
+    }, err => console.error('Could not decode recording for waveform:', err));
+  };
+  reader.readAsArrayBuffer(blob);
 }
 
 function updateRecBtn(recording, isOverdub) {
@@ -247,8 +268,20 @@ async function renderTakesList() {
       renderTakesList();
     };
 
+    // Load into waveform player button
+    const waveBtn = document.createElement('button');
+    waveBtn.className = 'audio-btn';
+    waveBtn.style.cssText = 'width:auto;padding:0 8px;height:26px;font-size:10px;border-radius:20px;flex-shrink:0;font-family:\'DM Sans\',sans-serif;letter-spacing:0.02em;';
+    waveBtn.textContent = '⟿ Player';
+    waveBtn.title = 'Load into waveform player';
+    waveBtn.onclick = () => {
+      if (audio && !audio.paused) { audio.pause(); playBtn.textContent = '▶'; }
+      loadBlobIntoWaveformPlayer(take.blob, take.label);
+    };
+
     row.appendChild(playBtn);
     row.appendChild(label);
+    row.appendChild(waveBtn);
     row.appendChild(overdubBtn);
     row.appendChild(delBtn);
     container.appendChild(row);

@@ -91,6 +91,10 @@ const DEFAULT_TRANSLATIONS = {
     'intensifiers.title': 'Power Words',
     'intensifiers.verbs': 'Verbs',
     'intensifiers.adjectives': 'Adjectives',
+    'tool.flow.label': 'Flow',
+    'tool.flow.desc': 'Rhythm & stress analysis per line',
+    'tool.fit.label': 'Fit',
+    'tool.fit.desc': 'Rewrite line to match section syllable count',
     'tool.specific.label': 'Get specific',
     'tool.specific.desc': 'Questions to make your lyrics more concrete',
     'tool.perspective.label': 'Shift perspective',
@@ -214,6 +218,14 @@ const DEFAULT_TRANSLATIONS = {
     'info.alliteration.body': 'Alliteration — repeating consonant sounds at the start of words — creates rhythm, memorability, and punch. Think "wild and wicked" or "safe and sound."\n\nThis tool rewrites your selected line 3 ways with alliterative patterns woven in naturally.',
     'info.alliteration.tip': '<strong>Why it works:</strong> Our brains love patterns. Alliteration makes lyrics stickier without being obvious about it.',
     
+    'info.flow.title': 'Flow — Rhythm Analysis',
+    'info.flow.body': 'Every line of lyrics has a natural rhythm — stressed and unstressed syllables that create a pattern. When those patterns are consistent across lines, the section feels tight and singable.\n\nThis tool analyzes each line in your current section, showing the stress pattern (• stressed, ◦ unstressed) and a note on rhythmic consistency.',
+    'info.flow.tip': '<strong>Best used when:</strong> You want to see if your section has a consistent rhythmic feel, or you\'re trying to figure out why one line feels "off" compared to the others.',
+
+    'info.fit.title': 'Fit — Match Syllable Count',
+    'info.fit.body': 'When one line in a section has noticeably more or fewer syllables than its neighbors, it can feel rhythmically awkward — even if the words are good.\n\nThis tool calculates the average syllable count of surrounding lines, then rewrites your selected line in 3 ways that hit that target count while preserving meaning.',
+    'info.fit.tip': '<strong>Best used when:</strong> You have a line that feels too long or too short compared to the rest of the section, and you want to tighten the rhythm without changing the idea.',
+
     'info.phrases.title': 'Find phrases',
     'info.phrases.body': 'Every word carries baggage — idioms, sayings, clichés, and song hooks that have been attached to it over the years. Sometimes that\'s what you want: a familiar phrase twisted in a new direction.\n\nThis tool takes a key word from your selected line and returns 12-15 phrases, idioms, and expressions containing it. Use them as-is, flip them, or let them spark something unexpected.',
     'info.phrases.tip': '<strong>Example:</strong> Search "rain" and you get "right as rain", "rain on my parade", "purple rain", "let it rain", "singing in the rain" — raw material for your own twist.',
@@ -326,6 +338,10 @@ const DEFAULT_TRANSLATIONS = {
     'intensifiers.title': 'Mots puissants',
     'intensifiers.verbs': 'Verbes',
     'intensifiers.adjectives': 'Adjectifs',
+    'tool.flow.label': 'Flow',
+    'tool.flow.desc': 'Analyse du rythme et des accents par ligne',
+    'tool.fit.label': 'Ajuster',
+    'tool.fit.desc': 'Réécrire la ligne pour le nombre de syllabes de la section',
     'tool.specific.label': 'Être précis',
     'tool.specific.desc': 'Questions pour rendre les paroles plus concrètes',
     'tool.perspective.label': 'Changer de point de vue',
@@ -450,6 +466,14 @@ const DEFAULT_TRANSLATIONS = {
     'info.alliteration.body': 'L\'allitération — répéter des sons consonantiques au début des mots — crée du rythme, de la mémorabilité et de l\'impact. Pense à « sans souci sous le soleil » ou « doucement dans le doux déclin ».\n\nCet outil réécrit ta ligne sélectionnée de 3 façons avec des motifs allitératifs tissés naturellement.',
     'info.alliteration.tip': '<strong>Pourquoi ça marche :</strong> Nos cerveaux adorent les motifs. L\'allitération rend les paroles plus accrocheuses sans que ce soit évident.',
     
+    'info.flow.title': 'Flow — Analyse du rythme',
+    'info.flow.body': 'Chaque ligne de paroles a un rythme naturel — des syllabes accentuées et non accentuées qui créent un motif. Quand ces motifs sont cohérents entre les lignes, la section semble serrée et chantable.\n\nCet outil analyse chaque ligne de ta section actuelle, montrant le schéma d\'accentuation (• accentué, ◦ non accentué) et une note sur la cohérence rythmique.',
+    'info.flow.tip': '<strong>Idéal quand :</strong> Tu veux voir si ta section a un rythme cohérent, ou tu essaies de comprendre pourquoi une ligne semble « décalée » par rapport aux autres.',
+
+    'info.fit.title': 'Ajuster — Nombre de syllabes',
+    'info.fit.body': 'Quand une ligne dans une section a nettement plus ou moins de syllabes que ses voisines, elle peut sembler rythmiquement maladroite — même si les mots sont bons.\n\nCet outil calcule le nombre moyen de syllabes des lignes environnantes, puis réécrit ta ligne sélectionnée de 3 façons qui atteignent ce compte cible tout en préservant le sens.',
+    'info.fit.tip': '<strong>Idéal quand :</strong> Tu as une ligne qui semble trop longue ou trop courte par rapport au reste de la section, et tu veux resserrer le rythme sans changer l\'idée.',
+
     'info.phrases.title': 'Trouver des expressions',
     'info.phrases.body': 'Chaque mot porte un bagage — expressions, dictons, clichés et hooks de chansons qui y sont attachés au fil des ans. Parfois c\'est ce que tu veux : une expression familière tordue dans une nouvelle direction.\n\nCet outil prend un mot clé de ta ligne sélectionnée et retourne 12-15 expressions, idiomes et locutions le contenant. Utilise-les tels quels, retourne-les, ou laisse-les déclencher quelque chose d\'inattendu.',
     'info.phrases.tip': '<strong>Exemple :</strong> Cherche « pluie » et tu obtiens « après la pluie le beau temps », « ennuyeux comme la pluie », « parler de la pluie et du beau temps » — matière première pour ta propre création.',
@@ -523,6 +547,11 @@ function t(key) {
 function setLang(lang) {
   currentLang = lang;
   localStorage.setItem('inkwell_lang', lang);
+  // Persist to Firestore prefs so it survives across devices/sessions
+  if (typeof _prefs !== 'undefined' && _prefs.lang !== lang) {
+    _prefs.lang = lang;
+    if (typeof _savePrefs === 'function') _savePrefs();
+  }
   applyTranslations();
 }
 

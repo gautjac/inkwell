@@ -22,6 +22,37 @@ function toggleAudioBar() {
 }
 
 // ── Load ──────────────────────────────────────────
+// Load a decoded AudioBuffer directly (used by recording.js)
+function loadAudioBuffer(buffer, label) {
+  if (!audioCtx) audioCtx = new AudioContext();
+  stopPlayback();
+  audioBuffer = buffer;
+  audioDuration = buffer.duration;
+  audioOffset = 0;
+  loopStart = audioDuration * 0.25;
+  loopEnd   = audioDuration * 0.75;
+  audioLoopOn = false;
+  const fnEl = document.getElementById('audioFilename');
+  if (fnEl) { fnEl.textContent = label || 'Recording'; fnEl.style.display = 'block'; }
+  const wsEl = document.getElementById('waveformSection');
+  if (wsEl) wsEl.style.display = 'block';
+  const tdEl = document.getElementById('audioTimeDisplay');
+  if (tdEl) tdEl.style.display = 'block';
+  const toggleBtn = document.getElementById('audioToggleBtn');
+  if (toggleBtn) toggleBtn.classList.add('has-audio');
+  const loopTag = document.getElementById('loopToggleTag');
+  if (loopTag) { loopTag.textContent = '⟲ Loop off'; loopTag.classList.remove('loop-on'); }
+  // Show the audio bar if hidden
+  const bar = document.getElementById('audioBar');
+  if (bar && !bar.classList.contains('visible')) {
+    bar.classList.add('visible');
+    audioBarVisible = true;
+  }
+  drawWaveform();
+  renderLoop();
+  updateTimeDisplay(0);
+}
+
 function loadAudioFile(input) {
   const file = input.files[0];
   if (!file) return;

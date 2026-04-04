@@ -5,11 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="color-scheme" content="light">
   <meta name="theme-color" content="#f2ece0">
-  <title>Inkwell — Lyric Writing Studio</title>
+  <meta name="description" content="Carmen — AI-powered lyric writing studio. Write better songs in your own voice.">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%231a1510'/><text x='16' y='22' text-anchor='middle' font-size='18' fill='%23f2ece0'>✦</text></svg>">
+  <title>Carmen — Lyric Writing Studio</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <script src="/translations.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&family=Crimson+Pro:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet">
+  <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore-compat.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Jost:wght@300;400;500&family=Inter:wght@300;400;500;600&family=IBM+Plex+Mono:ital,wght@0,400;0,500;1,400&family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
 
   <style>
     :root {
@@ -28,6 +33,80 @@
       --rule:         #d5cbbf;
       --shadow-sm:    rgba(26,21,16,0.06);
       --shadow-md:    rgba(26,21,16,0.14);
+      
+      /* Font theme: Classic (default) */
+      --font-logo:    'Cinzel', serif;
+      --font-display: 'Cormorant Garamond', serif;
+      --font-body:    'Jost', sans-serif;
+      --font-lyric:   'Cormorant Garamond', serif;
+    }
+    
+    /* Font theme: Modern — cool, minimal, blue accents */
+    [data-font-theme="modern"] {
+      --font-logo:    'Inter', sans-serif;
+      --font-display: 'Inter', sans-serif;
+      --font-body:    'Inter', sans-serif;
+      --font-lyric:   'IBM Plex Mono', monospace;
+      
+      --cream:        #f8f9fa;
+      --cream-light:  #ffffff;
+      --cream-dark:   #e9ecef;
+      --ink:          #212529;
+      --ink-mid:      #495057;
+      --ink-soft:     #6c757d;
+      --ink-faint:    #adb5bd;
+      --amber:        #0066cc;
+      --amber-soft:   #3388dd;
+      --amber-pale:   #e3f2fd;
+      --sage:         #198754;
+      --sage-pale:    #d1e7dd;
+      --rule:         #dee2e6;
+    }
+    
+    /* Font theme: Typewriter — stark black on white, high contrast, mechanical */
+    [data-font-theme="typewriter"] {
+      --font-logo:    'Courier Prime', monospace;
+      --font-display: 'Courier Prime', monospace;
+      --font-body:    'Courier Prime', monospace;
+      --font-lyric:   'Courier Prime', monospace;
+      
+      --cream:        #ffffff;
+      --cream-light:  #ffffff;
+      --cream-dark:   #f0f0f0;
+      --ink:          #000000;
+      --ink-mid:      #1a1a1a;
+      --ink-soft:     #4a4a4a;
+      --ink-faint:    #8a8a8a;
+      --amber:        #c41e3a;
+      --amber-soft:   #d44a5a;
+      --amber-pale:   #fce8ec;
+      --sage:         #2e7d32;
+      --sage-pale:    #e8f5e9;
+      --rule:         #d0d0d0;
+    }
+    
+    /* Font theme: Night — dark mode for late-night writing */
+    [data-font-theme="night"] {
+      --font-logo:    'Cinzel', serif;
+      --font-display: 'Cormorant Garamond', serif;
+      --font-body:    'Jost', sans-serif;
+      --font-lyric:   'Cormorant Garamond', serif;
+      
+      --cream:        #0d0d0d;
+      --cream-light:  #1a1a1a;
+      --cream-dark:   #000000;
+      --ink:          #e8e8e8;
+      --ink-mid:      #c0c0c0;
+      --ink-soft:     #909090;
+      --ink-faint:    #606060;
+      --amber:        #f0a050;
+      --amber-soft:   #f5b878;
+      --amber-pale:   rgba(240, 160, 80, 0.15);
+      --sage:         #6aaa6a;
+      --sage-pale:    rgba(106, 170, 106, 0.15);
+      --rule:         #2a2a2a;
+      --shadow-sm:    rgba(0,0,0,0.3);
+      --shadow-md:    rgba(0,0,0,0.5);
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -35,11 +114,13 @@
     body {
       background: var(--cream);
       color: var(--ink);
-      font-family: 'DM Sans', sans-serif;
+      font-family: var(--font-body);
       height: 100vh;
       display: flex;
       flex-direction: column;
       overflow: hidden;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
     }
 
     /* ── Grain overlay ───────────────────────────── */
@@ -49,7 +130,7 @@
       inset: 0;
       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
       pointer-events: none;
-      z-index: 9999;
+      z-index: 2;
       opacity: 0.6;
     }
 
@@ -84,8 +165,11 @@
       cursor: pointer;
     }
 
-    .config-save { background: var(--amber); color: white; }
-    .config-dismiss { background: transparent; color: var(--ink-soft); border: 1px solid var(--rule); }
+    .config-save { background: var(--amber); color: white; transition: background 0.15s, transform 0.1s; }
+    .config-save:hover { background: #b5551f; }
+    .config-save:active { transform: scale(0.97); }
+    .config-dismiss { background: transparent; color: var(--ink-soft); border: 1px solid var(--rule); transition: all 0.15s; }
+    .config-dismiss:hover { border-color: var(--ink-soft); color: var(--ink); }
 
     /* ── Top bar ─────────────────────────────────── */
     .topbar {
@@ -99,10 +183,10 @@
     }
 
     .logo {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 22px;
+      font-family: var(--font-logo);
+      font-size: 18px;
       font-weight: 600;
-      letter-spacing: -0.01em;
+      letter-spacing: 0.14em;
       color: var(--ink);
       display: flex;
       align-items: center;
@@ -130,7 +214,7 @@
     }
 
     #songTitle {
-      font-family: 'Cormorant Garamond', serif;
+      font-family: var(--font-display);
       font-size: 19px;
       font-weight: 400;
       font-style: italic;
@@ -162,7 +246,7 @@
       background: none;
       cursor: pointer;
       transition: all 0.15s;
-      font-family: 'DM Sans', sans-serif;
+      font-family: var(--font-body);
     }
 
     .chip:hover { border-color: var(--amber); color: var(--amber); }
@@ -180,7 +264,7 @@
       background: var(--ink);
       color: var(--cream);
       border: none; border-radius: 6px;
-      font-family: 'DM Sans', sans-serif;
+      font-family: var(--font-body);
       font-size: 13px;
       cursor: pointer;
       transition: background 0.15s, transform 0.1s;
@@ -188,6 +272,7 @@
 
     .btn-primary:hover { background: var(--amber); }
     .btn-primary:active { transform: scale(0.97); }
+    .btn-primary:disabled { opacity: 0.4; cursor: default; pointer-events: none; }
 
     .btn-ghost {
       padding: 7px 12px;
@@ -195,7 +280,7 @@
       color: var(--ink-soft);
       border: 1px solid var(--rule);
       border-radius: 6px;
-      font-family: 'DM Sans', sans-serif;
+      font-family: var(--font-body);
       font-size: 13px;
       cursor: pointer;
       transition: all 0.15s;
@@ -203,6 +288,28 @@
 
     .btn-ghost:hover { border-color: var(--ink-soft); color: var(--ink); }
     .btn-ghost:active { transform: scale(0.97); }
+    .btn-ghost:disabled { opacity: 0.4; cursor: default; pointer-events: none; }
+
+    .font-theme-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      padding: 8px 12px;
+      background: var(--cream);
+      border: 1px solid var(--rule);
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s;
+      color: var(--ink-soft);
+      flex: 1;
+    }
+    .font-theme-btn:hover { border-color: var(--ink-soft); }
+    .font-theme-btn.active {
+      border-color: var(--amber);
+      background: var(--amber-pale);
+      color: var(--amber);
+    }
 
     /* ── Main layout ─────────────────────────────── */
     .main {
@@ -238,12 +345,15 @@
       align-items: center;
       padding: 8px 10px;
       border-radius: 6px;
-      cursor: pointer;
+      cursor: grab;
       margin-bottom: 1px;
       transition: all 0.12s;
       gap: 8px;
       position: relative;
     }
+
+    .section-item.dragging { opacity: 0.5; cursor: grabbing; }
+    .section-item.drag-over { border-top: 2px solid var(--amber); margin-top: -2px; }
 
     .section-item:hover:not(.active) { background: var(--cream-dark); }
 
@@ -252,8 +362,34 @@
       color: var(--cream);
     }
 
+    .section-duplicate {
+      display: none;
+      font-size: 13px;
+      line-height: 1;
+      color: var(--ink-faint);
+      cursor: pointer;
+      flex-shrink: 0;
+      padding: 2px;
+    }
+    .section-item:hover .section-duplicate { display: block; }
+    .section-duplicate:hover { color: var(--amber); }
+    .section-lines { display: block; }
+    .section-item:hover .section-lines { display: none; }
+    .section-delete {
+      display: none;
+      font-size: 12px;
+      line-height: 1;
+      color: var(--ink-faint);
+      cursor: pointer;
+      flex-shrink: 0;
+      padding: 2px;
+    }
+    .section-item:hover .section-delete:not(.disabled) { display: block; }
+    .section-delete:hover { color: var(--amber); }
+    .section-delete.disabled { display: none !important; }
+
     .section-label {
-      font-family: 'Cormorant Garamond', serif;
+      font-family: var(--font-display);
       font-size: 14px;
       font-weight: 500;
       flex: 1;
@@ -284,10 +420,11 @@
       justify-content: center;
       gap: 5px;
       transition: all 0.15s;
-      font-family: 'DM Sans', sans-serif;
+      font-family: var(--font-body);
     }
 
     .add-section-btn:hover { border-color: var(--amber); color: var(--amber); }
+    .add-section-btn:active { transform: scale(0.97); }
 
     /* ── Writing canvas ──────────────────────────── */
     .canvas-wrap {
@@ -307,7 +444,7 @@
     }
 
     .section-title {
-      font-family: 'Cormorant Garamond', serif;
+      font-family: var(--font-display);
       font-size: 30px;
       font-weight: 300;
       color: var(--ink);
@@ -346,7 +483,7 @@
       background: none;
       border: none;
       border-radius: 4px;
-      font-family: 'DM Sans', sans-serif;
+      font-family: var(--font-body);
       font-size: 12px;
       font-weight: 500;
       color: var(--ink-soft);
@@ -415,7 +552,7 @@
       z-index: 9000;
       overflow: hidden;
     }
-    .version-compare-panel.open { display: flex; flex-direction: column; }
+    .version-compare-panel.open { display: flex; flex-direction: column; animation: obIn 0.2s cubic-bezier(.22,1,.36,1) both; }
 
     .compare-header {
       padding: 14px 18px;
@@ -425,7 +562,7 @@
       align-items: center;
     }
     .compare-title {
-      font-family: 'Cormorant Garamond', serif;
+      font-family: var(--font-display);
       font-size: 16px;
       color: var(--ink);
     }
@@ -435,6 +572,7 @@
       font-size: 20px;
       color: var(--ink-faint);
       cursor: pointer;
+      transition: color 0.15s;
     }
     .compare-close:hover { color: var(--ink); }
 
@@ -451,7 +589,7 @@
     .compare-column:first-child { border-right: 1px solid var(--rule); }
 
     .compare-version-header {
-      font-family: 'DM Sans', sans-serif;
+      font-family: var(--font-body);
       font-size: 12px;
       font-weight: 600;
       color: var(--ink-soft);
@@ -460,7 +598,7 @@
       border-bottom: 1px solid var(--rule);
     }
     .compare-line {
-      font-family: 'Crimson Pro', serif;
+      font-family: var(--font-display);
       font-size: 16px;
       color: var(--ink);
       padding: 6px 0;
@@ -483,7 +621,7 @@
       background: none;
       border: 1px solid var(--rule);
       border-radius: 6px;
-      font-family: 'DM Sans', sans-serif;
+      font-family: var(--font-body);
       font-size: 11px;
       color: var(--ink-soft);
       cursor: pointer;
@@ -530,6 +668,7 @@
       box-shadow: 0 10px 30px var(--shadow-md);
       z-index: 100;
       overflow: hidden;
+      animation: obIn 0.15s cubic-bezier(.22,1,.36,1) both;
     }
 
     .intensifiers-header {
@@ -538,7 +677,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      font-family: 'DM Sans', sans-serif;
+      font-family: var(--font-body);
       font-size: 12px;
       font-weight: 500;
       color: var(--ink-soft);
@@ -550,6 +689,7 @@
       font-size: 16px;
       color: var(--ink-faint);
       cursor: pointer;
+      transition: color 0.15s;
     }
     .intensifiers-close:hover { color: var(--ink); }
 
@@ -564,7 +704,7 @@
     }
 
     .intensifiers-group-label {
-      font-family: 'DM Sans', sans-serif;
+      font-family: var(--font-body);
       font-size: 9px;
       font-weight: 600;
       letter-spacing: 0.1em;
@@ -584,7 +724,7 @@
       background: var(--cream);
       border: 1px solid var(--rule);
       border-radius: 4px;
-      font-family: 'Crimson Pro', serif;
+      font-family: var(--font-display);
       font-size: 13px;
       color: var(--ink);
       cursor: pointer;
@@ -646,6 +786,10 @@
       background: rgba(196,96,42,0.045);
     }
 
+    .lyric-line.line-selected {
+      background: rgba(196,96,42,0.12);
+    }
+
     .line-num {
       font-size: 10px;
       color: var(--ink-faint);
@@ -654,6 +798,18 @@
       flex-shrink: 0;
       padding-top: 9px;
       user-select: none;
+      cursor: pointer;
+      transition: color 0.15s ease, transform 0.1s ease;
+    }
+
+    .line-num:hover {
+      color: var(--amber);
+      transform: scale(1.15);
+    }
+
+    .line-num:active {
+      color: #c0392b;
+      transform: scale(0.95);
     }
 
     .line-input {
@@ -661,7 +817,7 @@
       background: none;
       border: none;
       outline: none;
-      font-family: 'Crimson Pro', serif;
+      font-family: var(--font-display);
       font-size: 21px;
       line-height: 36px;
       color: var(--ink);
@@ -727,6 +883,116 @@
       border-left-width: 0;
     }
 
+    /* ── Collect panel (suggestions + collected) ─── */
+    .collect-panel {
+      width: 292px;
+      background: var(--cream-light);
+      border-left: 1px solid var(--rule);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      overflow: hidden;
+      transition: width 0.28s cubic-bezier(.4,0,.2,1),
+                  opacity 0.22s ease;
+    }
+    .collect-panel.collapsed {
+      width: 0;
+      opacity: 0;
+      pointer-events: none;
+      border-left-width: 0;
+    }
+
+    /* Shared section header */
+    .cp-section-header {
+      padding: 10px 14px 8px;
+      border-bottom: 1px solid var(--rule);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+    .cp-section-title {
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--ink-faint);
+      flex: 1;
+    }
+    .cp-section-sub {
+      font-size: 10px;
+      color: var(--ink-faint);
+      font-style: italic;
+    }
+
+    /* Top: suggestions */
+    .cp-suggestions {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      min-height: 0;
+    }
+    .cp-suggestions-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px 12px;
+    }
+
+    /* Draggable divider */
+    .cp-divider {
+      height: 5px;
+      background: var(--rule);
+      cursor: row-resize;
+      flex-shrink: 0;
+      position: relative;
+      transition: background 0.12s;
+    }
+    .cp-divider:hover, .cp-divider.dragging { background: var(--amber); }
+    .cp-divider::after {
+      content: '';
+      position: absolute;
+      left: 50%; top: 50%;
+      transform: translate(-50%, -50%);
+      width: 24px; height: 2px;
+      background: var(--ink-faint);
+      border-radius: 1px;
+      opacity: 0.4;
+    }
+
+    /* Bottom: collected */
+    .cp-collected {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      flex-shrink: 0;
+      height: 40%;
+      min-height: 80px;
+      border-top: none;
+    }
+    .cp-collected-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px 12px;
+    }
+
+    /* Delete button on suggestion cards */
+    .suggestion-delete-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--ink-faint);
+      font-size: 13px;
+      padding: 0 3px;
+      line-height: 1;
+      opacity: 0;
+      transition: opacity 0.12s, color 0.12s;
+      flex-shrink: 0;
+    }
+    .ai-suggestion:hover .suggestion-delete-btn,
+    .bridge-draft-card:hover .suggestion-delete-btn { opacity: 1; }
+    .suggestion-delete-btn:hover { color: #c0392b; }
+
     .ai-panel-header {
       padding: 14px 16px 12px;
       border-bottom: 1px solid var(--rule);
@@ -762,7 +1028,7 @@
       color: var(--ink-faint);
       margin-top: 1px;
       font-style: italic;
-      font-family: 'Cormorant Garamond', serif;
+      font-family: var(--font-display);
     }
 
     .ai-close {
@@ -835,7 +1101,7 @@
       cursor: pointer;
       display: flex; align-items: center; justify-content: center;
       transition: all 0.15s;
-      font-family: 'Cormorant Garamond', serif;
+      font-family: var(--font-display);
       font-style: italic;
       font-weight: 600;
     }
@@ -870,7 +1136,7 @@
     }
 
     .info-modal-title {
-      font-family: 'Cormorant Garamond', serif;
+      font-family: var(--font-display);
       font-size: 24px; font-weight: 500;
       color: var(--ink);
       margin-bottom: 8px;
@@ -904,12 +1170,13 @@
       background: var(--ink);
       color: var(--cream);
       border: none; border-radius: 7px;
-      font-family: 'DM Sans', sans-serif;
+      font-family: var(--font-body);
       font-size: 13px; cursor: pointer;
       transition: background 0.15s;
     }
 
     .info-modal-close:hover { background: var(--amber); }
+    .info-modal-close:active { transform: scale(0.97); }
 
     .ai-tools-group-label {
       font-size: 9px;
@@ -929,7 +1196,7 @@
       text-align: center;
       padding: 28px 14px;
       color: var(--ink-faint);
-      font-family: 'Cormorant Garamond', serif;
+      font-family: var(--font-display);
       font-size: 15px;
       font-style: italic;
       line-height: 1.6;
@@ -947,7 +1214,7 @@
     .ai-suggestion:hover { border-color: var(--amber); }
 
     .ai-suggestion-text {
-      font-family: 'Crimson Pro', serif;
+      font-family: var(--font-display);
       font-size: 17px;
       color: var(--ink);
       line-height: 1.45;
@@ -970,10 +1237,11 @@
       font-size: 10px;
       cursor: pointer;
       transition: background 0.15s;
-      font-family: 'DM Sans', sans-serif;
+      font-family: var(--font-body);
     }
 
     .use-btn:hover { background: var(--amber); }
+    .use-btn:active { transform: scale(0.95); }
 
     .collect-btn {
       padding: 3px 7px;
@@ -984,7 +1252,7 @@
       font-size: 10px;
       cursor: pointer;
       transition: all 0.15s;
-      font-family: 'DM Sans', sans-serif;
+      font-family: var(--font-body);
     }
     .collect-btn:hover { border-color: var(--amber); color: var(--amber); }
     .collect-btn.collected { background: var(--sage-pale); border-color: var(--sage); color: var(--sage); }
@@ -1012,7 +1280,7 @@
     }
 
     .scratch-title {
-      font-family: 'DM Sans', sans-serif;
+      font-family: var(--font-body);
       font-size: 11px;
       font-weight: 500;
       letter-spacing: 0.06em;
@@ -1043,6 +1311,7 @@
       max-height: 200px;
       overflow-y: auto;
       padding: 0 10px 10px;
+      animation: obIn 0.15s cubic-bezier(.22,1,.36,1) both;
     }
 
     .scratch-empty {
@@ -1070,7 +1339,7 @@
 
     .scratch-item-text {
       flex: 1;
-      font-family: 'Crimson Pro', serif;
+      font-family: var(--font-display);
       font-size: 14px;
       color: var(--ink);
       line-height: 1.4;
@@ -1113,7 +1382,7 @@
     }
 
     .spec-question {
-      font-family: 'Cormorant Garamond', serif;
+      font-family: var(--font-display);
       font-size: 15px;
       font-style: italic;
       color: var(--ink-mid);
@@ -1133,7 +1402,7 @@
       background: var(--cream);
       border: 1px solid var(--rule);
       border-radius: 20px;
-      font-family: 'Crimson Pro', serif;
+      font-family: var(--font-display);
       font-size: 15px;
       color: var(--ink-mid);
       cursor: pointer;
@@ -1156,7 +1425,7 @@
     }
 
     .wordfamily-word {
-      font-family: 'Cormorant Garamond', serif;
+      font-family: var(--font-display);
       font-size: 14px;
       color: var(--ink-soft);
     }
@@ -1181,7 +1450,7 @@
       background: none;
       border: none;
       border-radius: 4px;
-      font-family: 'DM Sans', sans-serif;
+      font-family: var(--font-body);
       font-size: 11px;
       color: var(--ink-soft);
       cursor: pointer;
@@ -1199,7 +1468,7 @@
     }
 
     .wf-section-label {
-      font-family: 'DM Sans', sans-serif;
+      font-family: var(--font-body);
       font-size: 10px;
       font-weight: 600;
       letter-spacing: 0.08em;
@@ -1239,7 +1508,7 @@
     .wf-tag.softer { border-left: 3px solid var(--sage); }
 
     .wf-word {
-      font-family: 'Crimson Pro', serif;
+      font-family: var(--font-display);
       font-size: 15px;
       color: var(--ink);
     }
@@ -1259,7 +1528,7 @@
     }
 
     .rhyme-word {
-      font-family: 'Cormorant Garamond', serif;
+      font-family: var(--font-display);
       font-size: 14px;
       color: var(--ink-soft);
     }
@@ -1288,7 +1557,7 @@
       background: none;
       border: none;
       border-radius: 4px;
-      font-family: 'DM Sans', sans-serif;
+      font-family: var(--font-body);
       font-size: 11px;
       color: var(--ink-soft);
       cursor: pointer;
@@ -1346,7 +1615,7 @@
     }
 
     .rhyme-word-text {
-      font-family: 'Crimson Pro', serif;
+      font-family: var(--font-display);
       font-size: 15px;
       color: var(--ink);
     }
@@ -1357,7 +1626,7 @@
       background: var(--ink-faint);
       padding: 2px 5px;
       border-radius: 8px;
-      font-family: 'DM Sans', sans-serif;
+      font-family: var(--font-body);
     }
 
     .rhyme-empty {
@@ -1381,7 +1650,7 @@
     }
 
     .phrases-label {
-      font-family: 'Cormorant Garamond', serif;
+      font-family: var(--font-display);
       font-size: 11px;
       letter-spacing: 0.1em;
       text-transform: uppercase;
@@ -1409,7 +1678,7 @@
 
     .phrase-text {
       flex: 1;
-      font-family: 'Crimson Pro', serif;
+      font-family: var(--font-display);
       font-size: 15px;
       color: var(--ink);
       font-style: italic;
@@ -1555,7 +1824,7 @@
     }
 
     .ov-line {
-      font-family: 'Crimson Pro', serif;
+      font-family: var(--font-display);
       font-size: 21px;
       line-height: 1.6;
       color: var(--ink-mid);
@@ -1595,6 +1864,72 @@
       padding: 2px 6px;
     }
 
+    /* ── Bridge draft cards ─────────────────────────── */
+    .bridge-draft-card {
+      border: 1px solid var(--rule);
+      border-radius: 6px;
+      padding: 12px 14px 10px;
+      margin-bottom: 10px;
+      background: var(--cream);
+    }
+    .bridge-draft-label {
+      font-size: 9.5px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--ink-faint);
+      margin-bottom: 8px;
+    }
+    .bridge-draft-body p {
+      font-family: var(--font-display);
+      font-size: 15px;
+      line-height: 1.6;
+      color: var(--ink-mid);
+      margin: 0 0 2px;
+    }
+    .bridge-draft-footer {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 8px;
+    }
+    .bridge-more-btn {
+      display: block;
+      width: 100%;
+      margin-top: 4px;
+      padding: 7px 12px;
+      background: none;
+      border: 1px solid var(--rule);
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 12px;
+      color: var(--ink-faint);
+      letter-spacing: 0.04em;
+      transition: border-color 0.12s, color 0.12s;
+    }
+    .bridge-more-btn:hover { border-color: var(--amber); color: var(--amber); }
+
+    /* ── Overview two-column layout ────────────────── */
+    .ov-columns-btn {
+      background: none;
+      border: 1px solid var(--rule);
+      border-radius: 3px;
+      cursor: pointer;
+      color: var(--ink-faint);
+      font-size: 11px;
+      padding: 1px 5px;
+      line-height: 1;
+      transition: border-color 0.12s, color 0.12s, background 0.12s;
+    }
+    .ov-columns-btn:hover { border-color: var(--amber); color: var(--amber); }
+    .ov-columns-btn.active { background: var(--amber-pale); border-color: var(--amber); color: var(--amber); }
+
+    .song-overview-body.two-col {
+      column-count: 2;
+      column-gap: 16px;
+    }
+    .song-overview-body.two-col .ov-section {
+      break-inside: avoid;
+    }
+
     /* Move-line arrows in editor */
     .line-move-arrows {
       display: flex;
@@ -1629,7 +1964,7 @@
       background: none;
       border: 1px solid var(--rule);
       border-radius: 6px;
-      font-family: 'DM Sans', sans-serif;
+      font-family: var(--font-body);
       font-size: 12px;
       color: var(--ink-soft);
       cursor: pointer;
@@ -1661,14 +1996,14 @@
     }
 
     #splitResizer::after {
-      content: '';
+      content: '···';
       position: absolute;
       top: 50%;
-      transform: translateY(-50%);
-      width: 1px;
-      height: 32px;
-      background: rgba(255,255,255,0.5);
-      border-radius: 1px;
+      transform: translateY(-50%) rotate(90deg);
+      font-size: 10px;
+      letter-spacing: 2px;
+      color: var(--ink-faint);
+      line-height: 1;
     }
 
     /* expand hover hit area */
@@ -1699,7 +2034,7 @@
       transition: all 0.2s;
       box-shadow: 0 4px 18px var(--shadow-md);
       z-index: 10;
-      font-family: 'Cormorant Garamond', serif;
+      font-family: var(--font-display);
       letter-spacing: 0;
     }
 
@@ -1729,6 +2064,12 @@
       }
     }
 
+    /* ── Text selection ─────────────────────────── */
+    ::selection {
+      background: var(--amber-pale);
+      color: var(--ink);
+    }
+
     /* ── Scrollbar ───────────────────────────────── */
     ::-webkit-scrollbar { width: 4px; }
     ::-webkit-scrollbar-track { background: transparent; }
@@ -1749,7 +2090,7 @@
       border-radius: 20px;
       background: none;
       cursor: pointer;
-      font-family: 'DM Sans', sans-serif;
+      font-family: var(--font-body);
       font-size: 12px;
       color: var(--ink-mid);
       transition: all 0.15s;
@@ -1822,7 +2163,7 @@
       border: none; border-top: 1px solid var(--rule);
       background: none; cursor: pointer;
       font-size: 12px; color: var(--amber);
-      font-family: 'DM Sans', sans-serif;
+      font-family: var(--font-body);
       transition: background 0.12s;
       text-align: left;
     }
@@ -1850,7 +2191,7 @@
     }
 
     .audio-filename {
-      font-family: 'Cormorant Garamond', serif;
+      font-family: var(--font-display);
       font-size: 14px;
       font-style: italic;
       color: var(--ink-mid);
@@ -1968,6 +2309,7 @@
     }
 
     .audio-btn:hover { border-color: var(--amber); color: var(--amber); background: var(--amber-pale); }
+    .audio-btn:active { transform: scale(0.93); }
     .audio-btn.active { background: var(--ink); color: var(--cream); border-color: var(--ink); }
     .audio-btn.play-btn { width: 38px; height: 38px; font-size: 15px; }
     .audio-btn.play-btn.active { background: var(--amber); border-color: var(--amber); }
@@ -2004,7 +2346,7 @@
       background: none;
       font-size: 11px;
       color: var(--ink-soft);
-      font-family: 'DM Sans', sans-serif;
+      font-family: var(--font-body);
       cursor: pointer;
       outline: none;
     }
@@ -2019,7 +2361,7 @@
       font-size: 12px;
       color: var(--ink-soft);
       cursor: pointer;
-      font-family: 'DM Sans', sans-serif;
+      font-family: var(--font-body);
       transition: all 0.15s;
       display: flex; align-items: center; gap: 5px;
     }
@@ -2032,7 +2374,7 @@
       background: none;
       border: 1px solid var(--rule);
       border-radius: 6px;
-      font-family: 'DM Sans', sans-serif;
+      font-family: var(--font-body);
       font-size: 12px;
       color: var(--ink-soft);
       cursor: pointer;
@@ -2075,13 +2417,110 @@
     .ob-pip.done { background: var(--ink); }
     .ob-pip.active { background: var(--amber); }
 
+    /* ── Feature tooltips ───────────────────────── */
+    .ftip-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 900;
+      pointer-events: none;
+    }
+    .ftip-spotlight {
+      position: fixed;
+      border-radius: 8px;
+      box-shadow: 0 0 0 9999px rgba(0,0,0,0.45);
+      pointer-events: none;
+      z-index: 901;
+      transition: all 0.3s cubic-bezier(.22,1,.36,1);
+    }
+    .ftip-bubble {
+      position: fixed;
+      z-index: 902;
+      background: var(--ink);
+      color: var(--cream);
+      border-radius: 12px;
+      padding: 16px 18px;
+      max-width: 260px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+      font-family: var(--font-body);
+      font-size: 13px;
+      line-height: 1.5;
+      pointer-events: all;
+      animation: ftipIn 0.35s cubic-bezier(.22,1,.36,1) both;
+    }
+    @keyframes ftipIn {
+      from { opacity: 0; transform: translateY(8px) scale(0.97); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .ftip-bubble::before {
+      content: '';
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      background: var(--ink);
+      transform: rotate(45deg);
+    }
+    .ftip-bubble.arrow-left::before  { left: -5px; top: 20px; }
+    .ftip-bubble.arrow-right::before { right: -5px; top: 20px; }
+    .ftip-bubble.arrow-top::before   { top: -5px; left: 24px; }
+    .ftip-bubble.arrow-bottom::before { bottom: -5px; left: 24px; }
+    .ftip-counter {
+      font-size: 11px;
+      color: var(--amber);
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+    .ftip-title {
+      font-family: var(--font-display);
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--cream);
+      margin-bottom: 5px;
+    }
+    .ftip-body {
+      color: rgba(248,244,237,0.75);
+      font-size: 13px;
+      line-height: 1.55;
+      margin-bottom: 14px;
+    }
+    .ftip-actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .ftip-next {
+      padding: 7px 16px;
+      background: var(--amber);
+      color: #fff;
+      border: none;
+      border-radius: 7px;
+      font-family: var(--font-body);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    .ftip-next:hover { opacity: 0.85; }
+    .ftip-skip {
+      background: none;
+      border: none;
+      color: rgba(248,244,237,0.4);
+      font-size: 12px;
+      font-family: var(--font-body);
+      cursor: pointer;
+      text-decoration: underline;
+    }
+    .ftip-skip:hover { color: rgba(248,244,237,0.7); }
+
     .ob-eyebrow {
       font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase;
       color: var(--amber); margin-bottom: 10px; font-weight: 500;
     }
 
     .ob-heading {
-      font-family: 'Cormorant Garamond', serif;
+      font-family: var(--font-display);
       font-size: clamp(28px, 5vw, 42px);
       font-weight: 300; line-height: 1.15;
       color: var(--ink); margin-bottom: 10px;
@@ -2100,7 +2539,7 @@
       border: none;
       border-bottom: 2px solid var(--rule);
       padding: 10px 4px;
-      font-family: 'Crimson Pro', serif;
+      font-family: var(--font-display);
       font-size: 22px;
       color: var(--ink);
       outline: none;
@@ -2118,7 +2557,7 @@
       border: 1px solid var(--rule);
       border-radius: 8px;
       padding: 14px 16px;
-      font-family: 'Crimson Pro', serif;
+      font-family: var(--font-display);
       font-size: 18px; line-height: 1.6;
       color: var(--ink); outline: none;
       resize: vertical; min-height: 100px;
@@ -2159,7 +2598,7 @@
     }
 
     .ob-card-label {
-      font-family: 'Cormorant Garamond', serif;
+      font-family: var(--font-display);
       font-size: 16px; font-weight: 600;
       color: var(--ink); margin-bottom: 4px;
     }
@@ -2187,7 +2626,7 @@
     }
 
     .ob-lyric-text {
-      font-family: 'Crimson Pro', serif;
+      font-family: var(--font-display);
       font-size: 17px; font-style: italic;
       line-height: 1.55; color: var(--ink);
       margin-bottom: 8px;
@@ -2196,6 +2635,15 @@
     .ob-lyric-attr {
       font-size: 10px; letter-spacing: 0.08em;
       color: var(--ink-faint); text-transform: uppercase;
+    }
+
+    .ob-loading {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 48px 24px;
+      text-align: center;
     }
 
     /* Step hint */
@@ -2214,31 +2662,33 @@
       padding: 12px 28px;
       background: var(--ink); color: var(--cream);
       border: none; border-radius: 8px;
-      font-family: 'DM Sans', sans-serif;
+      font-family: var(--font-body);
       font-size: 14px; cursor: pointer;
       transition: background 0.15s, transform 0.1s;
     }
 
     .ob-next:hover:not(:disabled) { background: var(--amber); }
+    .ob-next:active:not(:disabled) { transform: scale(0.97); }
     .ob-next:disabled { opacity: 0.35; cursor: default; pointer-events: none; }
 
     .ob-back {
       padding: 12px 18px;
       background: none; border: 1px solid var(--rule);
       border-radius: 8px; color: var(--ink-soft);
-      font-family: 'DM Sans', sans-serif;
+      font-family: var(--font-body);
       font-size: 14px; cursor: pointer;
       transition: all 0.15s;
     }
 
     .ob-back:hover { border-color: var(--ink-soft); color: var(--ink); }
+    .ob-back:active { transform: scale(0.97); }
 
     .ob-skip {
       margin-left: auto;
       background: none; border: none;
       color: var(--ink-faint); font-size: 12px;
       cursor: pointer; padding: 4px;
-      font-family: 'DM Sans', sans-serif;
+      font-family: var(--font-body);
       transition: color 0.15s;
     }
 
@@ -2265,7 +2715,10 @@
       .sidebar { display: none; }
       .ai-panel { position: fixed; right: 0; top: 0; bottom: 0; z-index: 500; width: 300px; max-width: 85vw; box-shadow: -4px 0 24px var(--shadow-md); }
       .ai-panel.collapsed { width: 0; }
-      .canvas-header { padding: 14px 18px 10px; }
+      .collect-panel { position: fixed; right: 300px; top: 0; bottom: 0; z-index: 499; width: 300px; max-width: 85vw; box-shadow: -4px 0 24px var(--shadow-md); display: flex; flex-direction: column; }
+      .collect-panel.collapsed { width: 0; }
+      .canvas-header { padding: 14px 18px 10px; flex-wrap: wrap; }
+      .version-controls { margin-left: 0; width: 100%; }
       .editor-area { padding: 16px 18px 32px; }
       .section-title { font-size: 24px; }
       .ai-fab { width: 48px; height: 48px; }
@@ -2273,12 +2726,16 @@
       .ob-wrap { padding: 32px 18px 48px; }
       .ob-choices { grid-template-columns: 1fr; }
       .ob-choices.cols-3 { grid-template-columns: 1fr; }
+      .fork-btn { margin-left: 0; }
 
       /* Touch targets: ensure minimum 44px */
-      .chip, .btn-ghost, .btn-split, .btn-audio, .audio-btn, .move-arrow {
+      .chip, .btn-ghost, .btn-split, .btn-audio, .audio-btn, .move-arrow,
+      .scratch-item-btn, .phrase-btn, .version-tab, .version-add-btn {
         min-height: 44px;
         min-width: 44px;
       }
+
+      .version-add-btn { width: 44px; height: 44px; }
     }
 
     @media (max-width: 480px) {
@@ -2290,9 +2747,203 @@
       .line-input { font-size: 18px; line-height: 32px; }
       .lyric-line { min-height: 32px; }
     }
+
+    /* ── Auth bar ──────────────────────────────────── */
+    #authBar {
+      background: var(--cream-dark);
+      border-bottom: 1px solid var(--rule);
+      padding: 5px 20px;
+      font-size: 11.5px;
+      color: var(--ink-soft);
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+    #authBar .auth-signin {
+      padding: 3px 12px;
+      border: 1px solid var(--amber);
+      border-radius: 4px;
+      background: transparent;
+      color: var(--amber);
+      font-size: 11px;
+      font-family: var(--font-body);
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+    }
+    #authBar .auth-signin:hover {
+      background: var(--amber);
+      color: white;
+    }
+    #authBar .auth-user {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    #authBar .auth-avatar {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      border: 1px solid var(--rule);
+    }
+    #authBar .auth-name {
+      font-size: 11.5px;
+      color: var(--ink-mid);
+    }
+    #authBar .auth-signout {
+      background: none;
+      border: none;
+      color: var(--ink-faint);
+      font-size: 11px;
+      cursor: pointer;
+      text-decoration: underline;
+      font-family: var(--font-body);
+    }
+    #authBar .auth-signout:hover {
+      color: var(--ink-soft);
+    }
+
+    /* ── Sync indicator ────────────────────────────── */
+    .sync-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 10px;
+      color: var(--ink-faint);
+      margin-right: auto;
+    }
+    .sync-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--ink-faint);
+      transition: background 0.3s;
+    }
+    .sync-dot.saving { background: var(--amber); }
+    .sync-dot.saved { background: var(--sage); }
+    .sync-dot.error { background: #c44; }
+
+    /* ── Sign-in gate ─────────────────────────────── */
+    #signInGate {
+      position: fixed;
+      inset: 0;
+      z-index: 10010;
+      background: var(--cream);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 18px;
+    }
+    #signInGate::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: -1;
+      opacity: 0.6;
+    }
+    .gate-logo {
+      width: 48px; height: 48px;
+      background: var(--ink);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--cream);
+      font-size: 24px;
+    }
+    .gate-name {
+      font-family: var(--font-display);
+      font-size: 42px;
+      font-weight: 600;
+      color: var(--ink);
+      letter-spacing: -0.02em;
+    }
+    .gate-tagline {
+      font-family: var(--font-display);
+      font-size: 17px;
+      font-style: italic;
+      color: var(--ink-soft);
+      margin-top: -8px;
+    }
+    .gate-google-btn {
+      margin-top: 20px;
+      padding: 12px 32px;
+      border: 1.5px solid var(--amber);
+      border-radius: 8px;
+      background: transparent;
+      color: var(--amber);
+      font-family: var(--font-body);
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+    .gate-google-btn:hover {
+      background: var(--amber);
+      color: white;
+    }
+
+    /* ── Loading screen ───────────────────────────── */
+    #loadingScreen {
+      position: fixed;
+      inset: 0;
+      z-index: 10005;
+      background: var(--cream);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .loading-spinner {
+      width: 28px; height: 28px;
+      border: 2.5px solid var(--rule);
+      border-top-color: var(--amber);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-text {
+      font-family: var(--font-body);
+      font-size: 13px;
+      color: var(--ink-faint);
+    }
   </style>
 </head>
 <body>
+
+<!-- Sign-in gate -->
+<div id="signInGate" style="display:none">
+  <div class="gate-logo">&#10022;</div>
+  <div class="gate-name">Carmen</div>
+  <div class="gate-tagline">Write in your own voice</div>
+  <button class="gate-google-btn" onclick="firebaseSignIn()">Sign in with Google</button>
+</div>
+
+<!-- Loading screen -->
+<div id="loadingScreen" style="display:flex">
+  <div class="loading-spinner"></div>
+  <div class="loading-text">Loading&#8230;</div>
+</div>
+
+<!-- Auth bar -->
+<div id="authBar">
+  <div class="sync-indicator" id="syncIndicator" style="display:none">
+    <div class="sync-dot" id="syncDot"></div>
+    <span id="syncLabel">Synced</span>
+  </div>
+  <div id="authSignedIn">
+    <div class="auth-user">
+      <img class="auth-avatar" id="authAvatar" src="" alt="">
+      <span class="auth-name" id="authName"></span>
+      <button class="auth-signout" onclick="firebaseSignOut()">Sign out</button>
+    </div>
+  </div>
+</div>
 
 <!-- Onboarding overlay -->
 <div id="onboarding" style="display:none" role="dialog" aria-label="Writer profile setup">
@@ -2307,13 +2958,13 @@
 <nav class="topbar" aria-label="Song toolbar">
   <div class="logo">
     <div class="logo-mark">✦</div>
-    Inkwell
+    Carmen
   </div>
   <div class="divider-v"></div>
   <div class="song-picker-wrap" style="position:relative;display:flex;align-items:center;gap:6px;">
     <input id="songTitle" type="text" placeholder="Untitled Song…" aria-label="Song title">
     <button id="songPickerBtn" class="chip" onclick="toggleSongPicker()" style="padding:4px 8px;font-size:11px;" aria-label="Choose song">▾</button>
-    <div id="songPickerDropdown" style="display:none;position:absolute;top:calc(100% + 8px);left:0;background:var(--cream-light);border:1px solid var(--rule);border-radius:10px;box-shadow:0 10px 30px var(--shadow-md);z-index:1001;min-width:240px;max-height:320px;overflow-y:auto;"></div>
+    <div id="songPickerDropdown" style="display:none;position:absolute;top:calc(100% + 8px);left:0;background:var(--cream-light);border:1px solid var(--rule);border-radius:10px;box-shadow:0 10px 30px var(--shadow-md);z-index:1001;min-width:300px;max-width:380px;max-height:480px;overflow-y:auto;animation:obIn 0.15s cubic-bezier(.22,1,.36,1) both;"></div>
   </div>
   <div class="divider-v"></div>
   <div class="meta-chips">
@@ -2321,6 +2972,7 @@
     <button class="chip" id="chipTempo" onclick="editMeta('tempo')">↯ 92 BPM</button>
     <button class="chip" id="chipMood" onclick="editMeta('mood')" title="Mood — used by the AI co-writer to match the emotional tone of suggestions">◎ Melancholic</button>
   </div>
+  <div id="tagEditorWrap" style="padding:0 0 4px 0;"></div>
   <div class="topbar-right">
     <div class="voice-switcher" id="voiceSwitcher">
       <button class="voice-btn" id="voiceBtn" onclick="toggleVoiceDropdown()">
@@ -2331,25 +2983,91 @@
       <div class="voice-dropdown" id="voiceDropdown" style="display:none"></div>
     </div>
     <button class="btn-audio" id="audioToggleBtn" onclick="toggleAudioBar()" title="Audio Player &amp; Recorder">⏺ Player / Recorder</button>
-    <button id="langToggleBtn" class="chip" onclick="setLang(getLang()==='fr'?'en':'fr')" style="letter-spacing:0.05em;" aria-label="Toggle language">FR</button>
+    <button onclick="_toggleAudioHelp(event)" style="background:none;border:none;color:var(--ink-faint);font-size:13px;cursor:pointer;padding:2px 4px;line-height:1;margin-left:-4px;" title="How the player works">ⓘ</button>
+    <div id="audioHelpTooltip" style="display:none;position:absolute;z-index:500;top:48px;left:50%;transform:translateX(-50%);
+      background:var(--ink);color:var(--cream);border-radius:10px;padding:14px 16px;max-width:300px;width:90vw;
+      box-shadow:0 8px 32px rgba(0,0,0,0.25);font-family:'Jost',sans-serif;font-size:12px;line-height:1.6;">
+      <div style="font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:600;margin-bottom:8px;">Audio Player &amp; Recorder</div>
+      <div style="color:rgba(248,244,237,0.8);margin-bottom:10px;">Use this to write along with a backing track, or capture vocal ideas on the spot.</div>
+      <div style="display:flex;flex-direction:column;gap:7px;">
+        <div><span style="color:var(--amber);font-weight:600;">♫ Import track</span> — Load any audio file (MP3, WAV, M4A) as a backing track. The waveform appears so you can see the song structure at a glance.</div>
+        <div><span style="color:var(--amber);font-weight:600;">● Record</span> — Record vocal takes over the backing track (or silently). Each take is saved separately and can be replayed or deleted.</div>
+        <div><span style="color:var(--amber);font-weight:600;">Waveform</span> — Click anywhere to jump to that point. Drag the left/right handles to set a loop region.</div>
+        <div><span style="color:var(--amber);font-weight:600;">Loop</span> — Enable looping to repeat a section while you write or practice a line.</div>
+        <div><span style="color:var(--amber);font-weight:600;">Speed</span> — Slow the track down to 0.5× or 0.75× to work through a tricky section.</div>
+      </div>
+      <button onclick="document.getElementById('audioHelpTooltip').style.display='none';event.stopPropagation();" 
+        style="margin-top:12px;background:none;border:1px solid rgba(248,244,237,0.2);border-radius:6px;
+        color:rgba(248,244,237,0.5);font-size:11px;padding:4px 10px;cursor:pointer;font-family:'Jost',sans-serif;">
+        Got it
+      </button>
+    </div>
+    <div style="position:relative;" id="settingsWrap">
+      <button class="btn-ghost" onclick="toggleSettingsMenu()" title="Settings" style="font-size:15px;padding:5px 8px;">⚙︎</button>
+      <div id="settingsMenu" style="display:none;position:absolute;top:calc(100% + 6px);right:0;
+        background:var(--cream-light);border:1px solid var(--rule);border-radius:8px;
+        box-shadow:0 8px 24px var(--shadow-md);z-index:1000;min-width:200px;overflow:hidden;animation:obIn 0.15s cubic-bezier(.22,1,.36,1) both;">
+        <div style="padding:10px 16px;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink-faint);border-bottom:1px solid var(--rule);">Settings</div>
+        <div onclick="setLang(getLang()==='fr'?'en':'fr');toggleSettingsMenu();" style="padding:10px 16px;cursor:pointer;font-size:13px;color:var(--ink-mid);font-family:var(--font-body);display:flex;align-items:center;gap:8px;" onmouseenter="this.style.background='var(--cream-dark)'" onmouseleave="this.style.background=''">
+          <span style="font-size:15px">🌐</span> <span id="settingsLangLabel">Language: English</span>
+        </div>
+        <div style="padding:8px 16px;border-top:1px solid var(--rule);">
+          <div style="font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:8px;">Font Style</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;">
+            <button onclick="setFontTheme('classic')" id="fontThemeClassic" class="font-theme-btn active" title="Classic: warm cream, editorial">
+              <span style="font-family:'Cormorant Garamond',serif;font-size:14px;font-style:italic;">Aa</span>
+              <span style="font-size:9px;">Classic</span>
+            </button>
+            <button onclick="setFontTheme('modern')" id="fontThemeModern" class="font-theme-btn" title="Modern: cool grey, minimal">
+              <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;">Aa</span>
+              <span style="font-size:9px;">Modern</span>
+            </button>
+            <button onclick="setFontTheme('typewriter')" id="fontThemeTypewriter" class="font-theme-btn" title="Typewriter: stark black on white">
+              <span style="font-family:'Courier Prime',monospace;font-size:12px;font-weight:bold;">Aa</span>
+              <span style="font-size:9px;">Typewriter</span>
+            </button>
+            <button onclick="setFontTheme('night')" id="fontThemeNight" class="font-theme-btn" title="Night: dark mode for late-night writing" style="background:#1a1a1a;border-color:#333;color:#e8e8e8;">
+              <span style="font-family:'Cormorant Garamond',serif;font-size:14px;font-style:italic;color:#f0a050;">Aa</span>
+              <span style="font-size:9px;color:#909090;">Night</span>
+            </button>
+          </div>
+        </div>
+        <div onclick="editCurrentVoice();toggleSettingsMenu();" style="padding:10px 16px;cursor:pointer;font-size:13px;color:var(--ink-mid);font-family:var(--font-body);display:flex;align-items:center;gap:8px;border-top:1px solid var(--rule);" onmouseenter="this.style.background='var(--cream-dark)'" onmouseleave="this.style.background=''">
+          <span style="font-size:15px">✎</span> Edit voice profile
+        </div>
+        <div id="voiceLearningStatus" style="padding:10px 16px;border-top:1px solid var(--rule);font-size:12px;color:var(--ink-soft);">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
+            <span style="font-size:14px;">🧠</span>
+            <span>Voice Learning</span>
+          </div>
+          <div id="voiceLearningInfo" style="font-size:11px;color:var(--ink-faint);margin-left:20px;">Loading...</div>
+          <button onclick="reanalyzeCurrentVoice();" id="reanalyzeBtn" style="margin-top:8px;margin-left:20px;padding:4px 10px;font-size:11px;background:var(--cream);border:1px solid var(--rule);border-radius:4px;cursor:pointer;color:var(--ink-soft);display:none;" onmouseenter="this.style.borderColor='var(--amber)'" onmouseleave="this.style.borderColor='var(--rule)'">Re-analyze voice</button>
+        </div>
+        <div onclick="_prefs.onboarded=false;_savePrefs();startOnboarding();toggleSettingsMenu();" style="padding:10px 16px;cursor:pointer;font-size:13px;color:var(--ink-mid);font-family:var(--font-body);display:flex;align-items:center;gap:8px;border-top:1px solid var(--rule);" onmouseenter="this.style.background='var(--cream-dark)'" onmouseleave="this.style.background=''">
+          <span style="font-size:15px">↺</span> Restart onboarding
+        </div>
+      </div>
+    </div>
     <button class="btn-split" id="splitBtn" onclick="toggleSplit()" title="Split screen: section + full song">⊞ Split</button>
+    <button class="btn-ghost" onclick="triggerImport()" id="importBtn" title="Import songs from iA Writer / Markdown files">Import</button>
+    <input type="file" id="importFileInput" accept=".txt,.md" multiple style="display:none" onchange="handleImportFiles(this.files)">
     <div style="position:relative;" id="exportWrap">
     <button class="btn-ghost" onclick="toggleExportMenu()" id="exportBtn">Export ▾</button>
     <div id="exportMenu" style="display:none;position:absolute;top:calc(100% + 6px);right:0;
       background:var(--cream-light);border:1px solid var(--rule);border-radius:8px;
-      box-shadow:0 8px 24px var(--shadow-md);z-index:1000;min-width:160px;overflow:hidden;">
-      <div onclick="exportLyrics('txt')" style="padding:10px 16px;cursor:pointer;font-size:13px;color:var(--ink-mid);font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:8px;" onmouseenter="this.style.background='var(--cream-dark)'" onmouseleave="this.style.background=''">
+      box-shadow:0 8px 24px var(--shadow-md);z-index:1000;min-width:160px;overflow:hidden;animation:obIn 0.15s cubic-bezier(.22,1,.36,1) both;">
+      <div onclick="exportLyrics('txt')" style="padding:10px 16px;cursor:pointer;font-size:13px;color:var(--ink-mid);font-family:'Jost',sans-serif;display:flex;align-items:center;gap:8px;" onmouseenter="this.style.background='var(--cream-dark)'" onmouseleave="this.style.background=''">
         <span style="font-size:15px">📄</span> Plain text
       </div>
-      <div onclick="exportLyrics('md')" style="padding:10px 16px;cursor:pointer;font-size:13px;color:var(--ink-mid);font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:8px;border-top:1px solid var(--rule);" onmouseenter="this.style.background='var(--cream-dark)'" onmouseleave="this.style.background=''">
+      <div onclick="exportLyrics('md')" style="padding:10px 16px;cursor:pointer;font-size:13px;color:var(--ink-mid);font-family:'Jost',sans-serif;display:flex;align-items:center;gap:8px;border-top:1px solid var(--rule);" onmouseenter="this.style.background='var(--cream-dark)'" onmouseleave="this.style.background=''">
         <span style="font-size:15px">✦</span> Markdown
       </div>
-      <div onclick="exportLyrics('pdf')" style="padding:10px 16px;cursor:pointer;font-size:13px;color:var(--ink-mid);font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:8px;border-top:1px solid var(--rule);" onmouseenter="this.style.background='var(--cream-dark)'" onmouseleave="this.style.background=''">
+      <div onclick="exportLyrics('pdf')" style="padding:10px 16px;cursor:pointer;font-size:13px;color:var(--ink-mid);font-family:'Jost',sans-serif;display:flex;align-items:center;gap:8px;border-top:1px solid var(--rule);" onmouseenter="this.style.background='var(--cream-dark)'" onmouseleave="this.style.background=''">
         <span style="font-size:15px">📑</span> PDF
       </div>
     </div>
   </div>
-    <button class="btn-primary" id="saveBtn" onclick="saveSong()"></button>
+    <button class="btn-primary" id="saveBtn" onclick="saveSong()" style="display:none">Save</button>
   </div>
 </nav>
 
@@ -2371,10 +3089,10 @@
 
     <!-- Rec controls always here -->
     <button id="recBtn" class="audio-btn" onclick="toggleRecording()" title="Record a take"
-      style="font-size:11px;width:auto;padding:0 13px;height:32px;border-radius:20px;letter-spacing:0.03em;font-family:'DM Sans',sans-serif;">
+      style="font-size:11px;width:auto;padding:0 13px;height:32px;border-radius:20px;letter-spacing:0.03em;font-family:'Jost',sans-serif;">
       ● Record
     </button>
-    <span id="recTimer" style="font-size:11px;font-variant-numeric:tabular-nums;color:#c4602a;min-width:36px;font-family:'DM Sans',sans-serif;font-weight:500;"></span>
+    <span id="recTimer" style="font-size:11px;font-variant-numeric:tabular-nums;color:#c4602a;min-width:36px;font-family:'Jost',sans-serif;font-weight:500;"></span>
     <span class="audio-time" id="audioTimeDisplay" style="display:none">0:00 / 0:00</span>
   </div>
 
@@ -2466,7 +3184,10 @@
     <div class="song-overview" id="songOverview" style="display:none">
       <div class="song-overview-header">
         <span>Full Song</span>
-        <span id="ovLineCount" style="font-size:10px;color:var(--ink-faint)"></span>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span id="ovLineCount" style="font-size:10px;color:var(--ink-faint)"></span>
+          <button id="ovColumnsBtn" class="ov-columns-btn" onclick="toggleOvColumns()" title="Toggle two-column layout">⊞</button>
+        </div>
       </div>
       <div class="song-overview-body" id="songOverviewBody"></div>
     </div>
@@ -2477,31 +3198,45 @@
     <div class="ai-panel-header">
       <div class="ai-dot"></div>
       <div class="ai-header-text">
-        <div class="ai-title" id="aiPanelTitle"></div>
-        <div class="ai-subtitle" id="aiPanelSub"></div>
+        <div class="ai-title">Co-Writer</div>
       </div>
       <button class="ai-close" onclick="toggleAI()" aria-label="Close AI panel">×</button>
     </div>
 
     <div class="ai-tools" id="aiToolsList"></div>
+  </aside>
 
-    <div class="ai-response" id="aiResponse">
-      <div class="ai-empty" id="aiEmptyMsg">Select a line, then choose a tool above.</div>
+  <!-- Suggestions + Collected Panel -->
+  <aside class="collect-panel collapsed" id="collectPanel" aria-label="Suggestions and Collected">
+
+    <!-- Top half: AI suggestions -->
+    <div class="cp-suggestions" id="cpSuggestions">
+      <div class="cp-section-header">
+        <span class="cp-section-title" id="aiPanelTitle">Suggestions</span>
+        <span class="cp-section-sub" id="aiPanelSub"></span>
+        <div class="ai-dot" id="aiDot"></div>
+      </div>
+      <div class="cp-suggestions-body" id="aiResponse">
+        <div class="ai-empty" id="aiEmptyMsg">Select a line, then choose a tool above.</div>
+      </div>
     </div>
 
-    <!-- Scratch Pad -->
-    <div class="scratch-pad" id="scratchPad">
-      <div class="scratch-header" onclick="toggleScratchPad()">
-        <span class="scratch-icon">✦</span>
-        <span class="scratch-title" id="scratchTitle"></span>
+    <!-- Divider -->
+    <div class="cp-divider" id="cpDivider"></div>
+
+    <!-- Bottom half: Collected -->
+    <div class="cp-collected" id="cpCollected">
+      <div class="cp-section-header">
+        <span class="cp-section-title">✦ Collected</span>
         <span class="scratch-count" id="scratchCount">0</span>
-        <span class="scratch-toggle" id="scratchToggle">▾</span>
+        <button class="ai-close" onclick="toggleCollectPanel()" aria-label="Close panel" style="margin-left:auto">×</button>
       </div>
-      <div class="scratch-body" id="scratchBody" style="display:none;">
+      <div class="cp-collected-body">
         <div class="scratch-empty" id="scratchEmpty"></div>
         <div class="scratch-items" id="scratchItems"></div>
       </div>
     </div>
+
   </aside>
 
 </div>
@@ -2600,6 +3335,28 @@ var AI_TOOLS = [
         infoBody: 'Alliteration — repeating consonant sounds at the start of words — creates rhythm, memorability, and punch. Think "wild and wicked" or "safe and sound."\n\nThis tool rewrites your selected line 3 ways with alliterative patterns woven in naturally.',
         infoTip: '<strong>Why it works:</strong> Our brains love patterns. Alliteration makes lyrics stickier without being obvious about it.'
       },
+      {
+        mode: 'flow',
+        i18nLabel: 'tool.flow.label',
+        i18nDesc: 'tool.flow.desc',
+        icon: '≈',
+        label: 'Flow',
+        desc: 'Rhythm & stress analysis per line',
+        infoTitle: 'Flow — Rhythm Analysis',
+        infoBody: 'Every line of lyrics has a natural rhythm — stressed and unstressed syllables that create a pattern. When those patterns are consistent across lines, the section feels tight and singable.\n\nThis tool analyzes each line in your current section, showing the stress pattern (• stressed, ◦ unstressed) and a note on rhythmic consistency.',
+        infoTip: '<strong>Best used when:</strong> You want to see if your section has a consistent rhythmic feel, or you\'re trying to figure out why one line feels "off" compared to the others.'
+      },
+      {
+        mode: 'fit',
+        i18nLabel: 'tool.fit.label',
+        i18nDesc: 'tool.fit.desc',
+        icon: '⊕',
+        label: 'Fit',
+        desc: 'Rewrite line to match section syllable count',
+        infoTitle: 'Fit — Match Syllable Count',
+        infoBody: 'When one line in a section has noticeably more or fewer syllables than its neighbors, it can feel rhythmically awkward — even if the words are good.\n\nThis tool calculates the average syllable count of surrounding lines, then rewrites your selected line in 3 ways that hit that target count while preserving meaning.',
+        infoTip: '<strong>Best used when:</strong> You have a line that feels too long or too short compared to the rest of the section, and you want to tighten the rhythm without changing the idea.'
+      },
     ]
   },
   {
@@ -2692,13 +3449,10 @@ const OB_STEPS = [
   // ── Welcome ───────────────────────────────────────
   {
     id: 'welcome',
-    eyebrow: 'Welcome to Inkwell',
-    heading: 'Let\'s set up your\nwriting voice.',
-    sub: 'A few questions will help the AI write with you, not for you — suggestions that sound like you, not like a robot.',
-    i18nEyebrow: 'ob.welcome.eyebrow',
-    i18nHeading: 'ob.welcome.heading',
-    i18nSub: 'ob.welcome.sub',
-    type: 'intro',
+    type: 'welcome-screen',
+    eyebrow: '',
+    heading: '',
+    sub: '',
   },
   // ── Profile name + your name ─────────────────────
   {
@@ -2715,7 +3469,7 @@ const OB_STEPS = [
     id: 'name',
     eyebrow: 'Step 2 of 11',
     heading: 'What do people call you?',
-    sub: 'Just a name so Inkwell can address you properly.',
+    sub: 'Just a name so Carmen can address you properly.',
     type: 'text',
     placeholder: 'Your name…',
     key: 'name',
@@ -2762,14 +3516,14 @@ const OB_STEPS = [
       { label:'Cinematic',         desc:'Wide-screen, scene-setting' },
     ],
   },
-  // ── Part 2: Lyric instincts ───────────────────────
+  // ── Part 2: Lyric instincts (3-round voice discovery) ───────────────────────
   {
-    id: 'vibe',
-    eyebrow: 'Step 5 of 11',
+    id: 'vibe1',
+    eyebrow: 'Step 5 of 11 · Round 1 of 3',
     heading: 'Which of these feels\nclosest to your writing?',
-    sub: 'Pick the ones you\'d be proud to have written.',
+    sub: 'Pick the ones you\'d be proud to have written. We\'ll refine from here.',
     type: 'lyric-pick',
-    key: 'vibes',
+    key: 'vibesRound1',
     choices: [
       {
         text: '"I found God\nat the bottom of a bottle\nof red wine\nand a cigarette."',
@@ -2792,6 +3546,26 @@ const OB_STEPS = [
         tags: ['wandering','cinematic','longing','bittersweet'],
       },
     ],
+  },
+  {
+    id: 'vibe2',
+    eyebrow: 'Step 5 of 11 · Round 2 of 3',
+    heading: 'Getting closer.\nWhich of these resonate?',
+    sub: 'These were generated based on your first picks. Select what feels right.',
+    type: 'lyric-pick-generated',
+    key: 'vibesRound2',
+    sourceKey: 'vibesRound1',
+    round: 2,
+  },
+  {
+    id: 'vibe3',
+    eyebrow: 'Step 5 of 11 · Round 3 of 3',
+    heading: 'Almost there.\nFinal refinement.',
+    sub: 'One more round to dial in your voice.',
+    type: 'lyric-pick-generated',
+    key: 'vibesRound3',
+    sourceKey: 'vibesRound2',
+    round: 3,
   },
   {
     id: 'language',
@@ -2849,7 +3623,7 @@ const OB_STEPS = [
     id: 'struggle',
     eyebrow: 'Step 9 of 11',
     heading: 'Where do you usually\nget stuck?',
-    sub: 'Pick all that apply. Inkwell will keep these in mind.',
+    sub: 'Pick all that apply. Carmen will keep these in mind.',
     type: 'multi',
     key: 'struggles',
     cols: 2,
@@ -2876,7 +3650,7 @@ const OB_STEPS = [
     id: 'sample',
     eyebrow: 'Step 11 of 11',
     heading: 'Paste a line\nyou\'ve written.',
-    sub: 'A lyric, a poem fragment, anything in your voice. This is the single most powerful thing you can give Inkwell. Skip it if you\'d rather not.',
+    sub: 'A lyric, a poem fragment, anything in your voice. This is the single most powerful thing you can give Carmen. Skip it if you\'d rather not.',
     type: 'textarea',
     placeholder: 'A line from an old song, a poem, anything…',
     key: 'sample',
@@ -2896,40 +3670,186 @@ let obStep = 0;
 let writerSoul = {};
 let editingProfileId = null; // null = new profile
 
+// ── In-memory data caches (populated from Firestore) ──
+let _songLib = {};
+let _profiles = {};
+let _activeProfileId = '';
+let _scratchAll = {};
+let _prefs = { onboarded: false, lang: 'en', currentSongId: null, moods: null };
+let _firestoreDb = null;
+let _currentUser = null;
+let _syncTimers = {};
+
+function _userDoc() {
+  return _firestoreDb.collection('users').doc(_currentUser.uid);
+}
+
+function _debouncedWrite(key, fn) {
+  if (_syncTimers[key]) clearTimeout(_syncTimers[key]);
+  _syncTimers[key] = setTimeout(() => {
+    if (typeof setSyncState === 'function') setSyncState('saving');
+    fn().then(() => { if (typeof setSyncState === 'function') setSyncState('saved'); })
+        .catch(e => { console.error('Sync error:', e); if (typeof setSyncState === 'function') setSyncState('error'); });
+  }, 500);
+}
+
+function _savePrefs() {
+  if (!_currentUser) return;
+  _debouncedWrite('prefs', () => _userDoc().collection('prefs').doc('current').set(_prefs));
+}
+
 // ── Voice profile storage ─────────────────────────
 function getProfiles() {
-  return JSON.parse(localStorage.getItem('inkwell_profiles') || '{}');
+  return _profiles;
 }
 
 function saveProfile(id, data) {
-  const profiles = getProfiles();
-  profiles[id] = data;
-  localStorage.setItem('inkwell_profiles', JSON.stringify(profiles));
+  _profiles[id] = data;
+  _syncProfiles();
 }
 
 function deleteProfile(id) {
-  const profiles = getProfiles();
-  delete profiles[id];
-  localStorage.setItem('inkwell_profiles', JSON.stringify(profiles));
-  if (getActiveProfileId() === id) {
-    const remaining = Object.keys(profiles);
-    localStorage.setItem('inkwell_active_profile', remaining[0] || '');
+  delete _profiles[id];
+  if (_activeProfileId === id) {
+    const remaining = Object.keys(_profiles);
+    _activeProfileId = remaining[0] || '';
   }
+  _syncProfiles();
   renderVoiceSwitcher();
 }
 
 function getActiveProfileId() {
-  return localStorage.getItem('inkwell_active_profile') || '';
+  return _activeProfileId;
 }
 
 function setActiveProfile(id) {
-  localStorage.setItem('inkwell_active_profile', id);
+  _activeProfileId = id;
+  _syncProfiles();
   renderVoiceSwitcher();
+}
+
+function _syncProfiles() {
+  if (!_currentUser) return;
+  _debouncedWrite('profiles', () =>
+    _userDoc().collection('profiles').doc('all').set({ profiles: _profiles, activeId: _activeProfileId })
+  );
 }
 
 function getActiveProfile() {
   const id = getActiveProfileId();
   return getProfiles()[id] || null;
+}
+
+// ── Voice Learning System ─────────────────────────────
+const WRITING_SAMPLES_CAP = 80; // Max lines to store per profile
+const ANALYSIS_THRESHOLD = 20;  // Minimum samples before analyzing
+
+function captureWritingSamples(songId) {
+  const profileId = getActiveProfileId();
+  if (!profileId || !_profiles[profileId]) return;
+  
+  const song = _songLib[songId];
+  if (!song || !song.sections) return;
+  
+  const profile = _profiles[profileId];
+  if (!profile.writingSamples) profile.writingSamples = [];
+  
+  // Extract non-empty human-written lines
+  const newLines = [];
+  song.sections.forEach(sec => {
+    const sources = sec.sources || sec.lines.map(() => 'human');
+    sec.lines.forEach((line, idx) => {
+      const trimmed = line.trim();
+      // Only capture human lines that are substantial (3+ words)
+      if (sources[idx] === 'human' && trimmed && trimmed.split(/\s+/).length >= 3) {
+        // Avoid duplicates
+        if (!profile.writingSamples.includes(trimmed) && !newLines.includes(trimmed)) {
+          newLines.push(trimmed);
+        }
+      }
+    });
+  });
+  
+  if (newLines.length === 0) return;
+  
+  // Add new lines, keeping under cap (remove oldest first)
+  profile.writingSamples = [...profile.writingSamples, ...newLines];
+  if (profile.writingSamples.length > WRITING_SAMPLES_CAP) {
+    profile.writingSamples = profile.writingSamples.slice(-WRITING_SAMPLES_CAP);
+  }
+  
+  // Save profiles
+  _saveProfiles();
+  
+  // Check if we should re-analyze
+  const sampleCount = profile.writingSamples.length;
+  const lastAnalyzedAt = profile.lastAnalyzedSampleCount || 0;
+  
+  // Analyze when we hit threshold, or every 20 new samples after that
+  if (sampleCount >= ANALYSIS_THRESHOLD && (sampleCount - lastAnalyzedAt) >= 20) {
+    analyzeVoicePatterns(profileId);
+  }
+}
+
+async function analyzeVoicePatterns(profileId) {
+  const profile = _profiles[profileId];
+  if (!profile || !profile.writingSamples || profile.writingSamples.length < ANALYSIS_THRESHOLD) return;
+  
+  const samples = profile.writingSamples.join('\n');
+  
+  const systemPrompt = `You are a literary analyst. Analyze the following writing samples and extract the writer's distinctive voice patterns. Output ONLY a JSON object with these fields:
+
+{
+  "vocabularyLevel": "simple|conversational|literary|ornate",
+  "sentenceRhythm": "short and punchy|varied|flowing|long and complex",
+  "imageryStyle": "concrete/sensory|abstract|minimal|rich and layered",
+  "emotionalTone": "raw/direct|understated|wistful|intense|playful",
+  "rhymeApproach": "strict|slant/loose|occasional|none",
+  "punctuationStyle": "minimal|standard|expressive|unconventional",
+  "perspectiveVoice": "first person intimate|observational|storytelling|universal",
+  "distinctiveTraits": ["trait1", "trait2", "trait3"]
+}
+
+Be specific and accurate based on the actual samples. The distinctiveTraits should capture unique quirks or tendencies.`;
+
+  try {
+    const res = await fetch('/.netlify/functions/ai', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: `Analyze these writing samples:\n\n${samples}` }
+        ],
+        max_tokens: 400,
+        temperature: 0.3
+      })
+    });
+    
+    const data = await res.json();
+    const content = data.choices?.[0]?.message?.content || '';
+    
+    // Extract JSON from response
+    const jsonMatch = content.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      profile.voiceAnalysis = JSON.parse(jsonMatch[0]);
+      profile.lastAnalyzedSampleCount = profile.writingSamples.length;
+      profile.lastAnalyzedAt = new Date().toISOString();
+      _saveProfiles();
+      console.log('Voice analysis updated:', profile.voiceAnalysis);
+    }
+  } catch (err) {
+    console.error('Voice analysis failed:', err);
+  }
+}
+
+// Manual trigger for voice analysis (can be called from console or UI)
+function reanalyzeCurrentVoice() {
+  const profileId = getActiveProfileId();
+  if (profileId) {
+    analyzeVoicePatterns(profileId);
+  }
 }
 
 // ── Voice switcher UI ─────────────────────────────
@@ -3017,7 +3937,7 @@ function renderVoiceSwitcher() {
   resetBtn.innerHTML = '↺ Restart onboarding';
   resetBtn.addEventListener('click', () => {
     closeVoiceDropdown();
-    localStorage.removeItem('inkwell_onboarded');
+    _prefs.onboarded = false; _savePrefs();
     startOnboarding();
   });
   dd.appendChild(resetBtn);
@@ -3058,10 +3978,132 @@ function finishOnboarding() {
   const id = editingProfileId || ('profile_' + Date.now());
   saveProfile(id, writerSoul);
   setActiveProfile(id);
-  localStorage.setItem('inkwell_onboarded', '1');
+  _prefs.onboarded = true;
+  // Write immediately (not debounced) so it persists even if page is closed right away
+  if (_currentUser) {
+    _userDoc().collection('prefs').doc('current').set(_prefs)
+      .catch(e => console.error('Prefs save error:', e));
+  }
   document.getElementById('onboarding').style.display = 'none';
   renderVoiceSwitcher();
   editingProfileId = null;
+  // Show feature tour after a short delay
+  setTimeout(startFeatureTour, 600);
+}
+
+// ── Feature tooltip tour ──────────────────────────
+const FTOUR_STEPS = [
+  {
+    targetId: 'sectionList',
+    arrow: 'arrow-left',
+    title: 'Your song structure',
+    body: 'Each section lives here — verse, chorus, bridge. Add, rename, reorder, or duplicate them as you write.',
+    nextLabel: 'Got it →',
+  },
+  {
+    targetId: 'aiPanel',
+    arrow: 'arrow-right',
+    title: 'AI Co-Writer',
+    body: 'Select any line in the editor, then pick a tool — rhymes, metaphors, rewrites, hooks and more. It writes in your voice.',
+    nextLabel: 'Got it →',
+  },
+  {
+    targetId: 'splitBtn',
+    arrow: 'arrow-top',
+    title: 'Split view',
+    body: 'See your whole song while you work on a section. Great for checking flow and avoiding repetition.',
+    nextLabel: 'Start writing ✦',
+  },
+];
+
+let _ftourStep = 0;
+let _ftourEl = null;
+
+function startFeatureTour() {
+  if (_prefs.tourSeen) return; // already seen
+  _ftourStep = 0;
+  _showFtourStep();
+}
+
+function _showFtourStep() {
+  _clearFtour();
+  if (_ftourStep >= FTOUR_STEPS.length) {
+    _finishFtour();
+    return;
+  }
+
+  const step = FTOUR_STEPS[_ftourStep];
+  const target = document.getElementById(step.targetId);
+  if (!target) { _ftourStep++; _showFtourStep(); return; }
+
+  const rect = target.getBoundingClientRect();
+  const pad = 8;
+
+  // Spotlight
+  const spot = document.createElement('div');
+  spot.className = 'ftip-spotlight';
+  spot.style.cssText = `top:${rect.top - pad}px;left:${rect.left - pad}px;width:${rect.width + pad*2}px;height:${rect.height + pad*2}px;`;
+
+  // Bubble
+  const bubble = document.createElement('div');
+  bubble.className = `ftip-bubble ${step.arrow}`;
+
+  const total = FTOUR_STEPS.length;
+  bubble.innerHTML = `
+    <div class="ftip-counter">${_ftourStep + 1} of ${total}</div>
+    <div class="ftip-title">${step.title}</div>
+    <div class="ftip-body">${step.body}</div>
+    <div class="ftip-actions">
+      <button class="ftip-skip">Skip tour</button>
+      <button class="ftip-next">${step.nextLabel}</button>
+    </div>
+  `;
+
+  // Position bubble relative to target
+  const bw = 276, bh = 160;
+  let top, left;
+  if (step.arrow === 'arrow-left') {
+    // bubble to the right of target
+    top = rect.top + rect.height / 2 - bh / 2;
+    left = rect.right + 18;
+  } else if (step.arrow === 'arrow-right') {
+    // bubble to the left of target
+    top = rect.top + rect.height / 2 - bh / 2;
+    left = rect.left - bw - 18;
+  } else if (step.arrow === 'arrow-top') {
+    // bubble below target
+    top = rect.bottom + 18;
+    left = rect.left + rect.width / 2 - bw / 2;
+  } else {
+    // bubble above target
+    top = rect.top - bh - 18;
+    left = rect.left + rect.width / 2 - bw / 2;
+  }
+  // Clamp to viewport
+  top  = Math.max(12, Math.min(top,  window.innerHeight - bh - 12));
+  left = Math.max(12, Math.min(left, window.innerWidth  - bw - 12));
+  bubble.style.cssText = `top:${top}px;left:${left}px;width:${bw}px;`;
+
+  bubble.querySelector('.ftip-next').onclick  = () => { _ftourStep++; _showFtourStep(); };
+  bubble.querySelector('.ftip-skip').onclick  = () => _finishFtour();
+
+  document.body.appendChild(spot);
+  document.body.appendChild(bubble);
+  _ftourEl = { spot, bubble };
+}
+
+function _clearFtour() {
+  if (_ftourEl) {
+    _ftourEl.spot?.remove();
+    _ftourEl.bubble?.remove();
+    _ftourEl = null;
+  }
+}
+
+function _finishFtour() {
+  _clearFtour();
+  _prefs.tourSeen = true;
+  _savePrefs();
 }
 
 function renderObStep() {
@@ -3128,7 +4170,7 @@ function renderObStep() {
 
     const name = document.createElement('div');
     name.style.cssText = 'font-family:"Cormorant Garamond",serif;font-size:44px;font-weight:300;color:var(--ink);margin-bottom:6px';
-    name.textContent = 'Inkwell';
+    name.textContent = 'Carmen';
 
     const tagEN = document.createElement('div');
     tagEN.style.cssText = 'font-size:13px;color:var(--ink-faint);font-style:italic;font-family:"Cormorant Garamond",serif;margin-bottom:48px';
@@ -3163,7 +4205,7 @@ function renderObStep() {
       btn.onmouseleave = () => { btn.style.borderColor='var(--rule)'; btn.style.background='var(--cream-light)'; btn.style.color='var(--ink)'; };
       btn.onclick = () => {
         // Inline lang set — don't depend on translations.js being loaded
-        try { localStorage.setItem('inkwell_lang', lang); } catch(e) {}
+        _prefs.lang = lang; _savePrefs();
         if (typeof setLang === 'function') setLang(lang);
         obStep++;
         renderObStep();
@@ -3176,7 +4218,11 @@ function renderObStep() {
     skipLink.style.cssText = 'margin-top:40px;background:none;border:none;color:var(--ink-faint);font-size:13px;cursor:pointer;text-decoration:underline;font-family:"DM Sans",sans-serif;';
     skipLink.textContent = 'Skip setup →';
     skipLink.onclick = () => {
-      localStorage.setItem('inkwell_onboarded', '1');
+      _prefs.onboarded = true;
+      if (_currentUser) {
+        _userDoc().collection('prefs').doc('current').set(_prefs)
+          .catch(e => console.error('Prefs save error:', e));
+      }
       document.getElementById('onboarding').style.display = 'none';
     };
 
@@ -3187,6 +4233,101 @@ function renderObStep() {
     container.appendChild(btns);
     container.appendChild(skipLink);
     return; // No nav row for this step
+
+  } else if (step.type === 'welcome-screen') {
+    prog.innerHTML = ''; // no progress pips on welcome
+    container.innerHTML = '';
+    container.style.textAlign = 'center';
+    container.style.paddingTop = '8px';
+
+    const isFr = (typeof currentLang === 'string' ? currentLang : getLang()) === 'fr';
+
+    // Logo mark
+    const mark = document.createElement('div');
+    mark.style.cssText = 'font-size:28px;margin-bottom:6px;color:var(--amber);';
+    mark.textContent = '✦';
+
+    // Wordmark
+    const wordmark = document.createElement('div');
+    wordmark.style.cssText = 'font-family:"Cormorant Garamond",serif;font-size:42px;font-weight:300;color:var(--ink);margin-bottom:4px;letter-spacing:-0.01em;';
+    wordmark.textContent = 'Carmen';
+
+    // Tagline
+    const tagline = document.createElement('div');
+    tagline.style.cssText = 'font-size:14px;color:var(--ink-faint);font-style:italic;font-family:"Cormorant Garamond",serif;margin-bottom:36px;';
+    tagline.textContent = isFr ? 'Écrivez de meilleures chansons. Dans votre voix.' : 'Write better songs. In your voice.';
+
+    // Three value props
+    const features = isFr
+      ? [
+          { icon: '🎵', title: 'Structure votre chanson', desc: 'Couplets, refrains, ponts — organisez votre idée en sections.' },
+          { icon: '✦', title: 'L\'IA écrit avec vous', desc: 'Rimes, métaphores, réécritures — des suggestions qui sonnent comme vous.' },
+          { icon: '📖', title: 'Votre voix, sauvegardée', desc: 'Créez des profils d\'écriture et synchronisez sur tous vos appareils.' },
+        ]
+      : [
+          { icon: '🎵', title: 'Structure your song', desc: 'Verses, choruses, bridges — build your idea section by section.' },
+          { icon: '✦', title: 'AI that writes with you', desc: 'Rhymes, metaphors, rewrites — suggestions that sound like you, not a robot.' },
+          { icon: '📖', title: 'Your voice, saved', desc: 'Create writing profiles and sync across all your devices.' },
+        ];
+
+    const featureGrid = document.createElement('div');
+    featureGrid.style.cssText = 'display:flex;flex-direction:column;gap:12px;margin-bottom:36px;text-align:left;';
+
+    features.forEach(f => {
+      const row = document.createElement('div');
+      row.style.cssText = 'display:flex;align-items:flex-start;gap:14px;padding:14px 16px;background:var(--cream-dark);border-radius:10px;border:1px solid var(--rule);';
+
+      const icon = document.createElement('div');
+      icon.style.cssText = 'font-size:20px;flex-shrink:0;margin-top:1px;';
+      icon.textContent = f.icon;
+
+      const text = document.createElement('div');
+      const title = document.createElement('div');
+      title.style.cssText = 'font-family:"Crimson Pro",serif;font-size:15px;font-weight:600;color:var(--ink);margin-bottom:2px;';
+      title.textContent = f.title;
+      const desc = document.createElement('div');
+      desc.style.cssText = 'font-size:12px;color:var(--ink-soft);line-height:1.4;font-family:"DM Sans",sans-serif;';
+      desc.textContent = f.desc;
+
+      text.appendChild(title);
+      text.appendChild(desc);
+      row.appendChild(icon);
+      row.appendChild(text);
+      featureGrid.appendChild(row);
+    });
+
+    // CTA button
+    const cta = document.createElement('button');
+    cta.style.cssText = `
+      width:100%;padding:16px;
+      background:var(--ink);color:var(--cream);
+      border:none;border-radius:10px;
+      font-family:'Jost',sans-serif;font-size:15px;font-weight:500;
+      cursor:pointer;transition:background 0.15s;
+      margin-bottom:12px;
+    `;
+    cta.textContent = isFr ? 'Configurer ma voix d\'écriture →' : 'Set up my writing voice →';
+    cta.onmouseenter = () => cta.style.background = 'var(--amber)';
+    cta.onmouseleave = () => cta.style.background = 'var(--ink)';
+    cta.onclick = () => { obStep++; renderObStep(); };
+
+    // Skip link
+    const skip = document.createElement('button');
+    skip.style.cssText = 'background:none;border:none;color:var(--ink-faint);font-size:12px;cursor:pointer;text-decoration:underline;font-family:"DM Sans",sans-serif;';
+    skip.textContent = isFr ? 'Passer la configuration →' : 'Skip setup and start writing →';
+    skip.onclick = () => {
+      _prefs.onboarded = true;
+      if (_currentUser) _userDoc().collection('prefs').doc('current').set(_prefs).catch(() => {});
+      document.getElementById('onboarding').style.display = 'none';
+    };
+
+    container.appendChild(mark);
+    container.appendChild(wordmark);
+    container.appendChild(tagline);
+    container.appendChild(featureGrid);
+    container.appendChild(cta);
+    container.appendChild(skip);
+    return; // no nav row
 
   } else if (step.type === 'intro') {
     // just nav
@@ -3281,6 +4422,136 @@ function renderObStep() {
     });
     container.appendChild(grid);
 
+  } else if (step.type === 'lyric-pick-generated') {
+    // AI-generated samples based on previous round
+    const grid = document.createElement('div');
+    grid.className = 'ob-choices cols-1';
+    grid.id = 'vibeGenGrid';
+    
+    const loading = document.createElement('div');
+    loading.className = 'ob-loading';
+    loading.innerHTML = '<div class="loading-row"><span></span><span></span><span></span></div><p style="margin-top:12px;color:var(--ink-soft);font-size:14px;">Generating samples based on your picks...</p>';
+    grid.appendChild(loading);
+    container.appendChild(grid);
+
+    // Get previous round's selections
+    const prevPicks = writerSoul[step.sourceKey] || [];
+    if (prevPicks.length === 0) {
+      grid.innerHTML = '<p style="color:var(--ink-soft);">No selections from previous round. Please go back and pick at least one.</p>';
+      return;
+    }
+
+    // Build prompt from previous selections
+    const pickedTexts = prevPicks.map(p => p.text).join('\n\n');
+    const pickedTags = [...new Set(prevPicks.flatMap(p => p.tags || []))];
+    
+    const systemPrompt = `You are helping a songwriter discover their unique voice. Based on lyric samples they resonated with, generate 4 NEW short lyric fragments (2-4 lines each) that explore this voice territory.
+
+Rules:
+- Each fragment should feel distinct but related to their taste
+- Vary the approach: one more sparse/direct, one more imagistic, one more narrative/story-driven, one more metaphor-heavy
+- Use quotation marks around each fragment
+- After each fragment, add a short attribute line like "Sparse · Direct · Raw" (3 descriptors)
+- Do NOT explain or introduce the fragments
+- Output ONLY the 4 fragments with their attributes, separated by blank lines
+
+Format exactly like:
+"First line here
+second line here."
+Attribute1 · Attribute2 · Attribute3
+
+"Next fragment
+with its lines."
+Attribute1 · Attribute2 · Attribute3`;
+
+    const userPrompt = `The songwriter resonated with these samples:\n\n${pickedTexts}\n\nTheir apparent preferences: ${pickedTags.join(', ')}\n\nGenerate 4 new lyric fragments exploring this voice territory. Round ${step.round} of 3${step.round === 3 ? ' (final refinement - make these very close to their voice)' : ''}.`;
+
+    fetch('/.netlify/functions/ai', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userPrompt }
+        ],
+        max_tokens: 600,
+        temperature: 0.9
+      })
+    })
+    .then(res => res.json())
+    .then(data => {
+      const content = data.choices[0].message.content.trim();
+      // Parse the response into fragments
+      const fragments = [];
+      const blocks = content.split(/\n\n+/);
+      
+      for (let i = 0; i < blocks.length; i++) {
+        const block = blocks[i].trim();
+        if (!block) continue;
+        
+        // Check if this block contains a quote
+        const quoteMatch = block.match(/"([^"]+)"/s);
+        if (quoteMatch) {
+          const text = '"' + quoteMatch[1].trim() + '"';
+          // Look for attribute line (either in same block after quote, or next block)
+          let attr = '';
+          const afterQuote = block.substring(block.lastIndexOf('"') + 1).trim();
+          if (afterQuote && afterQuote.includes('·')) {
+            attr = afterQuote;
+          } else if (blocks[i + 1] && blocks[i + 1].includes('·') && !blocks[i + 1].includes('"')) {
+            attr = blocks[i + 1].trim();
+            i++; // skip the attr block
+          }
+          fragments.push({ text, attr: attr || 'Generated · Unique' });
+        }
+      }
+
+      grid.innerHTML = '';
+      const current = writerSoul[step.key] || [];
+
+      fragments.slice(0, 4).forEach((frag, idx) => {
+        const card = document.createElement('div');
+        card.className = 'ob-lyric-card';
+        card.dataset.idx = idx;
+        if (current.some(v => v.text === frag.text)) card.classList.add('selected');
+
+        const txt = document.createElement('div');
+        txt.className = 'ob-lyric-text';
+        txt.style.whiteSpace = 'pre-line';
+        txt.textContent = frag.text;
+
+        const attrEl = document.createElement('div');
+        attrEl.className = 'ob-lyric-attr';
+        attrEl.textContent = frag.attr;
+
+        card.appendChild(txt);
+        card.appendChild(attrEl);
+
+        // Derive tags from the attribute
+        const tags = frag.attr.split('·').map(t => t.trim().toLowerCase().replace(/[^a-z-]/g, ''));
+
+        card.addEventListener('click', () => {
+          card.classList.toggle('selected');
+          const sel = [...grid.querySelectorAll('.ob-lyric-card.selected')].map(c => ({
+            text: c.querySelector('.ob-lyric-text').textContent,
+            tags: c.querySelector('.ob-lyric-attr').textContent.split('·').map(t => t.trim().toLowerCase().replace(/[^a-z-]/g, '')),
+          }));
+          writerSoul[step.key] = sel;
+        });
+
+        grid.appendChild(card);
+      });
+
+      if (fragments.length === 0) {
+        grid.innerHTML = '<p style="color:var(--ink-soft);">Could not generate samples. Please try again or skip this step.</p>';
+      }
+    })
+    .catch(err => {
+      console.error('Voice generation error:', err);
+      grid.innerHTML = '<p style="color:var(--amber);">Error generating samples. You can skip this step or go back.</p>';
+    });
+
   } else if (step.type === 'review') {
     const box = document.createElement('div');
     box.className = 'ob-profile-preview';
@@ -3343,10 +4614,14 @@ function buildSoulPreview() {
   if (s.profileName) lines.push(`<strong>Profile:</strong> ${s.profileName}`);
   if (s.name) lines.push(`<strong>Writer:</strong> ${s.name}`);
   if (s.genres?.length) lines.push(`<strong>Territory:</strong> ${s.genres.join(', ')}`);
-  if (s.vibes?.length) {
-    const tags = [...new Set(s.vibes.flatMap(v => v.tags || []))];
+  
+  // Combine vibes from all 3 rounds
+  const allVibes = [...(s.vibesRound1 || []), ...(s.vibesRound2 || []), ...(s.vibesRound3 || [])];
+  if (allVibes.length) {
+    const tags = [...new Set(allVibes.flatMap(v => v.tags || []))];
     lines.push(`<strong>Voice instincts:</strong> ${tags.join(', ')}`);
   }
+  
   if (s.approach) lines.push(`<strong>How you start:</strong> ${s.approach}`);
   if (s.struggles?.length) lines.push(`<strong>Watch out for:</strong> ${s.struggles.join(', ')}`);
   if (s.sample) lines.push(`<strong>Your voice sample:</strong><br><em style="font-family:'Crimson Pro',serif; font-size:16px; color:var(--ink)">${s.sample}</em>`);
@@ -3361,16 +4636,38 @@ function buildSoulPrompt() {
   if (s.profileName) prompt += `Voice profile: ${s.profileName}\n`;
   if (s.name) prompt += `Writer: ${s.name}\n`;
   if (s.genres?.length) prompt += `Musical territory: ${s.genres.join(', ')}\n`;
-  if (s.vibes?.length) {
-    const tags = [...new Set(s.vibes.flatMap(v => v.tags || []))];
-    prompt += `Voice qualities: ${tags.join(', ')}\n`;
-    const samples = s.vibes.map(v => v.text.replace(/\n/g, ' ').trim()).join(' | ');
+  
+  // Combine vibes from all 3 rounds (onboarding picks)
+  const allVibes = [...(s.vibesRound1 || []), ...(s.vibesRound2 || []), ...(s.vibesRound3 || [])];
+  if (allVibes.length) {
+    const tags = [...new Set(allVibes.flatMap(v => v.tags || []))];
+    prompt += `Initial voice qualities: ${tags.join(', ')}\n`;
+  }
+  
+  // Use analyzed voice patterns if available (learned from their actual writing)
+  if (s.voiceAnalysis) {
+    const va = s.voiceAnalysis;
+    prompt += '\n--- LEARNED VOICE PATTERNS (from their writing) ---\n';
+    if (va.vocabularyLevel) prompt += `Vocabulary: ${va.vocabularyLevel}\n`;
+    if (va.sentenceRhythm) prompt += `Sentence rhythm: ${va.sentenceRhythm}\n`;
+    if (va.imageryStyle) prompt += `Imagery style: ${va.imageryStyle}\n`;
+    if (va.emotionalTone) prompt += `Emotional tone: ${va.emotionalTone}\n`;
+    if (va.rhymeApproach) prompt += `Rhyme approach: ${va.rhymeApproach}\n`;
+    if (va.punctuationStyle) prompt += `Punctuation: ${va.punctuationStyle}\n`;
+    if (va.perspectiveVoice) prompt += `Perspective: ${va.perspectiveVoice}\n`;
+    if (va.distinctiveTraits?.length) prompt += `Distinctive traits: ${va.distinctiveTraits.join(', ')}\n`;
+    prompt += '--- END LEARNED PATTERNS ---\n\n';
+    prompt += 'IMPORTANT: Match these learned patterns closely. Do NOT reuse or echo any specific phrases the writer has used — generate fresh language that feels like their voice.\n';
+  } else if (allVibes.length) {
+    // Fall back to onboarding samples if no analysis yet
+    const samples = allVibes.map(v => v.text.replace(/\n/g, ' ').trim()).join(' | ');
     prompt += `Style resonances: ${samples}\n`;
   }
+  
   if (s.approach) prompt += `Songwriting approach: ${s.approach.toLowerCase()}\n`;
   if (s.struggles?.length) prompt += `Known struggles: ${s.struggles.join(', ')}\n`;
   if (s.sample) prompt += `Voice sample from the writer: "${s.sample}"\n`;
-  prompt += 'Match the suggestions to this writer\'s voice and the profile\'s genre/territory. Reference their style, not generic clichés.\n--- END PROFILE ---';
+  prompt += 'Match suggestions to this writer\'s voice and genre. Reference their style, not generic clichés.\n--- END PROFILE ---';
   return prompt;
 }
 
@@ -3392,8 +4689,14 @@ let sections = getDefaultSections();
 
 let current = 0;
 let selectedLine = null;
+let selectionRange = { start: null, end: null };
+let cutBuffer = [];
+let isDraggingSelection = false;
+let dragDidMove = false;
+let suppressNextPaste = false;
 let aiOpen = true;
 let splitOpen = false;
+let ovTwoCol = false;
 let apiKey = localStorage.getItem('inkwell_key') || '';
 
 // ── Undo stack ────────────────────────────────────
@@ -3433,46 +4736,22 @@ document.addEventListener('keydown', e => {
 
 // API key handled server-side via Netlify functions
 
-// ── Safety: show app after 3s even if Firebase hasn't resolved ──────
-setTimeout(() => {
-  if (document.body.style.display === 'none' || !document.body.style.display) {
-    document.body.style.display = 'flex';
-    document.body.style.flexDirection = 'column';
-    document.body.style.height = '100vh';
-  }
-}, 3000);
+// App visibility is controlled by the auth gate
+// init() is called by renderAppWithData() AFTER Firebase auth + Firestore load
 
-// ── Boot ──────────────────────────────────────────
-(function() {
-function init() {
-  // Migrate old single soul file → profiles store
-  const oldSoul = localStorage.getItem('inkwell_soul');
-  if (oldSoul) {
-    try {
-      const s = JSON.parse(oldSoul);
-      if (Object.keys(s).length && !Object.keys(getProfiles()).length) {
-        s.profileName = s.profileName || 'My voice';
-        const id = 'profile_migrated';
-        saveProfile(id, s);
-        setActiveProfile(id);
-      }
-    } catch(e) {}
-    localStorage.removeItem('inkwell_soul');
-  }
-
-  loadSaved();
+// ── Boot (deferred until after auth) ─────────────
+function _initAppUI() {
   renderSidebar();
   selectSection(0);
   renderVoiceSwitcher();
-  // Build tools after full script parse
   setTimeout(() => { buildAITools(); applyTranslations(); }, 0);
 
-  // Show onboarding if never completed
-  if (!localStorage.getItem('inkwell_onboarded')) {
+  // Show onboarding only if not yet completed
+  if (!_prefs.onboarded) {
     setTimeout(startOnboarding, 400);
   }
 
-  // Guaranteed re-render: poll until DOM is populated
+  // Guaranteed re-render poll
   let _renderAttempts = 0;
   const _ensureRendered = setInterval(() => {
     _renderAttempts++;
@@ -3483,28 +4762,97 @@ function init() {
     if ((hasSections && hasTools) || _renderAttempts > 20) clearInterval(_ensureRendered);
   }, 100);
 }
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', init);
-} else {
-  init();
-}
-})();
 
 // ── Sidebar ───────────────────────────────────────
 function renderSidebar() {
   const list = document.getElementById('sectionList');
   list.innerHTML = '';
+  const onlyOne = sections.length <= 1;
   sections.forEach((sec, i) => {
     const li = document.createElement('li');
     li.className = 'section-item' + (i === current ? ' active' : '');
     li.dataset.idx = i;
     li.setAttribute('tabindex', '0');
     li.setAttribute('role', 'button');
+    li.setAttribute('draggable', 'true');
     li.innerHTML = `
       <div class="section-label">${sec.name}</div>
-      <div class="section-lines" id="lc${i}">—</div>`;
-    li.onclick = () => selectSection(i);
+      <div class="section-lines" id="lc${i}">—</div>
+      <span class="section-duplicate" title="Duplicate section">⧉</span>
+      <span class="section-delete${onlyOne ? ' disabled' : ''}" title="Delete section">✕</span>`;
+    li.onclick = (e) => { if (!e.target.classList.contains('section-delete')) selectSection(i); };
     li.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selectSection(i); } };
+
+    // Delete handler
+    li.querySelector('.section-delete').onclick = (e) => {
+      e.stopPropagation();
+      if (onlyOne) return;
+      const hasContent = (sec.lines || []).some(l => l.trim() !== '');
+      if (hasContent && !confirm(`Delete section "${sec.name}"? It has content that will be lost.`)) return;
+      const deletedIdx = i;
+      sections.splice(i, 1);
+      if (current >= sections.length) current = sections.length - 1;
+      else if (current > deletedIdx) current--;
+      else if (current === deletedIdx) current = Math.max(0, deletedIdx - 1);
+      saveSong();
+      renderSidebar();
+      selectSection(current);
+      updateLineCounts();
+      renderOverview();
+    };
+
+    // Duplicate handler
+    li.querySelector('.section-duplicate').onclick = (e) => {
+      e.stopPropagation();
+      const original = sections[i];
+      const dupName = original.name + ' 2';
+      const dup = JSON.parse(JSON.stringify(original));
+      dup.name = dupName;
+      // Clear versions — duplicate starts clean with just the copied lines
+      if (dup.versions) {
+        const activeLines = dup.versions[original.activeVersion || 0]?.lines || dup.lines || [''];
+        const activeSources = dup.versions[original.activeVersion || 0]?.sources || dup.sources || activeLines.map(() => 'human');
+        delete dup.versions;
+        delete dup.activeVersion;
+        dup.lines = [...activeLines];
+        dup.sources = [...activeSources];
+      }
+      sections.splice(i + 1, 0, dup);
+      saveSong();
+      renderSidebar();
+      selectSection(i + 1);
+      updateLineCounts();
+      renderOverview();
+    };
+
+    // Drag-and-drop handlers
+    li.ondragstart = (e) => {
+      li.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/plain', String(i));
+    };
+    li.ondragend = () => { li.classList.remove('dragging'); };
+    li.ondragover = (e) => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      if (!li.classList.contains('dragging')) li.classList.add('drag-over');
+    };
+    li.ondragleave = () => { li.classList.remove('drag-over'); };
+    li.ondrop = (e) => {
+      e.preventDefault();
+      li.classList.remove('drag-over');
+      const fromIdx = parseInt(e.dataTransfer.getData('text/plain'), 10);
+      const toIdx = i;
+      if (fromIdx === toIdx) return;
+      const currentName = sections[current].name;
+      const [moved] = sections.splice(fromIdx, 1);
+      sections.splice(toIdx, 0, moved);
+      current = sections.findIndex(s => s.name === currentName);
+      if (current === -1) current = 0;
+      saveSong();
+      renderSidebar();
+    };
+
     list.appendChild(li);
   });
   updateLineCounts();
@@ -3513,6 +4861,7 @@ function renderSidebar() {
 function selectSection(idx, silent) {
   current = idx;
   selectedLine = null;
+  selectionRange = { start: null, end: null };
   document.querySelectorAll('.section-item').forEach((el, i) => {
     el.classList.toggle('active', i === idx);
   });
@@ -3739,7 +5088,8 @@ function renderVersionCompare() {
 
 function updateLineCounts() {
   sections.forEach((sec, i) => {
-    const filled = sec.lines.filter(l => l.trim()).length;
+    const lines = hasVersions(sec) ? (sec.versions[sec.activeVersion || 0]?.lines || sec.lines) : sec.lines;
+    const filled = lines.filter(l => l.trim()).length;
     const el = document.getElementById('lc' + i);
     if (el) el.textContent = filled ? filled + (filled===1?' line':' lines') : '—';
   });
@@ -3774,6 +5124,48 @@ function renderEditor() {
     const num = document.createElement('div');
     num.className = 'line-num';
     num.textContent = i + 1;
+    num.title = 'Click to delete this line';
+    num.addEventListener('click', (e) => {
+      // Don't delete if this was a drag gesture
+      if (dragDidMove) return;
+      if (lines.length <= 1) {
+        // Last line — just clear it instead of removing
+        snapshot();
+        lines[0] = '';
+        sources[0] = 'human';
+        renderEditor();
+        focusLine(0);
+        return;
+      }
+      snapshot();
+      lines.splice(i, 1);
+      sources.splice(i, 1);
+      renderEditor();
+      focusLine(Math.min(i, lines.length - 1));
+    });
+
+    // Row-level mouse events for multi-line selection
+    row.addEventListener('mousedown', (e) => {
+      // Only trigger on row background or line-num, not on inputs/buttons
+      if (e.target.tagName === 'INPUT' || e.target.closest('.move-arrow')) return;
+      e.preventDefault();
+      dragDidMove = false;
+      isDraggingSelection = true;
+      if (e.shiftKey && selectionRange.start !== null) {
+        selectionRange.end = i;
+      } else {
+        selectionRange.start = i;
+        selectionRange.end = i;
+      }
+      applySelectionHighlight();
+    });
+
+    row.addEventListener('mousemove', () => {
+      if (!isDraggingSelection) return;
+      if (selectionRange.end !== i) dragDidMove = true;
+      selectionRange.end = i;
+      applySelectionHighlight();
+    });
 
     const input = document.createElement('input');
     input.type = 'text';
@@ -3809,9 +5201,22 @@ function renderEditor() {
         r.classList.toggle('focused', j === i));
     });
 
+    // Start multi-line drag from input (without preventDefault so cursor still works)
+    input.addEventListener('mousedown', (e) => {
+      dragDidMove = false;
+      isDraggingSelection = true;
+      if (e.shiftKey && selectionRange.start !== null) {
+        selectionRange.end = i;
+      } else {
+        selectionRange.start = i;
+        selectionRange.end = i;
+      }
+      applySelectionHighlight();
+    });
+
     let snapTimer = null;
     input.addEventListener('input', e => {
-      // Debounced snapshot for typing (every 1s of inactivity)
+      // Debounced snapshot for undo history (every 1s of inactivity)
       clearTimeout(snapTimer);
       snapTimer = setTimeout(() => snapshot(), 1000);
       lines[i] = e.target.value;
@@ -3820,6 +5225,8 @@ function renderEditor() {
       syl.className = 'syl-count' + (e.target.value ? ' filled' : '');
       updateLineCounts();
       renderOverview();
+      // Auto-save to Firestore (debounced via _debouncedWrite inside saveSong)
+      saveSong();
     });
 
     input.addEventListener('keydown', e => {
@@ -3836,6 +5243,30 @@ function renderEditor() {
         renderEditor();
         focusLine(Math.max(0, i - 1));
       }
+    });
+
+    input.addEventListener('paste', e => {
+      const text = (e.clipboardData || window.clipboardData).getData('text');
+      // Normalize line endings (\r\n, \r, \n) and split
+      const pastedLines = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
+      if (pastedLines.length <= 1) return; // single line — let browser handle it normally
+      e.preventDefault();
+      snapshot();
+      // Replace current line with first pasted line, insert rest after
+      const currentVal = input.value;
+      const cursorPos = input.selectionStart;
+      const before = currentVal.slice(0, cursorPos);
+      const after = currentVal.slice(input.selectionEnd);
+      pastedLines[0] = before + pastedLines[0];
+      pastedLines[pastedLines.length - 1] += after;
+      // Filter out completely empty trailing lines (optional — keeps things clean)
+      const newLines = pastedLines.filter((l, idx) => idx < pastedLines.length - 1 || l.trim() !== '');
+      lines.splice(i, 1, ...newLines);
+      sources.splice(i, 1, ...newLines.map(() => 'human'));
+      renderEditor();
+      focusLine(i + newLines.length - 1);
+      updateLineCounts();
+      renderOverview();
     });
 
     // Move up / down arrows
@@ -3855,7 +5286,7 @@ function renderEditor() {
     dnBtn.addEventListener('click', () => moveLine(i, 1));
 
     if (i > 0) arrows.appendChild(upBtn);
-    if (i < sec.lines.length - 1) arrows.appendChild(dnBtn);
+    if (i < lines.length - 1) arrows.appendChild(dnBtn);
 
     row.appendChild(num);
     row.appendChild(input);
@@ -3864,6 +5295,9 @@ function renderEditor() {
     row.appendChild(syl);
     editor.appendChild(row);
   });
+
+  // Preserve selection highlight across re-renders
+  applySelectionHighlight();
 }
 
 function focusLine(idx) {
@@ -3875,27 +5309,131 @@ function focusLine(idx) {
 
 function moveLine(idx, dir) {
   const sec = sections[current];
+  const { lines, sources } = getCurrentLines();
   const newIdx = idx + dir;
-  if (newIdx < 0 || newIdx >= sec.lines.length) return;
+  if (newIdx < 0 || newIdx >= lines.length) return;
   snapshot();
   // Swap lines
-  [sec.lines[idx], sec.lines[newIdx]] = [sec.lines[newIdx], sec.lines[idx]];
-  if (sec.sources) [sec.sources[idx], sec.sources[newIdx]] = [sec.sources[newIdx], sec.sources[idx]];
+  [lines[idx], lines[newIdx]] = [lines[newIdx], lines[idx]];
+  if (sources) [sources[idx], sources[newIdx]] = [sources[newIdx], sources[idx]];
   renderEditor();
   focusLine(newIdx);
   renderOverview();
 }
 
+// ── Multi-line selection ──────────────────────────
+function getSelectedIndices() {
+  if (selectionRange.start === null || selectionRange.end === null) return [];
+  const lo = Math.min(selectionRange.start, selectionRange.end);
+  const hi = Math.max(selectionRange.start, selectionRange.end);
+  const result = [];
+  for (let i = lo; i <= hi; i++) result.push(i);
+  return result;
+}
+
+function applySelectionHighlight() {
+  const indices = new Set(getSelectedIndices());
+  document.querySelectorAll('.lyric-line').forEach((row, i) => {
+    row.classList.toggle('line-selected', indices.has(i));
+  });
+}
+
+function clearSelection() {
+  selectionRange.start = null;
+  selectionRange.end = null;
+  applySelectionHighlight();
+}
+
+// Global mouseup to end drag
+document.addEventListener('mouseup', () => {
+  isDraggingSelection = false;
+});
+
+// Click on blank area to deselect
+document.addEventListener('mousedown', (e) => {
+  if (!e.target.closest('.lyric-line') && !e.target.closest('.lyric-editor')) return;
+  if (e.target.closest('.lyric-line')) return; // handled per-row
+  clearSelection();
+});
+
+// Capture-phase keydown — fires BEFORE the focused input sees Cmd+C / Cmd+X
+document.addEventListener('keydown', (e) => {
+  const mod = e.metaKey || e.ctrlKey;
+  if (!mod || (e.key !== 'c' && e.key !== 'x')) return;
+  const indices = getSelectedIndices();
+  if (indices.length === 0) return; // no multi-line selection, let browser handle normally
+
+  e.preventDefault();
+  e.stopPropagation();
+
+  const { lines, sources } = getCurrentLines();
+  const cleanText = indices.map(i => lines[i]).join('\n');
+
+  // Write clean text to clipboard via a hidden textarea (synchronous, works everywhere)
+  const ta = document.createElement('textarea');
+  ta.style.cssText = 'position:fixed;top:-9999px;left:-9999px;opacity:0';
+  ta.value = cleanText;
+  document.body.appendChild(ta);
+  ta.focus();
+  ta.select();
+  document.execCommand('copy');
+  document.body.removeChild(ta);
+  // Restore focus to the active line input
+  const focused = document.querySelector('.lyric-line.focused .line-input');
+  if (focused) focused.focus();
+
+  if (e.key === 'x') {
+    snapshot();
+    for (let j = indices.length - 1; j >= 0; j--) {
+      lines.splice(indices[j], 1);
+      sources.splice(indices[j], 1);
+    }
+    if (lines.length === 0) { lines.push(''); sources.push('human'); }
+    clearSelection();
+    renderEditor();
+    focusLine(Math.min(indices[0], lines.length - 1));
+    updateLineCounts();
+    renderOverview();
+  }
+}, true); // true = capture phase, fires before any element handler
+
 // ── Syllable counter (English) ────────────────────
 function countSyl(str) {
+  // Detect French: accented chars or common French words
+  const lc = str.toLowerCase();
+  const isFr = /[àâäéèêëîïôùûüçœæ]/.test(lc) ||
+    /\b(je|tu|il|elle|nous|vous|les|des|une|dans|avec|pour|qui|que|sur|mon|mais|comme)\b/.test(lc);
+  if (isFr) return countSylFr(lc);
+
   let total = 0;
-  for (const w of str.toLowerCase().split(/\s+/)) {
+  for (const w of lc.split(/\s+/)) {
     const clean = w.replace(/[^a-z]/g, '');
     if (!clean) continue;
     if (clean.length <= 2) { total += 1; continue; }
     let s = clean.replace(/(?:[^laeiouy]es|ed|[^laeiouy]e)$/, '');
     s = s.replace(/^y/, '');
     const m = s.match(/[aeiouy]{1,2}/g);
+    total += m ? m.length : 1;
+  }
+  return total || 1;
+}
+
+function countSylFr(str) {
+  let total = 0;
+  for (const w of str.split(/\s+/)) {
+    // Normalise: keep letters + accented chars
+    const clean = w.replace(/[^a-zàâäéèêëîïôùûüçœæ]/g, '');
+    if (!clean) continue;
+    // Expand ligatures
+    let s = clean.replace(/œ/g, 'oe').replace(/æ/g, 'ae');
+    // Drop mute trailing e (but not -ée, -ès, -ê)
+    s = s.replace(/e$/, '');
+    // Drop trailing -es, -ent (verb endings) but not -ment
+    if (!s.endsWith('m')) s = s.replace(/ent$/, '');
+    s = s.replace(/es$/, '');
+    if (!s) { total += 1; continue; }
+    // Count vowel groups (French vowels include accented)
+    const m = s.match(/[aeiouyàâäéèêëîïôùûü]{1,2}/g);
     total += m ? m.length : 1;
   }
   return total || 1;
@@ -4017,11 +5555,83 @@ function toggleAI() {
   aiOpen = !aiOpen;
   document.getElementById('aiPanel').classList.toggle('collapsed', !aiOpen);
   document.getElementById('aiFab').textContent = aiOpen ? '×' : '✦';
+  // Mirror collect panel with AI panel
+  if (!aiOpen) {
+    document.getElementById('collectPanel').classList.add('collapsed');
+    collectPanelOpen = false;
+  }
 }
 
+let collectPanelOpen = false;
+function toggleCollectPanel() {
+  collectPanelOpen = !collectPanelOpen;
+  document.getElementById('collectPanel').classList.toggle('collapsed', !collectPanelOpen);
+}
+function openCollectPanel() {
+  if (!collectPanelOpen) {
+    collectPanelOpen = true;
+    document.getElementById('collectPanel').classList.remove('collapsed');
+  }
+}
+
+// ── Collect panel vertical divider drag ──────────
+(function initCpDivider() {
+  document.addEventListener('DOMContentLoaded', () => {
+    const divider   = document.getElementById('cpDivider');
+    const topPane   = document.getElementById('cpSuggestions');
+    const bottomPane = document.getElementById('cpCollected');
+    const panel     = document.getElementById('collectPanel');
+    if (!divider) return;
+
+    let dragging = false, startY = 0, startTopH = 0;
+
+    function startDrag(y) {
+      dragging = true;
+      startY = y;
+      startTopH = topPane.offsetHeight;
+      divider.classList.add('dragging');
+      document.body.style.cursor = 'row-resize';
+      document.body.style.userSelect = 'none';
+    }
+    function doDrag(y) {
+      if (!dragging) return;
+      const dy = y - startY;
+      const panelH = panel.offsetHeight;
+      const newTopH = Math.max(80, Math.min(panelH - 80, startTopH + dy));
+      topPane.style.flex = 'none';
+      topPane.style.height = newTopH + 'px';
+      bottomPane.style.height = (panelH - newTopH - 5) + 'px';
+    }
+    function endDrag() {
+      if (dragging) {
+        dragging = false;
+        divider.classList.remove('dragging');
+        document.body.style.cursor = '';
+        document.body.style.userSelect = '';
+      }
+    }
+    divider.addEventListener('mousedown', e => { startDrag(e.clientY); e.preventDefault(); });
+    document.addEventListener('mousemove', e => doDrag(e.clientY));
+    document.addEventListener('mouseup', endDrag);
+    divider.addEventListener('touchstart', e => { startDrag(e.touches[0].clientY); e.preventDefault(); }, { passive: false });
+    document.addEventListener('touchmove', e => { if (dragging) doDrag(e.touches[0].clientY); });
+    document.addEventListener('touchend', endDrag);
+  });
+})();
+
 // ── Split screen ──────────────────────────────────
-function toggleSplit() {
-  splitOpen = !splitOpen;
+function _toggleAudioHelp(e) {
+  e.stopPropagation();
+  const tip = document.getElementById('audioHelpTooltip');
+  tip.style.display = tip.style.display === 'none' ? 'block' : 'none';
+}
+document.addEventListener('click', () => {
+  const tip = document.getElementById('audioHelpTooltip');
+  if (tip) tip.style.display = 'none';
+});
+
+function toggleSplit(forceState) {
+  splitOpen = forceState !== undefined ? forceState : !splitOpen;
   const wrap = document.getElementById('canvasWrap');
   const ov   = document.getElementById('songOverview');
   const btn  = document.getElementById('splitBtn');
@@ -4031,6 +5641,17 @@ function toggleSplit() {
   btn.classList.toggle('active', splitOpen);
   btn.textContent = splitOpen ? '⊟ Split' : '⊞ Split';
   if (splitOpen) renderOverview();
+  // Persist layout preference
+  if (typeof _prefs !== 'undefined') { _prefs.splitOpen = splitOpen; _savePrefs(); }
+}
+
+function toggleOvColumns() {
+  ovTwoCol = !ovTwoCol;
+  const body = document.getElementById('songOverviewBody');
+  const btn  = document.getElementById('ovColumnsBtn');
+  body.classList.toggle('two-col', ovTwoCol);
+  btn.classList.toggle('active', ovTwoCol);
+  if (typeof _prefs !== 'undefined') { _prefs.ovTwoCol = ovTwoCol; _savePrefs(); }
 }
 
 // ── Split resizer drag ────────────────────────────
@@ -4040,36 +5661,50 @@ function toggleSplit() {
   let startOvW = 0;
 
   document.addEventListener('DOMContentLoaded', () => {
+    // Auto-save song title on change
+    const songTitleEl = document.getElementById('songTitle');
+    if (songTitleEl) {
+      songTitleEl.addEventListener('input', () => saveSong());
+    }
+
     const resizer = document.getElementById('splitResizer');
     const ov = document.getElementById('songOverview');
     const wrap = document.getElementById('canvasWrap');
 
-    resizer.addEventListener('mousedown', e => {
+    function startDrag(x) {
       if (!splitOpen) return;
       dragging = true;
-      startX = e.clientX;
+      startX = x;
       startOvW = ov.offsetWidth;
       resizer.classList.add('dragging');
       document.body.style.cursor = 'col-resize';
       document.body.style.userSelect = 'none';
-      e.preventDefault();
-    });
+    }
 
-    document.addEventListener('mousemove', e => {
+    function doDrag(x) {
       if (!dragging) return;
-      const dx = startX - e.clientX; // dragging left = overview gets bigger
+      const dx = startX - x;
       const newW = Math.max(120, Math.min(wrap.offsetWidth * 0.7, startOvW + dx));
       ov.style.width = newW + 'px';
-    });
+    }
 
-    document.addEventListener('mouseup', () => {
+    function endDrag() {
       if (dragging) {
         dragging = false;
         resizer.classList.remove('dragging');
         document.body.style.cursor = '';
         document.body.style.userSelect = '';
       }
-    });
+    }
+
+    resizer.addEventListener('mousedown', e => { startDrag(e.clientX); e.preventDefault(); });
+    document.addEventListener('mousemove', e => doDrag(e.clientX));
+    document.addEventListener('mouseup', endDrag);
+
+    // Touch support
+    resizer.addEventListener('touchstart', e => { startDrag(e.touches[0].clientX); e.preventDefault(); }, { passive: false });
+    document.addEventListener('touchmove', e => { if (dragging) doDrag(e.touches[0].clientX); }, { passive: true });
+    document.addEventListener('touchend', endDrag);
   });
 })();
 
@@ -4166,15 +5801,43 @@ function resetAIPanel() {
     '<div class="ai-empty">' + (typeof t === 'function' ? t('ai.empty') : 'Select a line, then choose a tool above.') + '</div>';
 }
 
+const STOPWORDS = ['the','a','an','i','you','we','they','he','she','it','is','are','was','were','be','been','have','has','had','do','does','did','will','would','could','should','can','may','might','must','and','or','but','if','then','so','to','of','in','on','at','by','for','with','about','from','into','through','during','before','after','above','below','up','down','out','off','over','under','again','further','once','just','now','very','too','also','my','your','his','her','its','our','their','this','that','these','those','am','not','no','all','each','every','both','few','more','most','other','some','such','only','own','same','than','when','where','why','how','what','which','who','whom'];
+
+function extractContentWords(line) {
+  return (line || '').toLowerCase().replace(/[^a-z\s]/g, '').split(/\s+/).filter(w => w.length > 2 && !STOPWORDS.includes(w));
+}
+
 async function runAI(mode) {
   if (!aiOpen) toggleAI();
+  openCollectPanel();
 
   const sec = sections[current];
-  const line = selectedLine !== null ? sec.lines[selectedLine] : '';
-  const allLines = sec.lines.filter(l => l.trim()).join('\n');
+  const { lines: currentLines } = getCurrentLines();
+  const line = selectedLine !== null ? currentLines[selectedLine] : '';
+  const allLines = currentLines.filter(l => l.trim()).join('\n');
 
-  const lang = typeof currentLang === 'function' ? currentLang() : 'en';
-  const langInstruction = lang === 'fr' ? ' R\xc3\xa9ponds enti\xc3\xa8rement en fran\xc3\xa7ais.' : '';
+  // Detect song language: UI toggle is primary signal; content detection reinforces it.
+  // This means the user's explicit language choice always wins, and content detection
+  // catches cases where lyrics are written in a different language than the UI.
+  function detectSongLang(text) {
+    // currentLang is a variable (not a function) defined in translations.js
+    const uiLang = (typeof currentLang === 'string' ? currentLang : null)
+      || localStorage.getItem('inkwell_lang')
+      || 'en';
+    if (!text || text.trim().length < 10) return uiLang;
+    const frenchMarkers = (text.match(/[àâäéèêëîïôùûüçœæ]/gi) || []).length;
+    const frenchWords = (text.match(/\b(je|tu|il|elle|nous|vous|ils|elles|le|la|les|de|du|un|une|des|et|est|en|que|qui|sur|pour|avec|dans|mon|ma|mes|ton|ta|tes|son|sa|ses|ne|pas|mais|comme|aussi|bien|tout|très|plus|être|avoir|faire)\b/gi) || []).length;
+    const score = frenchMarkers * 2 + frenchWords;
+    // Content clearly French → French; content clearly English → English; otherwise trust UI
+    if (score >= 3) return 'fr';
+    if (score === 0 && frenchMarkers === 0 && text.length > 20) return 'en';
+    return uiLang;
+  }
+
+  const songLang = detectSongLang(allLines);
+  const langInstruction = songLang === 'fr'
+    ? ' The song is in French. Respond entirely in French. All suggestions must be in French.'
+    : '';
   const system = `You are an expert lyric writing collaborator. You value specificity over abstraction — concrete details (places, names, objects, sensations) over generic emotions. Keep responses SHORT and immediately useful. Never write AI-sounding filler.` + langInstruction + `${buildSoulPrompt()}`;
 
   let user = '';
@@ -4186,10 +5849,15 @@ async function runAI(mode) {
     user = `Section: "${sec.name}"\nCurrent lyrics:\n${allLines||'(none yet)'}\n\nAsk the songwriter 3 SHORT questions (under 15 words each) to make these lyrics more specific and concrete. Think: what exact moment? what's the object/place/person? what's the sensory detail? Return ONLY the questions numbered 1. 2. 3.`;
   }
   if (mode === 'rhyme') {
-    // Use Datamuse API directly — much better rhyme data
-    const lastWord = (line.trim().split(/\s+/).pop() || 'love').replace(/[^a-zA-Z]/g,'');
-    runRhymeBrowser(lastWord);
-    return;
+    // French songs → use AI (Datamuse is English-only)
+    // English songs → use Datamuse API for richer rhyme data
+    const lastWord = (line.trim().split(/\s+/).pop() || '').replace(/[^a-zA-ZÀ-ÿ]/g,'');
+    if (songLang === 'fr') {
+      user = `Mot: "${lastWord || '(dernier mot de la ligne sélectionnée)'}"\n\nDonne 12 mots qui riment bien avec ce mot en français. Mélange des rimes parfaites et des rimes approximatives. Pour chaque mot, ajoute le nombre de syllabes entre parenthèses. Format: une colonne, un mot par ligne, ex:\ncœur (1)\npeur (1)\nbonheur (2)`;
+    } else {
+      runRhymeBrowser(lastWord || 'love');
+      return;
+    }
   }
   if (mode === 'unstuck') {
     user = `Section: "${sec.name}"\nCurrent lyrics:\n${allLines||'(none yet)'}\n\nThe writer is stuck. Give 3 completely different creative directions for this section — different emotions, perspectives, or metaphors. Each: 1-2 sentences of concept, NOT actual lyrics. Make them genuinely distinct. Number them 1. 2. 3.`;
@@ -4201,38 +5869,88 @@ async function runAI(mode) {
     user = `Selected line: "${line || '(empty)'}"\n\nThis line may not sit naturally on a melody. Rewrite it 3 ways with better prosody — natural spoken stress, good vowel sounds on strong beats, words that feel inevitable in the mouth of a singer. Keep the meaning close. Number them 1. 2. 3.`;
   }
   if (mode === 'phrases') {
-    // Extract the most interesting word from the line (skip common words)
-    const stopwords = ['the','a','an','i','you','we','they','he','she','it','is','are','was','were','be','been','have','has','had','do','does','did','will','would','could','should','can','may','might','must','and','or','but','if','then','so','to','of','in','on','at','by','for','with','about','from','into','through','during','before','after','above','below','up','down','out','off','over','under','again','further','once','just','now','very','too','also','my','your','his','her','its','our','their','this','that','these','those','am','not','no','all','each','every','both','few','more','most','other','some','such','only','own','same','than','when','where','why','how','what','which','who','whom'];
-    const words = (line || '').toLowerCase().replace(/[^a-z\s]/g, '').split(/\s+/).filter(w => w.length > 2 && !stopwords.includes(w));
+    const words = extractContentWords(line);
     const keyword = words[words.length - 1] || words[0] || 'love';
-    user = `Give me 15 idioms, phrases, sayings, clichés, and song hooks that contain the word "${keyword}". Include common expressions, twists on familiar phrases, and memorable lines from famous songs. Mix well-known and lesser-known phrases. Return as a numbered list 1-15, one phrase per line. Just the phrases, no explanations.`;
+    if (songLang === 'fr') {
+      user = `Donne-moi 15 expressions, idiomes, dictons, clichés et accroches de chansons qui contiennent le mot "${keyword}" en français. Inclus des expressions courantes, des variantes de phrases connues et des vers mémorables de chansons françaises. Mélange expressions bien connues et moins connues. Format: liste numérotée 1-15, une expression par ligne, sans explication.`;
+    } else {
+      user = `Give me 15 idioms, phrases, sayings, clichés, and song hooks that contain the word "${keyword}". Include common expressions, twists on familiar phrases, and memorable lines from famous songs. Mix well-known and lesser-known phrases. Return as a numbered list 1-15, one phrase per line. Just the phrases, no explanations.`;
+    }
   }
   if (mode === 'wordfamily') {
-    // Extract the most interesting word from the line
-    const stopwords = ['the','a','an','i','you','we','they','he','she','it','is','are','was','were','be','been','have','has','had','do','does','did','will','would','could','should','can','may','might','must','and','or','but','if','then','so','to','of','in','on','at','by','for','with','about','from','into','through','during','before','after','above','below','up','down','out','off','over','under','again','further','once','just','now','very','too','also','my','your','his','her','its','our','their','this','that','these','those','am','not','no','all','each','every','both','few','more','most','other','some','such','only','own','same','than','when','where','why','how','what','which','who','whom'];
-    const words = (line || '').toLowerCase().replace(/[^a-z\s]/g, '').split(/\s+/).filter(w => w.length > 2 && !stopwords.includes(w));
+    const words = extractContentWords(line);
     const keyword = words[words.length - 1] || words[0] || 'love';
     // Use special mode - will be handled differently
     runWordFamily(keyword);
     return;
   }
   if (mode === 'simile') {
-    user = `Selected line: "${line || '(empty)'}"\n\nRewrite this line 3 ways using a SIMILE (comparison using "like" or "as"). Make the comparisons fresh and unexpected — avoid clichés like "heart like stone" or "free as a bird". Each simile should make the emotion more vivid and concrete. Number them 1. 2. 3.`;
+    if (songLang === 'fr') {
+      user = `Ligne sélectionnée: "${line || '(vide)'}"\n\nRécris cette ligne 3 fois en utilisant une COMPARAISON (avec "comme" ou "tel"). Rends les comparaisons fraîches et inattendues — évite les clichés. Chaque comparaison doit rendre l'émotion plus concrète et vivante. Numérotées 1. 2. 3.`;
+    } else {
+      user = `Selected line: "${line || '(empty)'}"\n\nRewrite this line 3 ways using a SIMILE (comparison using "like" or "as"). Make the comparisons fresh and unexpected — avoid clichés like "heart like stone" or "free as a bird". Each simile should make the emotion more vivid and concrete. Number them 1. 2. 3.`;
+    }
   }
   if (mode === 'alliteration') {
-    user = `Selected line: "${line || '(empty)'}"\n\nRewrite this line 3 ways with ALLITERATION woven in naturally — repeating consonant sounds at the start of words. Don't force it; the alliteration should feel organic, not like a tongue twister. Keep the meaning close. Number them 1. 2. 3.`;
+    if (songLang === 'fr') {
+      user = `Ligne sélectionnée: "${line || '(vide)'}"\n\nRécris cette ligne 3 fois avec des ALLITÉRATIONS tissées naturellement — répétition de sons consonantiques en début de mots. Ne force pas; l'allitération doit sembler organique. Garde le sens proche. Numérotées 1. 2. 3.`;
+    } else {
+      user = `Selected line: "${line || '(empty)'}"\n\nRewrite this line 3 ways with ALLITERATION woven in naturally — repeating consonant sounds at the start of words. Don't force it; the alliteration should feel organic, not like a tongue twister. Keep the meaning close. Number them 1. 2. 3.`;
+    }
   }
   if (mode === 'perspective') {
-    user = `Section: "${sec.name}"\nCurrent lyrics:\n${allLines||'(none yet)'}\n\nRewrite this section (or suggest how to rewrite it) from a completely different point of view. Options: second-person "you", third-person observer, an inanimate object in the scene, or the writer's future self looking back. Give 2 options, each with a label and 2-3 example lines. Don't be generic.`;
+    if (songLang === 'fr') {
+      user = `Section: "${sec.name}"\nParoles actuelles:\n${allLines||'(aucune)'}\n\nRécris cette section depuis un point de vue complètement différent. Options: deuxième personne "tu/vous", observateur extérieur, un objet inanimé de la scène, ou le futur de l'auteur regardant en arrière. Donne 2 options, chacune avec un label et 2-3 lignes d'exemple. Pas de généralités.`;
+    } else {
+      user = `Section: "${sec.name}"\nCurrent lyrics:\n${allLines||'(none yet)'}\n\nRewrite this section (or suggest how to rewrite it) from a completely different point of view. Options: second-person "you", third-person observer, an inanimate object in the scene, or the writer's future self looking back. Give 2 options, each with a label and 2-3 example lines. Don't be generic.`;
+    }
   }
   if (mode === 'hook') {
-    user = `Section: "${sec.name}"\nCurrent lyrics:\n${allLines||'(none yet)'}\n\nBased on this section's theme and emotion, suggest 4 short hook or title lines — the kind that would make someone want to hear the whole song. They should be specific, surprising, and memorable. Not generic. Return ONLY the 4 lines numbered 1. 2. 3. 4.`;
+    if (songLang === 'fr') {
+      user = `Section: "${sec.name}"\nParoles actuelles:\n${allLines||'(aucune)'}\n\nBasé sur le thème et l'émotion de cette section, suggère 4 courtes lignes d'accroche ou de titre — le genre qui donnerait envie d'écouter toute la chanson. Spécifiques, surprenantes, mémorables. Pas de généralités. Retourne UNIQUEMENT les 4 lignes numérotées 1. 2. 3. 4.`;
+    } else {
+      user = `Section: "${sec.name}"\nCurrent lyrics:\n${allLines||'(none yet)'}\n\nBased on this section's theme and emotion, suggest 4 short hook or title lines — the kind that would make someone want to hear the whole song. They should be specific, surprising, and memorable. Not generic. Return ONLY the 4 lines numbered 1. 2. 3. 4.`;
+    }
   }
   if (mode === 'metaphor') {
-    user = `Section: "${sec.name}"\nCurrent lyrics:\n${allLines||'(none yet)'}\n\nSuggest 3 fresh, unexpected metaphors or extended images for the core theme of this section. Avoid clichés (broken hearts, storms, fire, etc). Think concrete objects, specific places, unusual comparisons. For each: one sentence explaining the metaphor + one example line using it. Number them 1. 2. 3.`;
+    if (songLang === 'fr') {
+      user = `Section: "${sec.name}"\nParoles actuelles:\n${allLines||'(aucune)'}\n\nSuggère 3 métaphores fraîches et inattendues pour le thème central de cette section. Évite les clichés (cœurs brisés, tempêtes, feu, etc.). Pense à des objets concrets, des lieux spécifiques, des comparaisons inhabituelles. Pour chaque: une phrase expliquant la métaphore + une ligne d'exemple. Numérotées 1. 2. 3.`;
+    } else {
+      user = `Section: "${sec.name}"\nCurrent lyrics:\n${allLines||'(none yet)'}\n\nSuggest 3 fresh, unexpected metaphors or extended images for the core theme of this section. Avoid clichés (broken hearts, storms, fire, etc). Think concrete objects, specific places, unusual comparisons. For each: one sentence explaining the metaphor + one example line using it. Number them 1. 2. 3.`;
+    }
   }
   if (mode === 'bridge') {
-    user = `Full song context:\n${sections.map(s => `[${s.name}]\n${s.lines.filter(l=>l.trim()).join('\n')}`).join('\n\n') || '(none yet)'}\n\nWrite 3 possible bridge sections (4 lines each) that provide contrast — a shift in perspective, time, or emotional register — before the final chorus. The bridge should feel earned, not forced. Number each bridge 1. 2. 3.`;
+    if (songLang === 'fr') {
+      user = `Contexte complet de la chanson:\n${sections.map(s => `[${s.name}]\n${s.lines.filter(l=>l.trim()).join('\n')}`).join('\n\n') || '(aucune)'}\n\nÉcris 3 ponts possibles (4 lignes chacun) qui apportent un contraste — un changement de perspective, de temps, ou de registre émotionnel — avant le refrain final. Le pont doit sembler mérité, pas forcé. Numérotés 1. 2. 3.\n\nSorties uniquement les ponts numérotés. Aucun commentaire, aucune question, aucune explication.`;
+    } else {
+      user = `Full song context:\n${sections.map(s => `[${s.name}]\n${s.lines.filter(l=>l.trim()).join('\n')}`).join('\n\n') || '(none yet)'}\n\nWrite 3 possible bridge sections (4 lines each) that provide contrast — a shift in perspective, time, or emotional register — before the final chorus. The bridge should feel earned, not forced. Number each bridge 1. 2. 3.\n\nOutput only the numbered bridges. No commentary, no questions, no explanations.`;
+    }
+  }
+
+  if (mode === 'flow') {
+    const linesForFlow = currentLines.filter(l => l.trim());
+    const numberedLines = linesForFlow.map((l, i) => `${i+1}. ${l}`).join('\n');
+    if (songLang === 'fr') {
+      user = `Section: "${sec.name}"\nLignes:\n${numberedLines || '(aucune)'}\n\nPour CHAQUE ligne, montre le schéma d'accentuation en utilisant • (accentué) et ◦ (non accentué) pour chaque syllabe. Puis ajoute UNE phrase sur la cohérence rythmique de la section.\n\nFormat:\n1. "texte de la ligne" → ◦ • ◦ • ◦ •\n2. "texte de la ligne" → • ◦ • ◦\n…\nNote: [ta phrase sur le rythme]`;
+    } else {
+      user = `Section: "${sec.name}"\nLines:\n${numberedLines || '(none)'}\n\nFor EACH line, show the stress pattern using • (stressed) and ◦ (unstressed) for each syllable. Then add ONE sentence about the rhythmic consistency of the section.\n\nFormat:\n1. "line text" → ◦ • ◦ • ◦ •\n2. "line text" → • ◦ • ◦\n…\nNote: [your sentence about rhythm]`;
+    }
+  }
+  if (mode === 'fit') {
+    // Calculate target syllable count from surrounding lines
+    const nonEmpty = currentLines.filter(l => l.trim());
+    const sylCounts = nonEmpty.map(l => countSyl(l));
+    const targetIdx = selectedLine !== null ? selectedLine : 0;
+    // Use surrounding lines (exclude selected) to find target
+    const surrounding = sylCounts.filter((_, i) => i !== targetIdx);
+    const target = surrounding.length > 0
+      ? Math.round(surrounding.reduce((a, b) => a + b, 0) / surrounding.length)
+      : sylCounts[targetIdx] || 8;
+    if (songLang === 'fr') {
+      user = `Ligne sélectionnée: "${line || '(vide)'}"\nNombre de syllabes cible: ${target}\nSection: "${sec.name}"\nToutes les lignes:\n${allLines || '(aucune)'}\n\nRécris cette ligne de 3 façons avec EXACTEMENT ~${target} syllabes, en préservant le sens et l'émotion. Numérote 1. 2. 3.`;
+    } else {
+      user = `Selected line: "${line || '(empty)'}"\nTarget syllable count: ${target}\nSection: "${sec.name}"\nAll lines:\n${allLines || '(none)'}\n\nRewrite this line 3 ways with EXACTLY ~${target} syllables, preserving meaning and emotion. Number them 1. 2. 3.`;
+    }
   }
 
   setAIHtml('<div class="loading-row"><span></span><span></span><span></span></div>');
@@ -4242,9 +5960,9 @@ async function runAI(mode) {
       method: 'POST',
       headers: { 'Content-Type':'application/json' },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: 'claude-haiku-4-5',
         messages: [{ role:'system', content: system }, { role:'user', content: user }],
-        max_tokens: 350,
+        max_tokens: (mode === 'bridge' || mode === 'flow') ? 700 : 350,
         temperature: 0.88
       })
     });
@@ -4330,6 +6048,39 @@ function renderAIResult(text, mode) {
     return;
   }
 
+  if (mode === 'flow') {
+    const card = document.createElement('div');
+    card.className = 'specificity-card';
+    card.style.borderColor = 'var(--sage)';
+    card.style.background = 'var(--cream)';
+    const lbl = document.createElement('div');
+    lbl.className = 'spec-label';
+    lbl.style.color = 'var(--sage)';
+    lbl.textContent = '≈ Flow';
+    card.appendChild(lbl);
+
+    // Split lines — look for numbered patterns and a Note line
+    const lines = text.split('\n').filter(l => l.trim());
+    lines.forEach(l => {
+      const p = document.createElement('div');
+      p.className = 'spec-question';
+      p.style.fontStyle = 'normal';
+      p.style.fontSize = '14px';
+      if (l.toLowerCase().startsWith('note:') || l.toLowerCase().startsWith('note :')) {
+        p.style.color = 'var(--sage)';
+        p.style.fontStyle = 'italic';
+        p.style.marginTop = '8px';
+        p.style.borderTop = '1px solid var(--rule)';
+        p.style.paddingTop = '8px';
+      }
+      // Make stress markers stand out
+      p.textContent = l;
+      card.appendChild(p);
+    });
+    container.appendChild(card);
+    return;
+  }
+
   if (mode === 'specific') {
     const card = document.createElement('div');
     card.className = 'specificity-card';
@@ -4346,8 +6097,64 @@ function renderAIResult(text, mode) {
     return;
   }
 
-  // prose modes — no "Use this" button, just readable cards
-  if (mode === 'perspective' || mode === 'metaphor' || mode === 'bridge') {
+  // bridge — one card per draft, with collect + "Get 3 more"
+  if (mode === 'bridge') {
+    // Split on numbered headers like "1." "2." "3."
+    const drafts = text.split(/(?=^\d+\.)/m).map(s => s.replace(/^\d+\.\s*/, '').trim()).filter(Boolean);
+    drafts.forEach((draft, idx) => {
+      const card = document.createElement('div');
+      card.className = 'bridge-draft-card';
+
+      const lbl = document.createElement('div');
+      lbl.className = 'bridge-draft-label';
+      lbl.textContent = `Bridge ${idx + 1}`;
+      card.appendChild(lbl);
+
+      const body = document.createElement('div');
+      body.className = 'bridge-draft-body';
+      draft.split('\n').filter(l => l.trim()).forEach(line => {
+        const p = document.createElement('p');
+        p.textContent = line;
+        body.appendChild(p);
+      });
+      card.appendChild(body);
+
+      const footer = document.createElement('div');
+      footer.className = 'bridge-draft-footer';
+
+      const collectBtn = document.createElement('button');
+      collectBtn.className = 'collect-btn' + (isCollected(draft) ? ' collected' : '');
+      collectBtn.textContent = '⭐';
+      collectBtn.title = isCollected(draft) ? 'Already collected' : 'Add to scratch pad';
+      collectBtn.addEventListener('click', () => {
+        toggleCollect(draft);
+        collectBtn.classList.toggle('collected');
+        collectBtn.title = collectBtn.classList.contains('collected') ? 'Already collected' : 'Add to scratch pad';
+      });
+      footer.appendChild(collectBtn);
+
+      const delBtn = document.createElement('button');
+      delBtn.className = 'suggestion-delete-btn';
+      delBtn.textContent = '✕';
+      delBtn.title = 'Dismiss';
+      delBtn.addEventListener('click', () => card.remove());
+      footer.appendChild(delBtn);
+
+      card.appendChild(footer);
+      container.appendChild(card);
+    });
+
+    // "Get 3 more" button
+    const moreBtn = document.createElement('button');
+    moreBtn.className = 'bridge-more-btn';
+    moreBtn.textContent = '↻ Get 3 more';
+    moreBtn.addEventListener('click', () => runAI('bridge'));
+    container.appendChild(moreBtn);
+    return;
+  }
+
+  // perspective + metaphor — prose card, display only
+  if (mode === 'perspective' || mode === 'metaphor') {
     const card = document.createElement('div');
     card.className = 'specificity-card';
     card.style.borderColor = 'var(--ink-mid)';
@@ -4355,7 +6162,7 @@ function renderAIResult(text, mode) {
     const lbl = document.createElement('div');
     lbl.className = 'spec-label';
     lbl.style.color = 'var(--ink-mid)';
-    lbl.textContent = mode === 'perspective' ? '◈ Perspectives' : mode === 'metaphor' ? '◎ Metaphors' : '⤷ Bridge ideas';
+    lbl.textContent = mode === 'perspective' ? '◈ Perspectives' : '◎ Metaphors';
     card.appendChild(lbl);
     text.split('\n').filter(l => l.trim()).forEach(q => {
       const p = document.createElement('div');
@@ -4366,6 +6173,49 @@ function renderAIResult(text, mode) {
       card.appendChild(p);
     });
     container.appendChild(card);
+    return;
+  }
+
+  // fit — show only numbered suggestion lines as usable cards (strip any rationale text)
+  if (mode === 'fit') {
+    const numbered = text.split('\n').filter(l => /^\d+[\.\)]/.test(l.trim()));
+    numbered.forEach(line => {
+      const clean = line.replace(/^\d+[\.\)]\s*/, '').trim();
+      if (!clean) return;
+      const card = document.createElement('div');
+      card.className = 'ai-suggestion';
+      const textDiv = document.createElement('div');
+      textDiv.className = 'ai-suggestion-text';
+      textDiv.textContent = clean;
+      const meta = document.createElement('div');
+      meta.className = 'ai-suggestion-meta';
+      meta.textContent = `${countSyl(clean)} syllables`;
+      const collectBtn = document.createElement('button');
+      collectBtn.className = 'collect-btn' + (isCollected(clean) ? ' collected' : '');
+      collectBtn.textContent = '⭐';
+      collectBtn.title = isCollected(clean) ? 'Already collected' : 'Add to scratch pad';
+      collectBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleCollect(clean);
+        collectBtn.classList.toggle('collected');
+        collectBtn.title = collectBtn.classList.contains('collected') ? 'Already collected' : 'Add to scratch pad';
+      });
+      meta.appendChild(collectBtn);
+      const btn = document.createElement('button');
+      btn.className = 'use-btn';
+      btn.textContent = t('modal.use.btn') + ' ↑';
+      btn.addEventListener('click', () => useSuggestion(clean));
+      meta.appendChild(btn);
+      const delBtn = document.createElement('button');
+      delBtn.className = 'suggestion-delete-btn';
+      delBtn.textContent = '✕';
+      delBtn.title = 'Dismiss';
+      delBtn.addEventListener('click', (e) => { e.stopPropagation(); card.remove(); });
+      meta.appendChild(delBtn);
+      card.appendChild(textDiv);
+      card.appendChild(meta);
+      container.appendChild(card);
+    });
     return;
   }
 
@@ -4400,6 +6250,14 @@ function renderAIResult(text, mode) {
     btn.textContent = t('modal.use.btn') + ' ↑';
     btn.addEventListener('click', () => useSuggestion(clean));
     meta.appendChild(btn);
+
+    const delBtn = document.createElement('button');
+    delBtn.className = 'suggestion-delete-btn';
+    delBtn.textContent = '✕';
+    delBtn.title = 'Dismiss';
+    delBtn.addEventListener('click', (e) => { e.stopPropagation(); card.remove(); });
+    meta.appendChild(delBtn);
+
     card.appendChild(textDiv);
     card.appendChild(meta);
     container.appendChild(card);
@@ -4454,8 +6312,8 @@ function showUseModal(text) {
     const b = document.createElement('button');
     b.textContent = label;
     b.style.cssText = primary
-      ? `flex:1; padding:10px; background:var(--ink); color:var(--cream); border:none; border-radius:7px; font-family:'DM Sans',sans-serif; font-size:13px; cursor:pointer;`
-      : `flex:1; padding:10px; background:var(--cream); border:1px solid var(--rule); border-radius:7px; font-family:'DM Sans',sans-serif; font-size:13px; color:var(--ink-mid); cursor:pointer;`;
+      ? `flex:1; padding:10px; background:var(--ink); color:var(--cream); border:none; border-radius:7px; font-family:'Jost',sans-serif; font-size:13px; cursor:pointer;`
+      : `flex:1; padding:10px; background:var(--cream); border:1px solid var(--rule); border-radius:7px; font-family:'Jost',sans-serif; font-size:13px; color:var(--ink-mid); cursor:pointer;`;
     if (primary) {
       b.addEventListener('mouseenter', () => b.style.background = 'var(--amber)');
       b.addEventListener('mouseleave', () => b.style.background = 'var(--ink)');
@@ -4480,7 +6338,7 @@ function showUseModal(text) {
 
   const cancelBtn = document.createElement('button');
   cancelBtn.textContent = t('modal.use.cancel');
-  cancelBtn.style.cssText = `padding:10px 14px; background:none; border:none; color:var(--ink-faint); cursor:pointer; font-size:13px; font-family:'DM Sans',sans-serif;`;
+  cancelBtn.style.cssText = `padding:10px 14px; background:none; border:none; color:var(--ink-faint); cursor:pointer; font-size:13px; font-family:'Jost',sans-serif;`;
   cancelBtn.addEventListener('click', () => modal.remove());
 
   row.appendChild(replaceBtn);
@@ -4505,17 +6363,18 @@ function showUseModal(text) {
 
 function applySuggestion(mode, text, lineIdx) {
   snapshot();
-  const sec = sections[current];
-  if (!sec.sources) sec.sources = sec.lines.map(() => 'human');
+  const { lines, sources } = getCurrentLines();
+  const newLines = text.split('\n').filter(l => l.trim());
 
   if (mode === 'replace') {
-    sec.lines[lineIdx] = text;
-    sec.sources[lineIdx] = 'ai';
+    // Replace target line with first new line, insert the rest below
+    lines.splice(lineIdx, 1, ...newLines);
+    sources.splice(lineIdx, 1, ...newLines.map(() => 'ai'));
     renderEditor();
     focusLine(lineIdx);
   } else {
-    sec.lines.splice(lineIdx + 1, 0, text);
-    sec.sources.splice(lineIdx + 1, 0, 'ai');
+    lines.splice(lineIdx + 1, 0, ...newLines);
+    sources.splice(lineIdx + 1, 0, ...newLines.map(() => 'ai'));
     renderEditor();
     focusLine(lineIdx + 1);
   }
@@ -4643,15 +6502,18 @@ async function runWordFamily(word) {
   });
   
   // Fetch from AI
-  const lang = typeof currentLang === 'function' ? currentLang() : 'en';
-  const langInstruction = lang === 'fr' ? ' Réponds entièrement en français.' : '';
+  // Detect language from current song content (not UI toggle)
+  const { lines: wfLines } = getCurrentLines();
+  const wfSongText = wfLines.filter(l => l.trim()).join('\n');
+  const wfLang = detectSongLang(wfSongText);
+  const langInstruction = wfLang === 'fr' ? ' Réponds entièrement en français. Tous les mots suggérés doivent être en français.' : '';
   
   try {
     const res = await fetch('/.netlify/functions/ai', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: 'claude-haiku-4-5',
         messages: [{
           role: 'system',
           content: 'You are a creative writing assistant specializing in vocabulary expansion for songwriters.' + langInstruction
@@ -4989,7 +6851,7 @@ function editMeta(type) {
   let suggestions = null;
   if (type === 'mood') {
     const DEFAULT_MOODS = ['Melancholic','Hopeful','Anthemic','Bittersweet','Raw','Dreamy','Urgent','Tender','Dark','Playful'];
-    const storedMoods = JSON.parse(localStorage.getItem('inkwell_moods') || 'null') || DEFAULT_MOODS;
+    const storedMoods = _prefs.moods || DEFAULT_MOODS;
     let moods = [...storedMoods];
 
     suggestions = document.createElement('div');
@@ -5031,7 +6893,7 @@ function editMeta(type) {
         const val = addInp.value.trim();
         if (!val || moods.includes(val)) { addInp.focus(); return; }
         moods.push(val);
-        localStorage.setItem('inkwell_moods', JSON.stringify(moods));
+        _prefs.moods = moods; _savePrefs();
         inp.value = val;
         renderMoodTags();
         // Highlight the new tag
@@ -5087,23 +6949,11 @@ function editMeta(type) {
 
 // ── Save / Export ─────────────────────────────────
 function saveSong() {
-  localStorage.setItem('inkwell_song', JSON.stringify({
-    title: document.getElementById('songTitle').value,
-    sections
-  }));
-  const btn = document.getElementById('saveBtn');
-  btn.textContent = 'Saved ✓';
-  setTimeout(() => btn.textContent = 'Save', 1600);
+  saveSongToLibrary();
 }
 
 function loadSaved() {
-  const raw = localStorage.getItem('inkwell_song');
-  if (!raw) return;
-  try {
-    const d = JSON.parse(raw);
-    if (d.title) document.getElementById('songTitle').value = d.title;
-    if (d.sections?.length) sections = d.sections;
-  } catch(e) {}
+  // Data now loaded from Firestore at sign-in
 }
 
 function toggleExportMenu() {
@@ -5118,6 +6968,274 @@ function toggleExportMenu() {
 function closeExportMenu() {
   const menu = document.getElementById('exportMenu');
   if (menu) menu.style.display = 'none';
+}
+
+function toggleSettingsMenu() {
+  const menu = document.getElementById('settingsMenu');
+  // Update language label
+  const langLabel = document.getElementById('settingsLangLabel');
+  if (langLabel) langLabel.textContent = 'Language: ' + (getLang() === 'fr' ? 'Français' : 'English');
+  
+  // Update font theme button states
+  const theme = _prefs.fontTheme || 'classic';
+  document.querySelectorAll('.font-theme-btn').forEach(btn => btn.classList.remove('active'));
+  const activeBtn = document.getElementById('fontTheme' + theme.charAt(0).toUpperCase() + theme.slice(1));
+  if (activeBtn) activeBtn.classList.add('active');
+  
+  // Update voice learning status
+  updateVoiceLearningStatus();
+  
+  if (menu.style.display === 'none') {
+    menu.style.display = 'block';
+    setTimeout(() => document.addEventListener('click', closeSettingsMenu, { once: true }), 10);
+  } else {
+    menu.style.display = 'none';
+  }
+}
+
+function updateVoiceLearningStatus() {
+  const infoEl = document.getElementById('voiceLearningInfo');
+  const reanalyzeBtn = document.getElementById('reanalyzeBtn');
+  if (!infoEl) return;
+  
+  const profile = getActiveProfile();
+  if (!profile) {
+    infoEl.textContent = 'No voice profile selected';
+    if (reanalyzeBtn) reanalyzeBtn.style.display = 'none';
+    return;
+  }
+  
+  const sampleCount = profile.writingSamples?.length || 0;
+  const hasAnalysis = !!profile.voiceAnalysis;
+  const threshold = 20; // ANALYSIS_THRESHOLD
+  
+  if (sampleCount === 0) {
+    infoEl.innerHTML = 'Start writing to teach your voice<br><span style="color:var(--ink-faint);">(0 samples collected)</span>';
+    if (reanalyzeBtn) reanalyzeBtn.style.display = 'none';
+  } else if (sampleCount < threshold) {
+    infoEl.innerHTML = `Collecting samples... ${sampleCount}/${threshold}<br><span style="color:var(--ink-faint);">Analysis begins at ${threshold} samples</span>`;
+    if (reanalyzeBtn) reanalyzeBtn.style.display = 'none';
+  } else if (hasAnalysis) {
+    const traits = profile.voiceAnalysis.distinctiveTraits?.slice(0, 2).join(', ') || 'patterns learned';
+    infoEl.innerHTML = `<span style="color:var(--sage);">\u2713 Voice learned</span> (${sampleCount} samples)<br><span style="color:var(--ink-faint);">${traits}</span>`;
+    if (reanalyzeBtn) reanalyzeBtn.style.display = 'block';
+  } else {
+    infoEl.innerHTML = `${sampleCount} samples collected<br><span style="color:var(--amber);">Analysis pending...</span>`;
+    if (reanalyzeBtn) reanalyzeBtn.style.display = 'block';
+  }
+}
+function closeSettingsMenu() {
+  const menu = document.getElementById('settingsMenu');
+  if (menu) menu.style.display = 'none';
+}
+
+function setFontTheme(theme) {
+  document.documentElement.setAttribute('data-font-theme', theme === 'classic' ? '' : theme);
+  // Update button states
+  document.querySelectorAll('.font-theme-btn').forEach(btn => btn.classList.remove('active'));
+  const activeBtn = document.getElementById('fontTheme' + theme.charAt(0).toUpperCase() + theme.slice(1));
+  if (activeBtn) activeBtn.classList.add('active');
+  // Persist
+  _prefs.fontTheme = theme;
+  _savePrefs();
+}
+
+function loadFontTheme() {
+  const theme = _prefs.fontTheme || 'classic';
+  document.documentElement.setAttribute('data-font-theme', theme === 'classic' ? '' : theme);
+  // Update button states when settings menu opens
+  setTimeout(() => {
+    document.querySelectorAll('.font-theme-btn').forEach(btn => btn.classList.remove('active'));
+    const activeBtn = document.getElementById('fontTheme' + theme.charAt(0).toUpperCase() + theme.slice(1));
+    if (activeBtn) activeBtn.classList.add('active');
+  }, 0);
+}
+
+function editCurrentVoice() {
+  // Open the voice dropdown and trigger edit on the active profile
+  const profiles = _profiles;
+  const activeId = _activeProfileId;
+  if (activeId && profiles[activeId]) {
+    editingProfileId = activeId;
+    writerSoul = { ...profiles[activeId] };
+    obStep = 0;
+    document.getElementById('onboarding').style.display = 'flex';
+    renderObStep();
+  } else {
+    // No active profile — start fresh onboarding
+    _prefs.onboarded = false;
+    _savePrefs();
+    startOnboarding();
+  }
+}
+
+// ── Import from iA Writer / Markdown ─────────────────────────────────────────
+
+function triggerImport() {
+  document.getElementById('importFileInput').click();
+}
+
+// Badge map for common section names (FR + EN)
+const SECTION_BADGE_MAP = {
+  'couplet': 'Verse', 'verse': 'Verse',
+  'refrain': 'Chorus', 'chorus': 'Chorus',
+  'pre-chorus': 'Pre-Ch', 'pré-refrain': 'Pre-Ch',
+  'bridge': 'Bridge', 'pont': 'Bridge',
+  'outro': 'Outro', 'coda': 'Outro',
+  'intro': 'Intro', 'hook': 'Hook',
+  'pre-verse': 'Pre-V',
+};
+
+function parseSongFile(filename, text) {
+  // Derive title from filename: strip extension, convert dashes/underscores, trim UUID suffix
+  let title = filename
+    .replace(/\.[^.]+$/, '')                          // remove extension
+    .replace(/---[0-9a-f-]{32,}$/i, '')               // strip UUID suffix (iA Writer)
+    .replace(/[-_]+/g, ' ')                            // dashes/underscores → spaces
+    .replace(/\s+/g, ' ').trim();
+
+  // Capitalise first letter of each word
+  title = title.replace(/\b\w/g, c => c.toUpperCase());
+
+  const sections = [];
+  const lines = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
+  let currentSection = null;
+
+  // Section header patterns:
+  //   [couplet], [verse 1], ## Verse 1, # Chorus
+  const headerRe = /^(?:\[([^\]]+)\]|#{1,3}\s+(.+))$/i;
+
+  // Counter map so we can auto-number repeated sections
+  const sectionCount = {};
+
+  const pushSection = () => {
+    if (!currentSection) return;
+    // Trim trailing blank lines from section content
+    while (currentSection.lines.length && currentSection.lines[currentSection.lines.length - 1].trim() === '') {
+      currentSection.lines.pop();
+      currentSection.sources.pop();
+    }
+    if (currentSection.lines.length > 0) sections.push(currentSection);
+  };
+
+  for (const line of lines) {
+    const m = line.match(headerRe);
+    if (m) {
+      pushSection();
+      const rawName = (m[1] || m[2]).trim().toLowerCase();
+      const badge = SECTION_BADGE_MAP[rawName] || (rawName.charAt(0).toUpperCase() + rawName.slice(1));
+
+      // Build display name with auto-numbering for repeats
+      sectionCount[rawName] = (sectionCount[rawName] || 0) + 1;
+      const count = sectionCount[rawName];
+      let displayName;
+      if (rawName === 'couplet' || rawName === 'verse') {
+        displayName = count === 1 ? 'Verse 1' : `Verse ${count}`;
+      } else if (rawName === 'refrain' || rawName === 'chorus' || rawName === 'refain') {
+        displayName = count === 1 ? 'Chorus' : `Chorus ${count}`;
+      } else {
+        const pretty = m[1] ? (m[1].charAt(0).toUpperCase() + m[1].slice(1)) : (m[2] || rawName);
+        displayName = count === 1 ? pretty : `${pretty} ${count}`;
+      }
+
+      currentSection = { name: displayName, badge, lines: [], sources: [] };
+    } else {
+      if (!currentSection) {
+        // Lines before any section header go into an implicit intro
+        currentSection = { name: 'Intro', badge: 'Intro', lines: [], sources: [] };
+      }
+      currentSection.lines.push(line);
+      currentSection.sources.push('human');
+    }
+  }
+  pushSection();
+
+  // Fallback: if no sections found, treat whole file as a single verse
+  if (sections.length === 0) {
+    const allLines = lines.filter(l => l.trim());
+    sections.push({
+      name: 'Verse 1', badge: 'Verse',
+      lines: allLines,
+      sources: allLines.map(() => 'human'),
+    });
+  }
+
+  return { title, sections };
+}
+
+async function handleImportFiles(files) {
+  if (!files || files.length === 0) return;
+
+  const lib = getSongLibrary();
+  let imported = 0;
+  let skipped = 0;
+
+  for (const file of files) {
+    try {
+      const text = await file.text();
+      const { title, sections } = parseSongFile(file.name, text);
+
+      // Skip empty parses
+      if (!sections.length) { skipped++; continue; }
+
+      const songId = generateSongId();
+      const rawSong = {
+        title,
+        sections,
+        key: '',
+        tempo: '',
+        mood: '',
+        tags: [],
+        updatedAt: new Date().toISOString(),
+      };
+      lib[songId] = autoTagLang(rawSong);
+      imported++;
+    } catch (e) {
+      console.warn('Import error for', file.name, e);
+      skipped++;
+    }
+  }
+
+  // Save all at once
+  saveSongLibrary(lib);
+
+  // Sync each new song to Firestore
+  for (const songId of Object.keys(lib)) {
+    _syncSingleSong(songId);
+  }
+
+  renderSongPicker();
+
+  // Reset input so same files can be re-imported if needed
+  document.getElementById('importFileInput').value = '';
+
+  // Feedback
+  const msg = skipped > 0
+    ? `Imported ${imported} song${imported !== 1 ? 's' : ''}. ${skipped} skipped.`
+    : `Imported ${imported} song${imported !== 1 ? 's' : ''} successfully!`;
+  
+  // Use a toast-style notification
+  showImportToast(msg);
+}
+
+function showImportToast(msg) {
+  let toast = document.getElementById('importToast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'importToast';
+    toast.style.cssText = `
+      position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
+      background:var(--ink);color:var(--cream-light);
+      padding:10px 20px;border-radius:8px;font-family:'Jost',sans-serif;
+      font-size:13px;z-index:9999;box-shadow:0 4px 16px rgba(0,0,0,0.3);
+      animation:obIn 0.2s cubic-bezier(.22,1,.36,1) both;
+    `;
+    document.body.appendChild(toast);
+  }
+  toast.textContent = msg;
+  toast.style.display = 'block';
+  clearTimeout(toast._timer);
+  toast._timer = setTimeout(() => { toast.style.display = 'none'; }, 3500);
 }
 
 function exportLyrics(fmt) {
@@ -5175,31 +7293,21 @@ function exportLyrics(fmt) {
   }
 }
 
-// ── API Key ───────────────────────────────────────
-function saveKey() {
-  apiKey = document.getElementById('apiKeyInput').value.trim();
-  localStorage.setItem('inkwell_key', apiKey);
-  (document.getElementById('configBar')||{style:{}}).style.display = 'none';
-}
-
 // ── Scratch Pad ───────────────────────────────────
 let scratchOpen = false;
 
 function getScratchPad() {
   const songId = currentSongId || 'default';
-  try {
-    const all = JSON.parse(localStorage.getItem('inkwell_scratch') || '{}');
-    return all[songId] || [];
-  } catch(e) { return []; }
+  return _scratchAll[songId] || [];
 }
 
 function saveScratchPad(items) {
   const songId = currentSongId || 'default';
-  try {
-    const all = JSON.parse(localStorage.getItem('inkwell_scratch') || '{}');
-    all[songId] = items;
-    localStorage.setItem('inkwell_scratch', JSON.stringify(all));
-  } catch(e) {}
+  _scratchAll[songId] = items;
+  if (!_currentUser) return;
+  _debouncedWrite('scratch_' + songId, () =>
+    _userDoc().collection('scratch').doc(songId).set({ items })
+  );
 }
 
 function isCollected(text) {
@@ -5213,12 +7321,6 @@ function toggleCollect(text) {
     items.splice(idx, 1);
   } else {
     items.push({ text, addedAt: new Date().toISOString() });
-    // Auto-expand when adding
-    if (!scratchOpen) {
-      scratchOpen = true;
-      document.getElementById('scratchBody').style.display = 'block';
-      document.getElementById('scratchToggle').classList.add('open');
-    }
   }
   saveScratchPad(items);
   renderScratchPad();
@@ -5230,12 +7332,7 @@ function addToScratchPad(text) {
   items.push({ text, addedAt: new Date().toISOString() });
   saveScratchPad(items);
   renderScratchPad();
-  // Auto-expand when adding
-  if (!scratchOpen) {
-    scratchOpen = true;
-    document.getElementById('scratchBody').style.display = 'block';
-    document.getElementById('scratchToggle').classList.add('open');
-  }
+  openCollectPanel();
 }
 
 function removeFromScratchPad(text) {
@@ -5245,12 +7342,8 @@ function removeFromScratchPad(text) {
 }
 
 function toggleScratchPad() {
-  scratchOpen = !scratchOpen;
-  const body = document.getElementById('scratchBody');
-  const toggle = document.getElementById('scratchToggle');
-  body.style.display = scratchOpen ? 'block' : 'none';
-  toggle.classList.toggle('open', scratchOpen);
-  if (scratchOpen) renderScratchPad();
+  // Scratch pad is now the collect panel — toggle it
+  toggleCollectPanel();
 }
 
 function renderScratchPad() {
@@ -5322,15 +7415,13 @@ function renderScratchPad() {
 
 function insertFromScratch(text) {
   if (selectedLine === null) {
-    // No line selected — show modal to choose where
     showUseModal(text);
   } else {
-    // Line selected — insert below
     snapshot();
-    const sec = sections[current];
-    if (!sec.sources) sec.sources = sec.lines.map(() => 'human');
-    sec.lines.splice(selectedLine + 1, 0, text);
-    sec.sources.splice(selectedLine + 1, 0, 'ai');
+    const { lines, sources } = getCurrentLines();
+    const newLines = text.split('\n').filter(l => l.trim());
+    lines.splice(selectedLine + 1, 0, ...newLines);
+    sources.splice(selectedLine + 1, 0, ...newLines.map(() => 'ai'));
     renderEditor();
     focusLine(selectedLine + 1);
     updateLineCounts();
@@ -5352,13 +7443,30 @@ function insertFromScratch(text) {
 let currentSongId = null;
 
 function getSongLibrary() {
-  try {
-    return JSON.parse(localStorage.getItem('inkwell_songs') || '{}');
-  } catch(e) { return {}; }
+  return _songLib;
 }
 
 function saveSongLibrary(lib) {
-  localStorage.setItem('inkwell_songs', JSON.stringify(lib));
+  _songLib = lib;
+  // Individual song sync is handled by callers or batch operations
+}
+
+function _syncSingleSong(songId) {
+  if (!_currentUser || !_songLib[songId]) return;
+  _debouncedWrite('song_' + songId, () => {
+    _userDoc().collection('songs').doc(songId).set(_songLib[songId]);
+
+    // Capture human-written lines and add to active voice profile
+    captureWritingSamples(songId);
+  });
+}
+
+function _syncDeleteSong(songId) {
+  if (!_currentUser) return;
+  if (typeof setSyncState === 'function') setSyncState('saving');
+  _userDoc().collection('songs').doc(songId).delete()
+    .then(() => { if (typeof setSyncState === 'function') setSyncState('saved'); })
+    .catch(e => { console.error('Sync error:', e); if (typeof setSyncState === 'function') setSyncState('error'); });
 }
 
 function generateSongId() {
@@ -5381,10 +7489,14 @@ function saveSongToLibrary() {
   if (!currentSongId) {
     currentSongId = generateSongId();
   }
-  lib[currentSongId] = getCurrentSongData();
+  // Preserve existing tags when saving
+  const existing = lib[currentSongId] || {};
+  lib[currentSongId] = { ...getCurrentSongData(), tags: existing.tags || [] };
   saveSongLibrary(lib);
-  localStorage.setItem('inkwell_current_song_id', currentSongId);
-  
+  _prefs.currentSongId = currentSongId; _savePrefs();
+  _syncSingleSong(currentSongId);
+  renderTagEditor();
+
   // Visual feedback
   const btn = document.getElementById('saveBtn');
   btn.textContent = t('btn.saved');
@@ -5397,14 +7509,32 @@ function loadSongFromLibrary(songId) {
   if (!song) return;
   
   currentSongId = songId;
-  localStorage.setItem('inkwell_current_song_id', songId);
-  
+  _prefs.currentSongId = songId; _savePrefs();
+
   document.getElementById('songTitle').value = song.title || '';
   if (song.sections?.length) sections = song.sections;
   if (song.key) document.getElementById('chipKey').textContent = song.key;
   if (song.tempo) document.getElementById('chipTempo').textContent = song.tempo;
   if (song.mood) document.getElementById('chipMood').textContent = song.mood;
-  
+
+  // Auto-detect language and switch UI if song has no explicit lang tag yet
+  const detectedLang = detectSongLang(song);
+  if (detectedLang && detectedLang !== (typeof currentLang === 'string' ? currentLang : getLang())) {
+    if (typeof setLang === 'function') setLang(detectedLang);
+  }
+
+  // Auto-apply lang tag if missing
+  const lib2 = getSongLibrary();
+  if (lib2[songId] && detectedLang) {
+    const langLabel = detectedLang === 'fr' ? 'français' : 'english';
+    if (!(lib2[songId].tags || []).includes(langLabel)) {
+      lib2[songId] = autoTagLang(lib2[songId]);
+      saveSongLibrary(lib2);
+      _syncSingleSong(songId);
+    }
+  }
+
+  renderTagEditor();
   renderSidebar();
   selectSection(0);
   closeSongPicker();
@@ -5416,11 +7546,13 @@ function createNewSong() {
     const lib = getSongLibrary();
     lib[currentSongId] = getCurrentSongData();
     saveSongLibrary(lib);
+    _syncSingleSong(currentSongId);
   }
-  
+
   // Reset to new song
   currentSongId = generateSongId();
-  localStorage.setItem('inkwell_current_song_id', currentSongId);
+  _prefs.currentSongId = currentSongId; _savePrefs();
+  _syncSingleSong(currentSongId);
   
   document.getElementById('songTitle').value = '';
   sections = [
@@ -5449,7 +7581,8 @@ function deleteSong(songId, e) {
   
   delete lib[songId];
   saveSongLibrary(lib);
-  
+  _syncDeleteSong(songId);
+
   // If deleting current song, create new one
   if (songId === currentSongId) {
     const remaining = Object.keys(lib);
@@ -5485,44 +7618,252 @@ function closeSongPickerOutside(e) {
   }
 }
 
-function renderSongPicker() {
-  const dropdown = document.getElementById('songPickerDropdown');
+// ── Language detection ────────────────────────────────────────────────────────
+// Simple heuristic: count French marker characters/words vs English markers.
+const FR_MARKERS = /[àâäéèêëîïôùûüçœæ]|\b(le|la|les|de|du|des|un|une|et|je|tu|il|elle|nous|vous|ils|elles|mon|ma|mes|son|sa|ses|avec|dans|sur|pour|que|qui|est|sont|avoir|être|pas|plus|tout|comme|mais)\b/gi;
+const EN_MARKERS = /\b(the|and|you|your|my|me|we|our|is|are|was|were|have|has|been|will|would|could|should|not|this|that|with|from|they|them|their|he|she|it|its|for|but|all|just|out|up|so|do|go|be)\b/gi;
+
+function detectSongLang(song) {
+  // Check explicit tag first
+  if (song.tags && song.tags.includes('français')) return 'fr';
+  if (song.tags && song.tags.includes('english')) return 'en';
+
+  // Sample text: title + first ~400 chars of content
+  let sample = (song.title || '') + ' ';
+  if (song.sections) {
+    for (const sec of song.sections) {
+      if (sec.lines) sample += sec.lines.join(' ') + ' ';
+      if (sample.length > 400) break;
+    }
+  }
+
+  const frCount = (sample.match(FR_MARKERS) || []).length;
+  const enCount = (sample.match(EN_MARKERS) || []).length;
+
+  if (frCount === 0 && enCount === 0) return null; // can't tell
+  return frCount > enCount ? 'fr' : 'en';
+}
+
+function autoTagLang(song) {
+  const lang = detectSongLang(song);
+  if (!lang) return song;
+  const tags = song.tags ? [...song.tags] : [];
+  const label = lang === 'fr' ? 'français' : 'english';
+  const remove = lang === 'fr' ? 'english' : 'français';
+  const filtered = tags.filter(t => t !== remove);
+  if (!filtered.includes(label)) filtered.unshift(label);
+  return { ...song, tags: filtered };
+}
+
+// ── Song picker state ─────────────────────────────────────────────────────────
+let _pickerQuery = '';
+let _pickerTag = null;
+
+function _renderSongPickerResults() {
+  const resultsContainer = document.getElementById('songPickerResults');
+  if (!resultsContainer) return;
   const lib = getSongLibrary();
-  const songs = Object.entries(lib).sort((a, b) => 
-    new Date(b[1].updatedAt || 0) - new Date(a[1].updatedAt || 0)
-  );
-  
-  let html = `
-    <div style="padding:10px 14px;border-bottom:1px solid var(--rule);display:flex;justify-content:space-between;align-items:center;">
-      <span style="font-family:'Cormorant Garamond',serif;font-size:13px;color:var(--ink-soft);letter-spacing:0.05em;">${t('song.library')}</span>
-      <span style="font-size:11px;color:var(--ink-faint);">${songs.length} ${songs.length === 1 ? t('song.count.one') : t('song.count.many')}</span>
-    </div>
-    <div onclick="createNewSong()" style="padding:12px 14px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--amber);display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--rule);" onmouseenter="this.style.background='var(--cream-dark)'" onmouseleave="this.style.background=''">
+
+  const allSongs = Object.entries(lib).sort((a, b) => {
+    if (a[0] === currentSongId) return -1;
+    if (b[0] === currentSongId) return 1;
+    return new Date(b[1].updatedAt || 0) - new Date(a[1].updatedAt || 0);
+  });
+
+  const allTags = new Set();
+  allSongs.forEach(([, song]) => (song.tags || []).forEach(tag => allTags.add(tag)));
+  const tagList = Array.from(allTags).sort();
+
+  const q = _pickerQuery.toLowerCase().trim();
+  const filtered = allSongs.filter(([, song]) => {
+    if (_pickerTag && !(song.tags || []).includes(_pickerTag)) return false;
+    if (!q) return true;
+    if ((song.title || '').toLowerCase().includes(q)) return true;
+    if (song.sections) {
+      for (const sec of song.sections) {
+        if ((sec.name || '').toLowerCase().includes(q)) return true;
+        if (sec.lines && sec.lines.some(l => l.toLowerCase().includes(q))) return true;
+      }
+    }
+    return false;
+  });
+
+  // Update count display
+  const countEl = document.getElementById('songPickerCount');
+  if (countEl) countEl.textContent = `${filtered.length} / ${allSongs.length}`;
+
+  let html = '';
+
+  // ── Tag filter bar ──
+  if (tagList.length > 0) {
+    html += `<div style="padding:6px 10px;display:flex;flex-wrap:wrap;gap:4px;border-bottom:1px solid var(--rule);">`;
+    tagList.forEach(tag => {
+      const active = _pickerTag === tag;
+      html += `<span onclick="event.stopPropagation();_pickerTag=${active ? 'null' : `'${tag.replace(/'/g,"\\'")}' `};_renderSongPickerResults();"
+        style="padding:2px 8px;border-radius:20px;font-size:11px;cursor:pointer;font-family:'Jost',sans-serif;
+          background:${active ? 'var(--amber)' : 'var(--cream-dark)'};
+          color:${active ? '#fff' : 'var(--ink-soft)'};
+          border:1px solid ${active ? 'var(--amber)' : 'var(--rule)'};"
+      >${tag}</span>`;
+    });
+    html += `</div>`;
+  }
+
+  // ── New song button ──
+  html += `
+    <div onclick="createNewSong()" style="padding:10px 14px;cursor:pointer;font-family:'Jost',sans-serif;font-size:13px;color:var(--amber);display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--rule);" onmouseenter="this.style.background='var(--cream-dark)'" onmouseleave="this.style.background=''">
       ${t('song.new')}
     </div>
   `;
-  
-  songs.forEach(([id, song]) => {
+
+  // ── Song list ──
+  filtered.forEach(([id, song]) => {
     const isCurrent = id === currentSongId;
     const title = song.title || t('song.untitled');
     const date = song.updatedAt ? new Date(song.updatedAt).toLocaleDateString() : '';
+    const tags = (song.tags || []);
+    const tagsHtml = tags.length
+      ? `<div style="display:flex;flex-wrap:wrap;gap:3px;margin-top:3px;">${
+          tags.map(tag => `<span style="padding:1px 6px;border-radius:10px;font-size:10px;
+            background:var(--cream-dark);color:var(--ink-soft);border:1px solid var(--rule);
+            font-family:'Jost',sans-serif;">${tag}</span>`).join('')
+        }</div>`
+      : '';
+
     html += `
-      <div onclick="loadSongFromLibrary('${id}')" style="padding:10px 14px;cursor:pointer;display:flex;align-items:center;gap:10px;${isCurrent ? 'background:var(--cream-dark);' : ''}" onmouseenter="this.style.background='var(--cream-dark)'" onmouseleave="this.style.background='${isCurrent ? 'var(--cream-dark)' : ''}'">
-        <span style="font-size:14px;color:${isCurrent ? 'var(--amber)' : 'var(--ink-faint)'};">${isCurrent ? '●' : '○'}</span>
+      <div onclick="loadSongFromLibrary('${id}')" style="padding:10px 14px;cursor:pointer;display:flex;align-items:flex-start;gap:10px;${isCurrent ? 'background:var(--cream-dark);' : ''}" onmouseenter="this.style.background='var(--cream-dark)'" onmouseleave="this.style.background='${isCurrent ? 'var(--cream-dark)' : ''}'">
+        <span style="font-size:14px;color:${isCurrent ? 'var(--amber)' : 'var(--ink-faint)'};margin-top:2px;">${isCurrent ? '●' : '○'}</span>
         <div style="flex:1;min-width:0;">
           <div style="font-family:'Crimson Pro',serif;font-size:15px;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;${isCurrent ? 'font-weight:600;' : ''}">${title}</div>
           <div style="font-size:11px;color:var(--ink-faint);">${date}</div>
+          ${tagsHtml}
         </div>
-        ${!isCurrent ? `<button onclick="deleteSong('${id}', event)" style="padding:4px 8px;background:none;border:1px solid var(--rule);border-radius:4px;font-size:10px;color:var(--ink-faint);cursor:pointer;" onmouseenter="this.style.borderColor='#c44';this.style.color='#c44'" onmouseleave="this.style.borderColor='var(--rule)';this.style.color='var(--ink-faint)'">${t('song.delete')}</button>` : ''}
+        ${!isCurrent ? `<button onclick="deleteSong('${id}', event)" style="padding:4px 8px;background:none;border:1px solid var(--rule);border-radius:4px;font-size:10px;color:var(--ink-faint);cursor:pointer;flex-shrink:0;" onmouseenter="this.style.borderColor='#c44';this.style.color='#c44'" onmouseleave="this.style.borderColor='var(--rule)';this.style.color='var(--ink-faint)'">${t('song.delete')}</button>` : ''}
       </div>
     `;
   });
-  
-  if (songs.length === 0) {
-    html += `<div style="padding:20px;text-align:center;color:var(--ink-faint);font-size:13px;">${t('song.empty')}</div>`;
+
+  if (filtered.length === 0) {
+    html += `<div style="padding:20px;text-align:center;color:var(--ink-faint);font-size:13px;">No songs match.</div>`;
   }
-  
+
+  resultsContainer.innerHTML = html;
+}
+
+function renderSongPicker() {
+  const dropdown = document.getElementById('songPickerDropdown');
+  const lib = getSongLibrary();
+
+  const allSongs = Object.entries(lib).sort((a, b) => {
+    if (a[0] === currentSongId) return -1;
+    if (b[0] === currentSongId) return 1;
+    return new Date(b[1].updatedAt || 0) - new Date(a[1].updatedAt || 0);
+  });
+
+  const allTags = new Set();
+  allSongs.forEach(([, song]) => (song.tags || []).forEach(tag => allTags.add(tag)));
+
+  const q = _pickerQuery.toLowerCase().trim();
+  const filteredCount = allSongs.filter(([, song]) => {
+    if (_pickerTag && !(song.tags || []).includes(_pickerTag)) return false;
+    if (!q) return true;
+    if ((song.title || '').toLowerCase().includes(q)) return true;
+    if (song.sections) {
+      for (const sec of song.sections) {
+        if ((sec.name || '').toLowerCase().includes(q)) return true;
+        if (sec.lines && sec.lines.some(l => l.toLowerCase().includes(q))) return true;
+      }
+    }
+    return false;
+  }).length;
+
+  // ── Header + search (rendered once; never destroyed on input) ──
+  let html = `
+    <div style="padding:10px 14px 8px;border-bottom:1px solid var(--rule);">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <span style="font-family:'Cormorant Garamond',serif;font-size:13px;color:var(--ink-soft);letter-spacing:0.05em;">${t('song.library')}</span>
+        <span id="songPickerCount" style="font-size:11px;color:var(--ink-faint);">${filteredCount} / ${allSongs.length}</span>
+      </div>
+      <input
+        id="pickerSearch"
+        type="text"
+        placeholder="Search songs & lyrics…"
+        value="${_pickerQuery.replace(/"/g, '&quot;')}"
+        oninput="_pickerQuery=this.value;_renderSongPickerResults();"
+        onclick="event.stopPropagation()"
+        autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+        style="width:100%;box-sizing:border-box;padding:6px 10px;border:1px solid var(--rule);border-radius:6px;
+          background:var(--cream-dark);color:var(--ink);font-family:'Jost',sans-serif;font-size:12px;outline:none;"
+      />
+    </div>
+    <div id="songPickerResults"></div>
+  `;
+
   dropdown.innerHTML = html;
+  // Populate results without touching the search input
+  _renderSongPickerResults();
+  // Auto-focus search input
+  setTimeout(() => { document.getElementById('pickerSearch')?.focus(); }, 0);
+}
+
+// ── Tag editing (inline on current song) ─────────────────────────────────────
+function renderTagEditor() {
+  const wrap = document.getElementById('tagEditorWrap');
+  if (!wrap) return;
+  const lib = getSongLibrary();
+  const song = currentSongId && lib[currentSongId];
+  if (!song) { wrap.innerHTML = ''; return; }
+
+  const tags = song.tags || [];
+  let html = `<div style="display:flex;flex-wrap:wrap;gap:4px;align-items:center;">`;
+
+  tags.forEach((tag, i) => {
+    html += `<span style="display:inline-flex;align-items:center;gap:3px;padding:2px 7px 2px 9px;border-radius:20px;
+      background:var(--cream-dark);border:1px solid var(--rule);font-size:11px;color:var(--ink-soft);font-family:'Jost',sans-serif;">
+      ${tag}
+      <span onclick="removeTag('${tag.replace(/'/g,"\\'")}', event)" style="cursor:pointer;color:var(--ink-faint);font-size:13px;line-height:1;" title="Remove tag">×</span>
+    </span>`;
+  });
+
+  html += `<span onclick="promptAddTag(event)" style="padding:2px 8px;border-radius:20px;border:1px dashed var(--rule);
+    font-size:11px;color:var(--ink-faint);cursor:pointer;font-family:'Jost',sans-serif;"
+    title="Add tag">+ tag</span>`;
+
+  html += `</div>`;
+  wrap.innerHTML = html;
+}
+
+function promptAddTag(e) {
+  if (e) e.stopPropagation();
+  const tag = prompt('Add tag:');
+  if (!tag || !tag.trim()) return;
+  addTag(tag.trim().toLowerCase());
+}
+
+function addTag(tag) {
+  if (!currentSongId) return;
+  const lib = getSongLibrary();
+  if (!lib[currentSongId]) return;
+  const tags = lib[currentSongId].tags || [];
+  if (!tags.includes(tag)) {
+    lib[currentSongId].tags = [...tags, tag];
+    saveSongLibrary(lib);
+    _syncSingleSong(currentSongId);
+    renderTagEditor();
+    renderSongPicker();
+  }
+}
+
+function removeTag(tag, e) {
+  if (e) e.stopPropagation();
+  if (!currentSongId) return;
+  const lib = getSongLibrary();
+  if (!lib[currentSongId]) return;
+  lib[currentSongId].tags = (lib[currentSongId].tags || []).filter(t => t !== tag);
+  saveSongLibrary(lib);
+  _syncSingleSong(currentSongId);
+  renderTagEditor();
+  renderSongPicker();
 }
 
 // Override saveSong to use library
@@ -5532,35 +7873,9 @@ saveSong = function() {
 
 // On load, restore current song from library
 (function initSongLibrary() {
-  const savedId = localStorage.getItem('inkwell_current_song_id');
-  const lib = getSongLibrary();
-  
-  // Migrate old single-song format to library
-  const oldSong = localStorage.getItem('inkwell_song');
-  if (oldSong && Object.keys(lib).length === 0) {
-    try {
-      const d = JSON.parse(oldSong);
-      const id = generateSongId();
-      lib[id] = {
-        title: d.title || '',
-        sections: d.sections || sections,
-        updatedAt: new Date().toISOString()
-      };
-      saveSongLibrary(lib);
-      currentSongId = id;
-      localStorage.setItem('inkwell_current_song_id', id);
-      localStorage.removeItem('inkwell_song'); // Clean up old format
-    } catch(e) {}
-  } else if (savedId && lib[savedId]) {
-    currentSongId = savedId;
-  } else if (Object.keys(lib).length > 0) {
-    currentSongId = Object.keys(lib)[0];
-  }
-  
-  if (currentSongId && lib[currentSongId]) {
-    const song = lib[currentSongId];
-    if (song.sections?.length) sections = song.sections;
-  }
+  // Song library is now loaded from Firestore at sign-in.
+  // This just sets up the initial empty state.
+  // Migration from localStorage happens in the Firestore auth handler.
 })();
 </script>
 <script src="/audio.js"></script>
@@ -5575,5 +7890,308 @@ saveSong = function() {
   <div class="compare-body" id="compareBody"></div>
 </div>
 
+<script>
+// ── Firebase Auth + Firestore (primary data store) ────────
+(function() {
+  const firebaseConfig = {
+    apiKey: "AIzaSyBuEpnxGya3KgBRjfuz4hvwz_i7BOZFHTU",
+    authDomain: "inkwell-app-619f9.firebaseapp.com",
+    projectId: "inkwell-app-619f9",
+    storageBucket: "inkwell-app-619f9.firebasestorage.app",
+    messagingSenderId: "1042620468629",
+    appId: "1:1042620468629:web:1bf1b478cebab0c0e83a9c"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  _firestoreDb = firebase.firestore();
+
+  // ── Sync indicator helpers ──────────────────────────
+  window.setSyncState = function(state) {
+    const dot = document.getElementById('syncDot');
+    const label = document.getElementById('syncLabel');
+    if (!dot || !label) return;
+    dot.className = 'sync-dot ' + state;
+    label.textContent = state === 'saving' ? 'Saving\u2026' : state === 'saved' ? 'Synced' : state === 'error' ? 'Sync error' : '';
+    if (state === 'saved') {
+      setTimeout(() => { if (dot.classList.contains('saved')) { dot.className = 'sync-dot'; label.textContent = 'Synced'; } }, 3000);
+    }
+  };
+
+  function showSyncIndicator() {
+    document.getElementById('syncIndicator').style.display = 'inline-flex';
+  }
+
+  // ── Migration from localStorage ─────────────────────
+  async function migrateFromLocalStorage(uid) {
+    const hasOldSongs = localStorage.getItem('inkwell_songs') || localStorage.getItem('inkwell_song');
+    if (!hasOldSongs) return;
+
+    try {
+      let songs = {};
+      const libRaw = localStorage.getItem('inkwell_songs');
+      if (libRaw) {
+        songs = JSON.parse(libRaw) || {};
+      }
+      // Migrate old single-song format
+      const oldSong = localStorage.getItem('inkwell_song');
+      if (oldSong && Object.keys(songs).length === 0) {
+        const d = JSON.parse(oldSong);
+        const id = 'song_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
+        songs[id] = { title: d.title || '', sections: d.sections || [], updatedAt: new Date().toISOString() };
+      }
+
+      const userDoc = _firestoreDb.collection('users').doc(uid);
+      const batch = _firestoreDb.batch();
+
+      // Migrate songs
+      Object.keys(songs).forEach(id => {
+        batch.set(userDoc.collection('songs').doc(id), songs[id]);
+      });
+
+      // Migrate profiles
+      const profilesRaw = localStorage.getItem('inkwell_profiles');
+      if (profilesRaw) {
+        const profiles = JSON.parse(profilesRaw) || {};
+        const activeId = localStorage.getItem('inkwell_active_profile') || '';
+        batch.set(userDoc.collection('profiles').doc('all'), { profiles, activeId });
+      }
+
+      // Migrate scratch pads
+      const scratchRaw = localStorage.getItem('inkwell_scratch');
+      if (scratchRaw) {
+        const scratch = JSON.parse(scratchRaw) || {};
+        Object.keys(scratch).forEach(songId => {
+          batch.set(userDoc.collection('scratch').doc(songId), { items: scratch[songId] || [] });
+        });
+      }
+
+      // Migrate prefs
+      const prefs = {};
+      if (localStorage.getItem('inkwell_onboarded')) prefs.onboarded = true;
+      if (localStorage.getItem('inkwell_lang')) prefs.lang = localStorage.getItem('inkwell_lang');
+      if (localStorage.getItem('inkwell_current_song_id')) prefs.currentSongId = localStorage.getItem('inkwell_current_song_id');
+      const moodsRaw = localStorage.getItem('inkwell_moods');
+      if (moodsRaw) prefs.moods = JSON.parse(moodsRaw);
+      if (Object.keys(prefs).length) {
+        batch.set(userDoc.collection('prefs').doc('current'), prefs);
+      }
+
+      // Migrate old soul
+      const oldSoul = localStorage.getItem('inkwell_soul');
+      if (oldSoul) {
+        try {
+          const s = JSON.parse(oldSoul);
+          if (Object.keys(s).length) {
+            s.profileName = s.profileName || 'My voice';
+            const profiles = profilesRaw ? JSON.parse(profilesRaw) || {} : {};
+            if (!Object.keys(profiles).length) {
+              profiles['profile_migrated'] = s;
+              batch.set(userDoc.collection('profiles').doc('all'), { profiles, activeId: 'profile_migrated' });
+            }
+          }
+        } catch(e) {}
+      }
+
+      await batch.commit();
+
+      // Clear localStorage (keep inkwell_key)
+      ['inkwell_songs', 'inkwell_song', 'inkwell_profiles', 'inkwell_active_profile',
+       'inkwell_scratch', 'inkwell_onboarded', 'inkwell_lang', 'inkwell_current_song_id',
+       'inkwell_moods', 'inkwell_soul'].forEach(k => localStorage.removeItem(k));
+
+    } catch(e) {
+      console.error('Migration error:', e);
+    }
+  }
+
+  // ── Load all data from Firestore into caches ────────
+  async function loadFromFirestore(uid) {
+    const userDoc = _firestoreDb.collection('users').doc(uid);
+
+    // Load songs
+    const songsSnap = await userDoc.collection('songs').get();
+    _songLib = {};
+    songsSnap.forEach(doc => { _songLib[doc.id] = doc.data(); });
+
+    // Load profiles
+    const profileDoc = await userDoc.collection('profiles').doc('all').get();
+    if (profileDoc.exists) {
+      const data = profileDoc.data();
+      _profiles = data.profiles || {};
+      _activeProfileId = data.activeId || '';
+    } else {
+      _profiles = {};
+      _activeProfileId = '';
+    }
+
+    // Load scratch pads
+    const scratchSnap = await userDoc.collection('scratch').get();
+    _scratchAll = {};
+    scratchSnap.forEach(doc => { _scratchAll[doc.id] = doc.data().items || []; });
+
+    // Load prefs
+    const prefsDoc = await userDoc.collection('prefs').doc('current').get();
+    if (prefsDoc.exists) {
+      const data = prefsDoc.data();
+      // Spread all stored prefs so nothing gets lost (splitOpen, lang, etc.)
+      _prefs = {
+        onboarded: false,
+        lang: 'en',
+        currentSongId: null,
+        moods: null,
+        ...data,
+      };
+    } else {
+      _prefs = { onboarded: false, lang: 'en', currentSongId: null, moods: null };
+    }
+  }
+
+  // ── Render app with loaded data ─────────────────────
+  function renderAppWithData() {
+    // Apply language
+    if (_prefs.lang && typeof setLang === 'function') {
+      setLang(_prefs.lang);
+    }
+    
+    // Apply font theme
+    if (typeof loadFontTheme === 'function') {
+      loadFontTheme();
+    }
+
+    // Load current song
+    const songIds = Object.keys(_songLib);
+    if (_prefs.currentSongId && _songLib[_prefs.currentSongId]) {
+      currentSongId = _prefs.currentSongId;
+    } else if (songIds.length) {
+      currentSongId = songIds[0];
+    } else {
+      currentSongId = null;
+    }
+
+    if (currentSongId && _songLib[currentSongId]) {
+      const song = _songLib[currentSongId];
+      document.getElementById('songTitle').value = song.title || '';
+      if (song.sections?.length) sections = song.sections;
+      if (song.key) document.getElementById('chipKey').textContent = song.key;
+      if (song.tempo) document.getElementById('chipTempo').textContent = song.tempo;
+      if (song.mood) document.getElementById('chipMood').textContent = song.mood;
+    }
+
+    renderSidebar();
+    selectSection(0);
+    renderVoiceSwitcher();
+    renderScratchPad();
+    if (typeof buildAITools === 'function') buildAITools();
+    if (typeof applyTranslations === 'function') applyTranslations();
+
+    // Restore layout state
+    if (_prefs.splitOpen) toggleSplit(true);
+    if (_prefs.ovTwoCol) toggleOvColumns();
+
+    // Show onboarding if never completed
+    if (!_prefs.onboarded) {
+      setTimeout(startOnboarding, 400);
+    }
+  }
+
+  // ── Auth handlers ───────────────────────────────────
+  // Detect iOS Safari (redirect auth doesn't work due to storage partitioning)
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+  const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+  const isIOSSafari = isIOS && isSafari;
+
+  window.firebaseSignIn = function() {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    
+    // On iOS Safari, popup is the only reliable method (redirect fails due to ITP)
+    // We need to ensure popup isn't blocked by calling it synchronously from user gesture
+    auth.signInWithPopup(provider).catch(e => {
+      if (e.code === 'auth/popup-blocked' || e.code === 'auth/popup-closed-by-user' || e.code === 'auth/cancelled-popup-request') {
+        if (isIOSSafari) {
+          // Don't use redirect on iOS Safari — it will fail with storage partitioning error
+          alert('Please allow popups for this site to sign in. On iOS: tap the URL bar, then tap "Allow" when prompted.');
+        } else {
+          // Non-iOS: redirect fallback should work
+          auth.signInWithRedirect(provider).catch(err => {
+            console.error('Redirect sign-in error:', err);
+            alert('Sign-in failed: ' + err.message);
+          });
+        }
+      } else {
+        console.error('Sign-in error:', e);
+        alert('Sign-in failed: ' + e.message);
+      }
+    });
+  };
+
+  window.firebaseSignOut = function() {
+    auth.signOut().catch(e => console.error('Sign-out error:', e));
+  };
+
+  // Handle redirect result (for iPhone fallback flow) — run in background, don't block auth
+  auth.getRedirectResult().catch(e => {
+    if (e.code && e.code !== 'auth/no-auth-event') {
+      console.error('Redirect sign-in error:', e);
+    }
+  });
+
+  let _appLoaded = false; // once the app renders, never go back to sign-in gate automatically
+
+  auth.onAuthStateChanged(async function(user) {
+    _currentUser = user;
+    const gate = document.getElementById('signInGate');
+    const loading = document.getElementById('loadingScreen');
+
+    // Safety net: never stay on loading screen longer than 12 seconds
+    const _loadingTimeout = setTimeout(() => {
+      if (loading.style.display !== 'none') {
+        console.warn('Loading timeout — forcing screen clear');
+        loading.style.display = 'none';
+        if (!_appLoaded) gate.style.display = 'flex';
+      }
+    }, 12000);
+
+    if (user) {
+      gate.style.display = 'none';
+      loading.style.display = 'flex';
+
+      document.getElementById('authAvatar').src = user.photoURL || '';
+      document.getElementById('authName').textContent = user.displayName || user.email || '';
+      showSyncIndicator();
+      setSyncState('saving');
+
+      if (!_appLoaded) {
+        try {
+          const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 8000));
+          await Promise.race([
+            (async () => {
+              await migrateFromLocalStorage(user.uid);
+              await loadFromFirestore(user.uid);
+            })(),
+            timeout
+          ]);
+          setSyncState('saved');
+        } catch(e) {
+          console.error('Load error:', e);
+          setSyncState('error');
+        }
+        renderAppWithData();
+        _appLoaded = true;
+      }
+
+      clearTimeout(_loadingTimeout);
+      loading.style.display = 'none';
+    } else {
+      clearTimeout(_loadingTimeout);
+      // Only show sign-in gate if app hasn't loaded yet — don't kick out a user mid-session
+      if (!_appLoaded) {
+        loading.style.display = 'none';
+        gate.style.display = 'flex';
+      }
+    }
+  });
+})();
+</script>
 </body>
 </html>
