@@ -2807,7 +2807,6 @@
     /* iPad portrait (768–1023px) */
     @media (max-width: 1023px) {
       .sidebar { width: 160px; }
-      .ai-panel, .collect-panel { width: 240px; }
       .meta-chips { display: none; }
       .btn-split { display: none; }
       .topbar { padding: 10px 14px; gap: 10px; }
@@ -2817,6 +2816,20 @@
       .ob-wrap { padding: 32px 18px 48px; }
       .ob-choices { grid-template-columns: 1fr 1fr; }
       .ob-choices.cols-3 { grid-template-columns: 1fr 1fr; }
+
+      /* AI & Collect panels as overlays on iPad portrait */
+      .ai-panel {
+        position: fixed; right: 0; top: 0; bottom: 0;
+        z-index: 500; width: 300px; max-width: 45vw;
+        box-shadow: -4px 0 24px var(--shadow-md);
+      }
+      .ai-panel.collapsed { width: 0; border-left-width: 0; }
+      .collect-panel {
+        position: fixed; right: 0; top: 0; bottom: 0;
+        z-index: 499; width: 300px; max-width: 45vw;
+        box-shadow: -4px 0 24px var(--shadow-md);
+      }
+      .collect-panel.collapsed { width: 0; border-left-width: 0; }
     }
 
     /* Mobile (<768px) */
@@ -2829,7 +2842,10 @@
       .btn-split { display: none; }
       .btn-audio { display: none; }
       #importBtn { display: none; }
-      #exportBtn { display: none; }
+      #exportWrap { display: none; }
+      #settingsWrap { display: none; }
+      button[onclick*="toggleAudioHelp"] { display: none; }
+      #audioHelpTooltip { display: none !important; }
 
       /* Topbar: slim, just logo + song title + AI fab */
       .topbar {
@@ -2840,7 +2856,13 @@
       .logo { font-size: 16px; gap: 5px; }
       .logo-mark { width: 22px; height: 22px; font-size: 12px; }
       #songTitle { font-size: 15px; min-width: 60px; }
+      .song-picker-wrap { flex: 1; min-width: 0; overflow: hidden; }
       .topbar-right { gap: 4px; }
+
+      /* Auth bar compact on mobile */
+      #authBar { padding: 4px 12px; font-size: 10px; }
+      #authBar .auth-avatar { width: 18px; height: 18px; }
+      #authBar .auth-name { font-size: 10px; }
 
       /* Hide sidebar — use mobile menu instead */
       .sidebar { display: none; }
@@ -2875,6 +2897,10 @@
       #audioBar { padding: 8px 12px; }
       .audio-controls { flex-wrap: wrap; gap: 6px; }
 
+      /* Version compare stacked on mobile */
+      .compare-body { flex-direction: column; }
+      .compare-column:first-child { border-right: none; border-bottom: 1px solid var(--rule); }
+
       /* Onboarding */
       .ob-wrap { padding: 28px 16px 40px; }
       .ob-choices { grid-template-columns: 1fr; }
@@ -2890,9 +2916,13 @@
 
       /* Song picker dropdown full width on mobile */
       #songPickerDropdown {
-        left: -60px !important;
-        min-width: calc(100vw - 32px) !important;
-        max-width: calc(100vw - 32px) !important;
+        position: fixed !important;
+        left: 12px !important;
+        right: 12px !important;
+        top: auto !important;
+        min-width: auto !important;
+        max-width: none !important;
+        width: calc(100vw - 24px) !important;
       }
     }
 
@@ -2907,7 +2937,12 @@
       .lyric-line { min-height: 32px; }
       .editor-area { padding: 12px 10px 28px; }
       .canvas-header { padding: 10px 10px 8px; }
-      #settingsWrap .btn-ghost { padding: 5px 6px; font-size: 14px; }
+
+      /* Narrower mobile menu */
+      .mobile-menu { width: 280px; }
+
+      /* Auth bar even more compact */
+      #authBar .auth-name { display: none; }
     }
 
     /* ── Auth bar ──────────────────────────────────── */
@@ -3243,21 +3278,42 @@
     <span class="logo" style="font-size:16px;">✦ Carmen</span>
     <button class="mobile-menu-close" onclick="toggleMobileMenu()">×</button>
   </div>
-  <div class="mobile-menu-section" id="mobileSongPicker">
-    <div class="mobile-menu-label">Songs</div>
-    <div id="mobileSongList"></div>
-    <button class="add-section-btn" onclick="addSection();toggleMobileMenu();" style="margin:8px 0;">+ Add Section</button>
-  </div>
   <div class="mobile-menu-section" id="mobileSections">
     <div class="mobile-menu-label">Sections</div>
     <ul class="section-list" id="mobileSectionList"></ul>
+    <button class="add-section-btn" onclick="addSection();toggleMobileMenu();" style="margin:8px 0;">+ Add Section</button>
   </div>
   <div class="mobile-menu-section">
     <div class="mobile-menu-label">Tools</div>
+    <button class="mobile-menu-item" onclick="toggleAI();toggleMobileMenu();">✦ AI Co-Writer</button>
     <button class="mobile-menu-item" onclick="toggleAudioBar();toggleMobileMenu();">⏺ Player / Recorder</button>
     <button class="mobile-menu-item" onclick="toggleSplit();toggleMobileMenu();">⊞ Split View</button>
     <button class="mobile-menu-item" onclick="triggerImport();toggleMobileMenu();">↑ Import</button>
     <button class="mobile-menu-item" onclick="toggleExportMenu();toggleMobileMenu();">↓ Export</button>
+  </div>
+  <div class="mobile-menu-section">
+    <div class="mobile-menu-label">Settings</div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;">
+      <button onclick="setFontTheme('classic');this.parentElement.querySelectorAll('button').forEach(b=>b.style.borderColor='');this.style.borderColor='var(--amber)';" class="font-theme-btn active" id="mobileFontClassic" style="flex:1;min-width:60px;">
+        <span style="font-family:'Cormorant Garamond',serif;font-size:14px;font-style:italic;">Aa</span>
+        <span style="font-size:9px;">Classic</span>
+      </button>
+      <button onclick="setFontTheme('modern');this.parentElement.querySelectorAll('button').forEach(b=>b.style.borderColor='');this.style.borderColor='var(--amber)';" class="font-theme-btn" id="mobileFontModern" style="flex:1;min-width:60px;">
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;">Aa</span>
+        <span style="font-size:9px;">Modern</span>
+      </button>
+      <button onclick="setFontTheme('typewriter');this.parentElement.querySelectorAll('button').forEach(b=>b.style.borderColor='');this.style.borderColor='var(--amber)';" class="font-theme-btn" id="mobileFontTypewriter" style="flex:1;min-width:60px;">
+        <span style="font-family:'Courier Prime',monospace;font-size:12px;font-weight:bold;">Aa</span>
+        <span style="font-size:9px;">Typewriter</span>
+      </button>
+      <button onclick="setFontTheme('night');this.parentElement.querySelectorAll('button').forEach(b=>b.style.borderColor='');this.style.borderColor='var(--amber)';" class="font-theme-btn" id="mobileFontNight" style="flex:1;min-width:60px;background:#1a1a1a;border-color:#333;color:#e8e8e8;">
+        <span style="font-family:'Cormorant Garamond',serif;font-size:14px;font-style:italic;color:#f0a050;">Aa</span>
+        <span style="font-size:9px;color:#909090;">Night</span>
+      </button>
+    </div>
+    <button class="mobile-menu-item" onclick="setLang(getLang()==='fr'?'en':'fr');toggleMobileMenu();" id="mobileLangBtn">🌐 Language: English</button>
+    <button class="mobile-menu-item" onclick="editCurrentVoice();toggleMobileMenu();">✎ Edit voice profile</button>
+    <button class="mobile-menu-item" onclick="_prefs.onboarded=false;_savePrefs();startOnboarding();toggleMobileMenu();">↺ Restart onboarding</button>
   </div>
 </div>
 
@@ -8097,7 +8153,31 @@ function syncMobileSections() {
     };
     dst.appendChild(btn);
   });
+  // Sync language label
+  var langBtn = document.getElementById('mobileLangBtn');
+  if (langBtn && typeof getLang === 'function') {
+    langBtn.textContent = '🌐 Language: ' + (getLang() === 'fr' ? 'Français' : 'English');
+  }
 }
+
+// ── Responsive: close AI panel on narrow screens ──
+(function initResponsive() {
+  function checkWidth() {
+    if (window.innerWidth < 1024 && aiOpen) {
+      aiOpen = false;
+      var panel = document.getElementById('aiPanel');
+      if (panel) panel.classList.add('collapsed');
+      var fab = document.getElementById('aiFab');
+      if (fab) fab.textContent = '✦';
+    }
+  }
+  // Run after DOM ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', checkWidth);
+  } else {
+    checkWidth();
+  }
+})();
 </script>
 <script src="/audio.js"></script>
 <script src="/recording.js"></script>
