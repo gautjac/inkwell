@@ -2707,26 +2707,178 @@
     .ob-profile-preview strong {
       color: var(--amber); font-weight: 500;
     }
+    /* ── Hamburger button (hidden on desktop) ───── */
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      gap: 5px;
+      width: 44px; height: 44px;
+      background: none; border: none;
+      cursor: pointer;
+      padding: 10px;
+      flex-shrink: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .hamburger span {
+      display: block;
+      width: 20px; height: 2px;
+      background: var(--ink);
+      border-radius: 2px;
+      transition: all 0.25s ease;
+    }
+    .hamburger.open span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
+
+    /* ── Mobile menu ─────────────────────────────── */
+    .mobile-overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.4);
+      z-index: 900;
+      -webkit-backdrop-filter: blur(2px);
+      backdrop-filter: blur(2px);
+    }
+    .mobile-overlay.open { display: block; }
+
+    .mobile-menu {
+      position: fixed; top: 0; left: 0; bottom: 0;
+      width: 300px; max-width: 85vw;
+      background: var(--cream-light);
+      z-index: 901;
+      transform: translateX(-100%);
+      transition: transform 0.3s cubic-bezier(.22,1,.36,1);
+      display: flex; flex-direction: column;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      box-shadow: 4px 0 24px var(--shadow-md);
+    }
+    .mobile-menu.open { transform: translateX(0); }
+
+    .mobile-menu-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--rule);
+    }
+    .mobile-menu-close {
+      width: 44px; height: 44px;
+      background: none; border: none;
+      font-size: 22px; color: var(--ink-soft);
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .mobile-menu-section {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--rule);
+    }
+    .mobile-menu-label {
+      font-size: 9.5px; font-weight: 500;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--ink-faint); margin-bottom: 8px;
+    }
+    .mobile-menu-item {
+      display: flex; align-items: center; gap: 10px;
+      width: 100%; padding: 12px 10px;
+      background: none; border: none; border-radius: 6px;
+      font-family: var(--font-body); font-size: 14px;
+      color: var(--ink-mid); cursor: pointer;
+      text-align: left;
+      min-height: 44px;
+    }
+    .mobile-menu-item:hover { background: var(--cream-dark); }
+
     /* ── Responsive ──────────────────────────────── */
-    @media (max-width: 768px) {
-      .topbar { padding: 10px 14px; gap: 10px; flex-wrap: wrap; }
+
+    /* iPad landscape (1024–1199px) */
+    @media (max-width: 1199px) {
+      .sidebar { width: 170px; }
+      .ai-panel, .collect-panel { width: 260px; }
+      .topbar { padding: 10px 16px; gap: 12px; }
+
+      /* Touch targets for iPad */
+      .chip, .btn-ghost, .btn-split, .btn-audio, .audio-btn, .move-arrow,
+      .scratch-item-btn, .phrase-btn, .version-tab, .version-add-btn {
+        min-height: 44px;
+        min-width: 44px;
+      }
+    }
+
+    /* iPad portrait (768–1023px) */
+    @media (max-width: 1023px) {
+      .sidebar { width: 160px; }
+      .ai-panel, .collect-panel { width: 240px; }
       .meta-chips { display: none; }
-      .divider-v { display: none; }
-      .sidebar { display: none; }
-      .ai-panel { position: fixed; right: 0; top: 0; bottom: 0; z-index: 500; width: 300px; max-width: 85vw; box-shadow: -4px 0 24px var(--shadow-md); }
-      .ai-panel.collapsed { width: 0; }
-      .collect-panel { position: fixed; right: 300px; top: 0; bottom: 0; z-index: 499; width: 300px; max-width: 85vw; box-shadow: -4px 0 24px var(--shadow-md); display: flex; flex-direction: column; }
-      .collect-panel.collapsed { width: 0; }
-      .canvas-header { padding: 14px 18px 10px; flex-wrap: wrap; }
+      .btn-split { display: none; }
+      .topbar { padding: 10px 14px; gap: 10px; }
+      #songTitle { font-size: 16px; min-width: 80px; }
+      .canvas-header { padding: 14px 16px 10px; flex-wrap: wrap; }
       .version-controls { margin-left: 0; width: 100%; }
-      .editor-area { padding: 16px 18px 32px; }
-      .section-title { font-size: 24px; }
-      .ai-fab { width: 48px; height: 48px; }
-      .intensifiers-fab { width: 44px; height: 44px; bottom: 74px; }
       .ob-wrap { padding: 32px 18px 48px; }
+      .ob-choices { grid-template-columns: 1fr 1fr; }
+      .ob-choices.cols-3 { grid-template-columns: 1fr 1fr; }
+    }
+
+    /* Mobile (<768px) */
+    @media (max-width: 767px) {
+      /* Show hamburger, hide desktop nav */
+      .hamburger { display: flex; }
+      .divider-v { display: none; }
+      .meta-chips { display: none; }
+      .voice-switcher { display: none; }
+      .btn-split { display: none; }
+      .btn-audio { display: none; }
+      #importBtn { display: none; }
+      #exportBtn { display: none; }
+
+      /* Topbar: slim, just logo + song title + AI fab */
+      .topbar {
+        padding: 8px 10px; gap: 8px;
+        flex-wrap: nowrap;
+        position: sticky; top: 0; z-index: 100;
+      }
+      .logo { font-size: 16px; gap: 5px; }
+      .logo-mark { width: 22px; height: 22px; font-size: 12px; }
+      #songTitle { font-size: 15px; min-width: 60px; }
+      .topbar-right { gap: 4px; }
+
+      /* Hide sidebar — use mobile menu instead */
+      .sidebar { display: none; }
+
+      /* AI & Collect panels become fixed overlays */
+      .ai-panel {
+        position: fixed; right: 0; top: 0; bottom: 0;
+        z-index: 500; width: 300px; max-width: 85vw;
+        box-shadow: -4px 0 24px var(--shadow-md);
+      }
+      .ai-panel.collapsed { width: 0; border-left-width: 0; }
+      .collect-panel {
+        position: fixed; right: 0; top: 0; bottom: 0;
+        z-index: 499; width: 300px; max-width: 85vw;
+        box-shadow: -4px 0 24px var(--shadow-md);
+        display: flex; flex-direction: column;
+      }
+      .collect-panel.collapsed { width: 0; border-left-width: 0; }
+
+      /* Editor adjustments */
+      .canvas-header { padding: 12px 14px 8px; flex-wrap: wrap; }
+      .version-controls { margin-left: 0; width: 100%; }
+      .editor-area { padding: 14px 14px 32px; }
+      .section-title { font-size: 22px; }
+      .fork-btn { margin-left: 0; }
+
+      /* Bigger FABs for touch */
+      .ai-fab { width: 52px; height: 52px; font-size: 20px; right: 14px; bottom: 14px; }
+      .intensifiers-fab { width: 48px; height: 48px; bottom: 74px; right: 14px; }
+
+      /* Audio bar compact */
+      #audioBar { padding: 8px 12px; }
+      .audio-controls { flex-wrap: wrap; gap: 6px; }
+
+      /* Onboarding */
+      .ob-wrap { padding: 28px 16px 40px; }
       .ob-choices { grid-template-columns: 1fr; }
       .ob-choices.cols-3 { grid-template-columns: 1fr; }
-      .fork-btn { margin-left: 0; }
 
       /* Touch targets: ensure minimum 44px */
       .chip, .btn-ghost, .btn-split, .btn-audio, .audio-btn, .move-arrow,
@@ -2734,18 +2886,28 @@
         min-height: 44px;
         min-width: 44px;
       }
-
       .version-add-btn { width: 44px; height: 44px; }
+
+      /* Song picker dropdown full width on mobile */
+      #songPickerDropdown {
+        left: -60px !important;
+        min-width: calc(100vw - 32px) !important;
+        max-width: calc(100vw - 32px) !important;
+      }
     }
 
+    /* Small phones (<480px) */
     @media (max-width: 480px) {
-      .topbar-right { gap: 4px; }
-      .btn-split, .btn-audio { display: none; }
-      .voice-switcher { display: none; }
-      .logo { font-size: 18px; }
+      .topbar { padding: 6px 8px; gap: 6px; }
+      .topbar-right { gap: 2px; }
+      .logo { font-size: 15px; }
+      #songTitle { font-size: 14px; }
       .section-title { font-size: 20px; }
       .line-input { font-size: 18px; line-height: 32px; }
       .lyric-line { min-height: 32px; }
+      .editor-area { padding: 12px 10px 28px; }
+      .canvas-header { padding: 10px 10px 8px; }
+      #settingsWrap .btn-ghost { padding: 5px 6px; font-size: 14px; }
     }
 
     /* ── Auth bar ──────────────────────────────────── */
@@ -2956,6 +3118,9 @@
 <!-- Config bar removed — key is server-side -->
 <!-- Top Bar -->
 <nav class="topbar" aria-label="Song toolbar">
+  <button class="hamburger" id="hamburgerBtn" onclick="toggleMobileMenu()" aria-label="Open menu">
+    <span></span><span></span><span></span>
+  </button>
   <div class="logo">
     <div class="logo-mark">✦</div>
     Carmen
@@ -3070,6 +3235,31 @@
     <button class="btn-primary" id="saveBtn" onclick="saveSong()" style="display:none">Save</button>
   </div>
 </nav>
+
+<!-- Mobile slide-out menu -->
+<div class="mobile-overlay" id="mobileOverlay" onclick="toggleMobileMenu()"></div>
+<div class="mobile-menu" id="mobileMenu">
+  <div class="mobile-menu-header">
+    <span class="logo" style="font-size:16px;">✦ Carmen</span>
+    <button class="mobile-menu-close" onclick="toggleMobileMenu()">×</button>
+  </div>
+  <div class="mobile-menu-section" id="mobileSongPicker">
+    <div class="mobile-menu-label">Songs</div>
+    <div id="mobileSongList"></div>
+    <button class="add-section-btn" onclick="addSection();toggleMobileMenu();" style="margin:8px 0;">+ Add Section</button>
+  </div>
+  <div class="mobile-menu-section" id="mobileSections">
+    <div class="mobile-menu-label">Sections</div>
+    <ul class="section-list" id="mobileSectionList"></ul>
+  </div>
+  <div class="mobile-menu-section">
+    <div class="mobile-menu-label">Tools</div>
+    <button class="mobile-menu-item" onclick="toggleAudioBar();toggleMobileMenu();">⏺ Player / Recorder</button>
+    <button class="mobile-menu-item" onclick="toggleSplit();toggleMobileMenu();">⊞ Split View</button>
+    <button class="mobile-menu-item" onclick="triggerImport();toggleMobileMenu();">↑ Import</button>
+    <button class="mobile-menu-item" onclick="toggleExportMenu();toggleMobileMenu();">↓ Export</button>
+  </div>
+</div>
 
 <!-- Audio Player Bar -->
 <div id="audioBar">
@@ -7876,6 +8066,37 @@ saveSong = function() {
   // This just sets up the initial empty state.
   // Migration from localStorage happens in the Firestore auth handler.
 })();
+
+// ── Mobile menu ──────────────────────────────────
+var mobileMenuOpen = false;
+function toggleMobileMenu() {
+  mobileMenuOpen = !mobileMenuOpen;
+  document.getElementById('hamburgerBtn').classList.toggle('open', mobileMenuOpen);
+  document.getElementById('mobileOverlay').classList.toggle('open', mobileMenuOpen);
+  document.getElementById('mobileMenu').classList.toggle('open', mobileMenuOpen);
+  document.body.style.overflow = mobileMenuOpen ? 'hidden' : '';
+  if (mobileMenuOpen) syncMobileSections();
+}
+
+function syncMobileSections() {
+  // Clone sidebar section list into mobile menu
+  var src = document.getElementById('sectionList');
+  var dst = document.getElementById('mobileSectionList');
+  if (!src || !dst) return;
+  dst.innerHTML = '';
+  var items = src.querySelectorAll('.section-item');
+  items.forEach(function(item, i) {
+    var btn = document.createElement('button');
+    btn.className = 'mobile-menu-item';
+    btn.textContent = (item.querySelector('.section-label') || {}).textContent || ('Section ' + (i+1));
+    if (item.classList.contains('active')) btn.style.color = 'var(--amber)';
+    btn.onclick = function() {
+      if (typeof selectSection === 'function') selectSection(i);
+      toggleMobileMenu();
+    };
+    dst.appendChild(btn);
+  });
+}
 </script>
 <script src="/audio.js"></script>
 <script src="/recording.js"></script>
