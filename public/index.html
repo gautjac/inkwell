@@ -3678,6 +3678,7 @@ var AI_TOOLS = [
   }
 ];
 
+
 // ══════════════════════════════════════════════════
 // ONBOARDING — Writer Soul Wizard
 // ══════════════════════════════════════════════════
@@ -3920,7 +3921,7 @@ let _songLib = {};
 let _profiles = {};
 let _activeProfileId = '';
 let _scratchAll = {};
-let _prefs = { onboarded: false, lang: 'en', currentSongId: null, moods: null };
+let _prefs = { onboarded: false, lang: 'en', currentSongId: null, moods: null, audioBarVisible: false, audioLoopOn: false, loopStartPct: 0.25, loopEndPct: 0.75 };
 let _firestoreDb = null;
 let _currentUser = null;
 let _syncTimers = {};
@@ -8388,6 +8389,17 @@ function syncMobileSections() {
     // Restore layout state
     if (_prefs.splitOpen) toggleSplit(true);
     if (_prefs.ovTwoCol) toggleOvColumns();
+
+    // Restore audio bar state
+    if (_prefs.audioBarVisible) {
+      const bar = document.getElementById('audioBar');
+      if (bar) {
+        bar.classList.add('visible');
+        audioBarVisible = true;
+      }
+    }
+    // Restore loop state (will be applied when audio is loaded)
+    if (typeof audioLoopOn !== 'undefined') audioLoopOn = !!_prefs.audioLoopOn;
 
     // Show onboarding if never completed
     if (!_prefs.onboarded) {

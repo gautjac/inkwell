@@ -14,14 +14,66 @@ let rafId = null;
 let waveformData = null;
 let audioBarVisible = false;
 
+// ── Prefs sync helper ───────────────────────────────
+function saveLoopPrefs() {
+  if (typeof _prefs !== 'undefined' && typeof _savePrefs === 'function' && audioDuration > 0) {
+    _prefs.loopStartPct = loopStart / audioDuration;
+    _prefs.loopEndPct = loopEnd / audioDuration;
+    _savePrefs();
+  }
+}
+
 // ── Bar toggle ────────────────────────────────────
 function toggleAudioBar() {
   audioBarVisible = !audioBarVisible;
   document.getElementById('audioBar').classList.toggle('visible', audioBarVisible);
   document.getElementById('audioToggleBtn').classList.toggle('has-audio', audioBarVisible && !!audioBuffer);
+  // Save audio bar visibility to prefs
+  if (typeof _prefs !== 'undefined' && typeof _savePrefs === 'function') {
+    _prefs.audioBarVisible = audioBarVisible;
+    _savePrefs();
+  }
 }
 
 // ── Load ──────────────────────────────────────────
+// Load a decoded AudioBuffer directly (used by recording.js)
+function loadAudioBuffer(buffer, label) {
+  if (!audioCtx) audioCtx = new AudioContext();
+  stopPlayback();
+  audioBuffer = buffer;
+  audioDuration = buffer.duration;
+  audioOffset = 0;
+  // Restore loop region from prefs if available, else default to 25%-75%
+  const startPct = (typeof _prefs !== 'undefined' && _prefs.loopStartPct != null) ? _prefs.loopStartPct : 0.25;
+  const endPct = (typeof _prefs !== 'undefined' && _prefs.loopEndPct != null) ? _prefs.loopEndPct : 0.75;
+  loopStart = audioDuration * startPct;
+  loopEnd   = audioDuration * endPct;
+  // Restore loop on/off state from prefs
+  audioLoopOn = (typeof _prefs !== 'undefined' && _prefs.audioLoopOn) ? true : false;
+  const fnEl = document.getElementById('audioFilename');
+  if (fnEl) { fnEl.textContent = label || 'Recording'; fnEl.style.display = 'block'; }
+  const wsEl = document.getElementById('waveformSection');
+  if (wsEl) wsEl.style.display = 'block';
+  const tdEl = document.getElementById('audioTimeDisplay');
+  if (tdEl) tdEl.style.display = 'block';
+  const toggleBtn = document.getElementById('audioToggleBtn');
+  if (toggleBtn) toggleBtn.classList.add('has-audio');
+  const loopTag = document.getElementById('loopToggleTag');
+  if (loopTag) {
+    loopTag.textContent = audioLoopOn ? '⟲ Loop on' : '⟲ Loop off';
+    loopTag.classList.toggle('loop-on', audioLoopOn);
+  }
+  // Show the audio bar if hidden
+  const bar = document.getElementById('audioBar');
+  if (bar && !bar.classList.contains('visible')) {
+    bar.classList.add('visible');
+    audioBarVisible = true;
+  }
+  drawWaveform();
+  renderLoop();
+  updateTimeDisplay(0);
+}
+
 function loadAudioFile(input) {
   const file = input.files[0];
   if (!file) return;
@@ -33,9 +85,13 @@ function loadAudioFile(input) {
       audioBuffer = buffer;
       audioDuration = buffer.duration;
       audioOffset = 0;
-      loopStart = audioDuration * 0.25;
-      loopEnd   = audioDuration * 0.75;
-      audioLoopOn = false;
+      // Restore loop region from prefs if available, else default to 25%-75%
+      const startPct = (typeof _prefs !== 'undefined' && _prefs.loopStartPct != null) ? _prefs.loopStartPct : 0.25;
+      const endPct = (typeof _prefs !== 'undefined' && _prefs.loopEndPct != null) ? _prefs.loopEndPct : 0.75;
+      loopStart = audioDuration * startPct;
+      loopEnd   = audioDuration * endPct;
+      // Restore loop on/off state from prefs
+      audioLoopOn = (typeof _prefs !== 'undefined' && _prefs.audioLoopOn) ? true : false;
       const fnEl = document.getElementById('audioFilename');
       if (fnEl) { fnEl.textContent = file.name.replace(/\\.[^.]+$/, ''); fnEl.style.display = 'block'; }
       const wsEl = document.getElementById('waveformSection');
@@ -43,8 +99,9 @@ function loadAudioFile(input) {
       const tdEl = document.getElementById('audioTimeDisplay');
       if (tdEl) tdEl.style.display = 'block';
       document.getElementById('audioToggleBtn').classList.add('has-audio');
-      document.getElementById('loopToggleTag').textContent = '⟲ Loop off';
-      document.getElementById('loopToggleTag').classList.remove('loop-on');
+      const loopTag = document.getElementById('loopToggleTag');
+      loopTag.textContent = audioLoopOn ? '⟲ Loop on' : '⟲ Loop off';
+      loopTag.classList.toggle('loop-on', audioLoopOn);
       drawWaveform();
       renderLoop();
       updateTimeDisplay(0);
@@ -250,6 +307,11 @@ function toggleLoop() {
   renderLoop();
   paintWaveform(getPos());
   if (audioPlaying) startPlayback(getPos());
+  // Save loop state to prefs
+  if (typeof _prefs !== 'undefined' && typeof _savePrefs === 'function') {
+    _prefs.audioLoopOn = audioLoopOn;
+    _savePrefs();
+  }
 }
 
 function clearLoop() {
@@ -315,6 +377,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (loopEnd - loopStart < 0.25) { loopEnd = Math.min(audioDuration, loopStart + 0.5); }
       renderLoop();
       if (audioPlaying && audioLoopOn) startPlayback(loopStart);
+      saveLoopPrefs();
     }
   });
 
@@ -355,6 +418,7 @@ document.addEventListener('DOMContentLoaded', () => {
         active = false; document.body.style.cursor = '';
         setTimeout(() => { interacting = false; }, 50);
         if (audioPlaying && audioLoopOn) startPlayback(loopStart);
+        saveLoopPrefs();
       }
     });
   }
@@ -388,6 +452,7 @@ document.addEventListener('DOMContentLoaded', () => {
       regActive = false; document.body.style.cursor = '';
       setTimeout(() => { interacting = false; }, 50);
       if (audioPlaying && audioLoopOn) startPlayback(loopStart);
+      saveLoopPrefs();
     }
   });
 
@@ -406,7 +471,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // ════════════════════════════════════════════════
 
 const REC_JS = `
-let _aeRec = null;
+let mediaRecorder = null;
 let recChunks = [];
 let recStartTime = 0;
 let recTimerInterval = null;
@@ -459,7 +524,7 @@ async function deleteRecording(id) {
 
 // ── Recording ──────────────────────────────────────
 async function toggleRecording() {
-  if (_aeRec && _aeRec.state === 'recording') {
+  if (mediaRecorder && mediaRecorder.state === 'recording') {
     stopRecording();
   } else {
     startRecording();
@@ -476,10 +541,10 @@ async function startRecording() {
       ? 'audio/webm;codecs=opus'
       : MediaRecorder.isTypeSupported('audio/mp4') ? 'audio/mp4' : 'audio/webm';
 
-    _aeRec = new MediaRecorder(stream, { mimeType });
-    _aeRec.ondataavailable = e => { if (e.data.size > 0) recChunks.push(e.data); };
-    _aeRec.onstop = () => finalizeRecording(stream);
-    _aeRec.start(100);
+    mediaRecorder = new MediaRecorder(stream, { mimeType });
+    mediaRecorder.ondataavailable = e => { if (e.data.size > 0) recChunks.push(e.data); };
+    mediaRecorder.onstop = () => finalizeRecording(stream);
+    mediaRecorder.start(100);
 
     updateRecBtn(true);
     recTimerInterval = setInterval(updateRecTimer, 1000);
@@ -489,8 +554,8 @@ async function startRecording() {
 }
 
 function stopRecording() {
-  if (_aeRec && _aeRec.state === 'recording') {
-    _aeRec.stop();
+  if (mediaRecorder && mediaRecorder.state === 'recording') {
+    mediaRecorder.stop();
   }
   clearInterval(recTimerInterval);
   updateRecBtn(false);

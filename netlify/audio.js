@@ -14,11 +14,25 @@ let rafId = null;
 let waveformData = null;
 let audioBarVisible = false;
 
+// ── Prefs sync helper ───────────────────────────────
+function saveLoopPrefs() {
+  if (typeof _prefs !== 'undefined' && typeof _savePrefs === 'function' && audioDuration > 0) {
+    _prefs.loopStartPct = loopStart / audioDuration;
+    _prefs.loopEndPct = loopEnd / audioDuration;
+    _savePrefs();
+  }
+}
+
 // ── Bar toggle ────────────────────────────────────
 function toggleAudioBar() {
   audioBarVisible = !audioBarVisible;
   document.getElementById('audioBar').classList.toggle('visible', audioBarVisible);
   document.getElementById('audioToggleBtn').classList.toggle('has-audio', audioBarVisible && !!audioBuffer);
+  // Save audio bar visibility to prefs
+  if (typeof _prefs !== 'undefined' && typeof _savePrefs === 'function') {
+    _prefs.audioBarVisible = audioBarVisible;
+    _savePrefs();
+  }
 }
 
 // ── Load ──────────────────────────────────────────
@@ -29,9 +43,13 @@ function loadAudioBuffer(buffer, label) {
   audioBuffer = buffer;
   audioDuration = buffer.duration;
   audioOffset = 0;
-  loopStart = audioDuration * 0.25;
-  loopEnd   = audioDuration * 0.75;
-  audioLoopOn = false;
+  // Restore loop region from prefs if available, else default to 25%-75%
+  const startPct = (typeof _prefs !== 'undefined' && _prefs.loopStartPct != null) ? _prefs.loopStartPct : 0.25;
+  const endPct = (typeof _prefs !== 'undefined' && _prefs.loopEndPct != null) ? _prefs.loopEndPct : 0.75;
+  loopStart = audioDuration * startPct;
+  loopEnd   = audioDuration * endPct;
+  // Restore loop on/off state from prefs
+  audioLoopOn = (typeof _prefs !== 'undefined' && _prefs.audioLoopOn) ? true : false;
   const fnEl = document.getElementById('audioFilename');
   if (fnEl) { fnEl.textContent = label || 'Recording'; fnEl.style.display = 'block'; }
   const wsEl = document.getElementById('waveformSection');
@@ -41,7 +59,10 @@ function loadAudioBuffer(buffer, label) {
   const toggleBtn = document.getElementById('audioToggleBtn');
   if (toggleBtn) toggleBtn.classList.add('has-audio');
   const loopTag = document.getElementById('loopToggleTag');
-  if (loopTag) { loopTag.textContent = '⟲ Loop off'; loopTag.classList.remove('loop-on'); }
+  if (loopTag) {
+    loopTag.textContent = audioLoopOn ? '⟲ Loop on' : '⟲ Loop off';
+    loopTag.classList.toggle('loop-on', audioLoopOn);
+  }
   // Show the audio bar if hidden
   const bar = document.getElementById('audioBar');
   if (bar && !bar.classList.contains('visible')) {
@@ -64,9 +85,13 @@ function loadAudioFile(input) {
       audioBuffer = buffer;
       audioDuration = buffer.duration;
       audioOffset = 0;
-      loopStart = audioDuration * 0.25;
-      loopEnd   = audioDuration * 0.75;
-      audioLoopOn = false;
+      // Restore loop region from prefs if available, else default to 25%-75%
+      const startPct = (typeof _prefs !== 'undefined' && _prefs.loopStartPct != null) ? _prefs.loopStartPct : 0.25;
+      const endPct = (typeof _prefs !== 'undefined' && _prefs.loopEndPct != null) ? _prefs.loopEndPct : 0.75;
+      loopStart = audioDuration * startPct;
+      loopEnd   = audioDuration * endPct;
+      // Restore loop on/off state from prefs
+      audioLoopOn = (typeof _prefs !== 'undefined' && _prefs.audioLoopOn) ? true : false;
       const fnEl = document.getElementById('audioFilename');
       if (fnEl) { fnEl.textContent = file.name.replace(/\\.[^.]+$/, ''); fnEl.style.display = 'block'; }
       const wsEl = document.getElementById('waveformSection');
@@ -74,8 +99,9 @@ function loadAudioFile(input) {
       const tdEl = document.getElementById('audioTimeDisplay');
       if (tdEl) tdEl.style.display = 'block';
       document.getElementById('audioToggleBtn').classList.add('has-audio');
-      document.getElementById('loopToggleTag').textContent = '⟲ Loop off';
-      document.getElementById('loopToggleTag').classList.remove('loop-on');
+      const loopTag = document.getElementById('loopToggleTag');
+      loopTag.textContent = audioLoopOn ? '⟲ Loop on' : '⟲ Loop off';
+      loopTag.classList.toggle('loop-on', audioLoopOn);
       drawWaveform();
       renderLoop();
       updateTimeDisplay(0);
@@ -281,6 +307,11 @@ function toggleLoop() {
   renderLoop();
   paintWaveform(getPos());
   if (audioPlaying) startPlayback(getPos());
+  // Save loop state to prefs
+  if (typeof _prefs !== 'undefined' && typeof _savePrefs === 'function') {
+    _prefs.audioLoopOn = audioLoopOn;
+    _savePrefs();
+  }
 }
 
 function clearLoop() {
@@ -346,6 +377,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (loopEnd - loopStart < 0.25) { loopEnd = Math.min(audioDuration, loopStart + 0.5); }
       renderLoop();
       if (audioPlaying && audioLoopOn) startPlayback(loopStart);
+      saveLoopPrefs();
     }
   });
 
@@ -386,6 +418,7 @@ document.addEventListener('DOMContentLoaded', () => {
         active = false; document.body.style.cursor = '';
         setTimeout(() => { interacting = false; }, 50);
         if (audioPlaying && audioLoopOn) startPlayback(loopStart);
+        saveLoopPrefs();
       }
     });
   }
@@ -419,6 +452,7 @@ document.addEventListener('DOMContentLoaded', () => {
       regActive = false; document.body.style.cursor = '';
       setTimeout(() => { interacting = false; }, 50);
       if (audioPlaying && audioLoopOn) startPlayback(loopStart);
+      saveLoopPrefs();
     }
   });
 
