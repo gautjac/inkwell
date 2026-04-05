@@ -14,7 +14,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore-compat.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Jost:wght@300;400;500&family=Inter:wght@300;400;500;600&family=IBM+Plex+Mono:ital,wght@0,400;0,500;1,400&family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Jost:wght@300;400;500&family=Inter:wght@300;400;500;600&family=IBM+Plex+Mono:ital,wght@0,400;0,500;1,400&family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300;1,400&family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Source+Sans+3:wght@300;400;500;600&family=Nunito:wght@300;400;500;600&family=Raleway:wght@300;400;500;600&family=Bitter:ital,wght@0,400;0,500;1,400&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;600&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
 
   <style>
     :root {
@@ -108,6 +108,104 @@
       --shadow-sm:    rgba(0,0,0,0.3);
       --shadow-md:    rgba(0,0,0,0.5);
     }
+
+    /* Font theme: Custom — user-defined colors and fonts */
+    [data-font-theme="custom"] {
+      --font-logo:    var(--custom-font-display, 'Cinzel', serif);
+      --font-display: var(--custom-font-display, 'Cormorant Garamond', serif);
+      --font-body:    var(--custom-font-body, 'Jost', sans-serif);
+      --font-lyric:   var(--custom-font-lyric, 'Cormorant Garamond', serif);
+      --cream:        var(--custom-bg, #f2ece0);
+      --cream-light:  var(--custom-bg-light, #f8f4ed);
+      --cream-dark:   var(--custom-bg-dark, #e8dfd0);
+      --ink:          var(--custom-ink, #1a1510);
+      --ink-mid:      var(--custom-ink-mid, #3d3428);
+      --ink-soft:     var(--custom-ink-soft, #7a6d5e);
+      --ink-faint:    var(--custom-ink-faint, #b8a99a);
+      --amber:        var(--custom-accent, #c4602a);
+      --amber-soft:   var(--custom-accent-soft, #e0824e);
+      --amber-pale:   var(--custom-accent-pale, #f5dace);
+      --rule:         var(--custom-rule, #d5cbbf);
+    }
+
+    /* ── Theme Customizer Panel ───────────────────── */
+    .theme-customizer {
+      display: none;
+      padding: 12px 16px;
+      border-top: 1px solid var(--rule);
+      max-height: 380px;
+      overflow-y: auto;
+    }
+    .theme-customizer.visible { display: block; }
+    .theme-customizer-label {
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--ink-faint);
+      margin-bottom: 6px;
+      margin-top: 10px;
+    }
+    .theme-customizer-label:first-child { margin-top: 0; }
+    .theme-customizer-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+    .theme-customizer-row label {
+      font-size: 12px;
+      color: var(--ink-soft);
+      min-width: 70px;
+      font-family: var(--font-body);
+    }
+    .theme-color-input {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 32px;
+      height: 32px;
+      border: 1px solid var(--rule);
+      border-radius: 6px;
+      cursor: pointer;
+      padding: 2px;
+      background: var(--cream);
+    }
+    .theme-color-input::-webkit-color-swatch-wrapper { padding: 0; }
+    .theme-color-input::-webkit-color-swatch { border: none; border-radius: 4px; }
+    .theme-font-select {
+      flex: 1;
+      padding: 6px 8px;
+      font-size: 12px;
+      border: 1px solid var(--rule);
+      border-radius: 6px;
+      background: var(--cream);
+      color: var(--ink);
+      cursor: pointer;
+      font-family: var(--font-body);
+    }
+    .theme-font-select:focus { outline: none; border-color: var(--amber); }
+    .theme-font-preview {
+      font-size: 14px;
+      color: var(--ink-mid);
+      padding: 2px 0;
+    }
+    .theme-preset-row {
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+      margin-bottom: 8px;
+    }
+    .theme-preset-chip {
+      padding: 4px 10px;
+      font-size: 11px;
+      border: 1px solid var(--rule);
+      border-radius: 12px;
+      cursor: pointer;
+      background: var(--cream);
+      color: var(--ink-soft);
+      font-family: var(--font-body);
+      transition: all 0.15s;
+    }
+    .theme-preset-chip:hover { border-color: var(--ink-soft); }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -3230,6 +3328,82 @@
               <span style="font-family:'Cormorant Garamond',serif;font-size:14px;font-style:italic;color:#f0a050;">Aa</span>
               <span style="font-size:9px;color:#909090;">Night</span>
             </button>
+            <button onclick="setFontTheme('custom')" id="fontThemeCustom" class="font-theme-btn" title="Custom: your own colors and fonts" style="background:linear-gradient(135deg,#f0e6d4,#d4e6f0,#e6d4f0);border-color:#bbb;">
+              <span style="font-size:13px;">🎨</span>
+              <span style="font-size:9px;color:#555;">Custom</span>
+            </button>
+          </div>
+        </div>
+        <div class="theme-customizer" id="themeCustomizer">
+          <div class="theme-customizer-label">Color Palette Presets</div>
+          <div class="theme-preset-row">
+            <button class="theme-preset-chip" onclick="applyCustomPreset('warmCream')">Warm Cream</button>
+            <button class="theme-preset-chip" onclick="applyCustomPreset('coolSlate')">Cool Slate</button>
+            <button class="theme-preset-chip" onclick="applyCustomPreset('roseDusk')">Rose Dusk</button>
+            <button class="theme-preset-chip" onclick="applyCustomPreset('forest')">Forest</button>
+            <button class="theme-preset-chip" onclick="applyCustomPreset('midnight')">Midnight</button>
+            <button class="theme-preset-chip" onclick="applyCustomPreset('ocean')">Ocean</button>
+          </div>
+          <div class="theme-customizer-label">Colors</div>
+          <div class="theme-customizer-row">
+            <label>Background</label>
+            <input type="color" class="theme-color-input" id="customBgColor" value="#f2ece0" onchange="updateCustomTheme()">
+          </div>
+          <div class="theme-customizer-row">
+            <label>Text</label>
+            <input type="color" class="theme-color-input" id="customInkColor" value="#1a1510" onchange="updateCustomTheme()">
+          </div>
+          <div class="theme-customizer-row">
+            <label>Accent</label>
+            <input type="color" class="theme-color-input" id="customAccentColor" value="#c4602a" onchange="updateCustomTheme()">
+          </div>
+          <div class="theme-customizer-label">Fonts</div>
+          <div class="theme-customizer-row">
+            <label>Headings</label>
+            <select class="theme-font-select" id="customFontDisplay" onchange="updateCustomTheme()">
+              <option value="'Cinzel', serif">Cinzel</option>
+              <option value="'Playfair Display', serif">Playfair Display</option>
+              <option value="'Cormorant Garamond', serif">Cormorant Garamond</option>
+              <option value="'Lora', serif">Lora</option>
+              <option value="'Merriweather', serif">Merriweather</option>
+              <option value="'Libre Baskerville', serif">Libre Baskerville</option>
+              <option value="'Crimson Text', serif">Crimson Text</option>
+              <option value="'Inter', sans-serif">Inter</option>
+              <option value="'Raleway', sans-serif">Raleway</option>
+              <option value="'DM Sans', sans-serif">DM Sans</option>
+            </select>
+          </div>
+          <div class="theme-customizer-row">
+            <label>Body</label>
+            <select class="theme-font-select" id="customFontBody" onchange="updateCustomTheme()">
+              <option value="'Jost', sans-serif">Jost</option>
+              <option value="'Source Sans 3', sans-serif">Source Sans 3</option>
+              <option value="'Nunito', sans-serif">Nunito</option>
+              <option value="'Inter', sans-serif">Inter</option>
+              <option value="'DM Sans', sans-serif">DM Sans</option>
+              <option value="'Raleway', sans-serif">Raleway</option>
+              <option value="'Lora', serif">Lora</option>
+              <option value="'Merriweather', serif">Merriweather</option>
+              <option value="'Bitter', serif">Bitter</option>
+            </select>
+          </div>
+          <div class="theme-customizer-row">
+            <label>Lyrics</label>
+            <select class="theme-font-select" id="customFontLyric" onchange="updateCustomTheme()">
+              <option value="'Cormorant Garamond', serif">Cormorant Garamond</option>
+              <option value="'Playfair Display', serif">Playfair Display</option>
+              <option value="'Lora', serif">Lora</option>
+              <option value="'Crimson Text', serif">Crimson Text</option>
+              <option value="'Libre Baskerville', serif">Libre Baskerville</option>
+              <option value="'Merriweather', serif">Merriweather</option>
+              <option value="'IBM Plex Mono', monospace">IBM Plex Mono</option>
+              <option value="'Courier Prime', monospace">Courier Prime</option>
+              <option value="'Space Mono', monospace">Space Mono</option>
+              <option value="'Bitter', serif">Bitter</option>
+            </select>
+          </div>
+          <div id="customFontPreview" class="theme-font-preview" style="margin-top:8px;padding:8px;border:1px solid var(--rule);border-radius:6px;text-align:center;">
+            The quick brown fox jumps over the lazy dog
           </div>
         </div>
         <div onclick="editCurrentVoice();toggleSettingsMenu();" style="padding:10px 16px;cursor:pointer;font-size:13px;color:var(--ink-mid);font-family:var(--font-body);display:flex;align-items:center;gap:8px;border-top:1px solid var(--rule);" onmouseenter="this.style.background='var(--cream-dark)'" onmouseleave="this.style.background=''">
@@ -3310,7 +3484,12 @@
         <span style="font-family:'Cormorant Garamond',serif;font-size:14px;font-style:italic;color:#f0a050;">Aa</span>
         <span style="font-size:9px;color:#909090;">Night</span>
       </button>
+      <button onclick="setFontTheme('custom');this.parentElement.querySelectorAll('button').forEach(b=>b.style.borderColor='');this.style.borderColor='var(--amber)';" class="font-theme-btn" id="mobileFontCustom" style="flex:1;min-width:60px;background:linear-gradient(135deg,#f0e6d4,#d4e6f0,#e6d4f0);border-color:#bbb;">
+        <span style="font-size:13px;">🎨</span>
+        <span style="font-size:9px;color:#555;">Custom</span>
+      </button>
     </div>
+    <div class="theme-customizer" id="mobileThemeCustomizer" style="margin:0 -16px;padding:8px 16px;"></div>
     <button class="mobile-menu-item" onclick="setLang(getLang()==='fr'?'en':'fr');toggleMobileMenu();" id="mobileLangBtn">🌐 Language: English</button>
     <button class="mobile-menu-item" onclick="editCurrentVoice();toggleMobileMenu();">✎ Edit voice profile</button>
     <button class="mobile-menu-item" onclick="_prefs.onboarded=false;_savePrefs();startOnboarding();toggleMobileMenu();">↺ Restart onboarding</button>
@@ -7281,6 +7460,23 @@ function setFontTheme(theme) {
   document.querySelectorAll('.font-theme-btn').forEach(btn => btn.classList.remove('active'));
   const activeBtn = document.getElementById('fontTheme' + theme.charAt(0).toUpperCase() + theme.slice(1));
   if (activeBtn) activeBtn.classList.add('active');
+  // Also activate mobile button
+  const mobileBtn = document.getElementById('mobileFont' + theme.charAt(0).toUpperCase() + theme.slice(1));
+  if (mobileBtn) {
+    mobileBtn.parentElement.querySelectorAll('button').forEach(b => b.style.borderColor = '');
+    mobileBtn.style.borderColor = 'var(--amber)';
+  }
+  // Show/hide custom theme panel
+  if (theme === 'custom') {
+    showThemeCustomizer();
+    const ct = _prefs.customTheme || getDefaultCustomTheme();
+    applyCustomThemeVars(ct);
+  } else {
+    hideThemeCustomizer();
+    // Clear custom CSS vars when switching away
+    document.documentElement.style.removeProperty('--shadow-sm');
+    document.documentElement.style.removeProperty('--shadow-md');
+  }
   // Persist
   _prefs.fontTheme = theme;
   _savePrefs();
@@ -7289,12 +7485,292 @@ function setFontTheme(theme) {
 function loadFontTheme() {
   const theme = _prefs.fontTheme || 'classic';
   document.documentElement.setAttribute('data-font-theme', theme === 'classic' ? '' : theme);
+
+  // If custom theme, apply the saved custom CSS variables
+  if (theme === 'custom' && _prefs.customTheme) {
+    applyCustomThemeVars(_prefs.customTheme);
+  }
+
   // Update button states when settings menu opens
   setTimeout(() => {
     document.querySelectorAll('.font-theme-btn').forEach(btn => btn.classList.remove('active'));
     const activeBtn = document.getElementById('fontTheme' + theme.charAt(0).toUpperCase() + theme.slice(1));
     if (activeBtn) activeBtn.classList.add('active');
+
+    // Also update mobile button
+    const mobileBtn = document.getElementById('mobileFont' + theme.charAt(0).toUpperCase() + theme.slice(1));
+    if (mobileBtn) {
+      mobileBtn.parentElement.querySelectorAll('button').forEach(b => b.style.borderColor = '');
+      mobileBtn.style.borderColor = 'var(--amber)';
+    }
+
+    // Show customizer if custom theme is active
+    if (theme === 'custom') {
+      showThemeCustomizer();
+    }
   }, 0);
+}
+
+// ── Custom Theme System ─────────────────────────────
+const CUSTOM_THEME_FONTS = {
+  display: [
+    "'Cinzel', serif", "'Playfair Display', serif", "'Cormorant Garamond', serif",
+    "'Lora', serif", "'Merriweather', serif", "'Libre Baskerville', serif",
+    "'Crimson Text', serif", "'Inter', sans-serif", "'Raleway', sans-serif", "'DM Sans', sans-serif"
+  ],
+  body: [
+    "'Jost', sans-serif", "'Source Sans 3', sans-serif", "'Nunito', sans-serif",
+    "'Inter', sans-serif", "'DM Sans', sans-serif", "'Raleway', sans-serif",
+    "'Lora', serif", "'Merriweather', serif", "'Bitter', serif"
+  ],
+  lyric: [
+    "'Cormorant Garamond', serif", "'Playfair Display', serif", "'Lora', serif",
+    "'Crimson Text', serif", "'Libre Baskerville', serif", "'Merriweather', serif",
+    "'IBM Plex Mono', monospace", "'Courier Prime', monospace", "'Space Mono', monospace", "'Bitter', serif"
+  ]
+};
+
+const CUSTOM_PRESETS = {
+  warmCream:  { bg: '#f2ece0', ink: '#1a1510', accent: '#c4602a' },
+  coolSlate:  { bg: '#f0f2f5', ink: '#1e2a3a', accent: '#4a7caa' },
+  roseDusk:   { bg: '#f5eef0', ink: '#2d1f28', accent: '#b0546e' },
+  forest:     { bg: '#eef3eb', ink: '#1a2b1a', accent: '#4a7a4a' },
+  midnight:   { bg: '#111827', ink: '#e5e7eb', accent: '#818cf8' },
+  ocean:      { bg: '#0c1929', ink: '#d1e0f0', accent: '#38bdf8' },
+};
+
+function getDefaultCustomTheme() {
+  return {
+    bgColor: '#f2ece0', inkColor: '#1a1510', accentColor: '#c4602a',
+    fontDisplay: "'Cinzel', serif", fontBody: "'Jost', sans-serif", fontLyric: "'Cormorant Garamond', serif"
+  };
+}
+
+function hexToRgb(hex) {
+  const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
+  return {r,g,b};
+}
+
+function lighten(hex, amount) {
+  const {r,g,b} = hexToRgb(hex);
+  const lr = Math.min(255, r + Math.round((255-r)*amount));
+  const lg = Math.min(255, g + Math.round((255-g)*amount));
+  const lb = Math.min(255, b + Math.round((255-b)*amount));
+  return `#${lr.toString(16).padStart(2,'0')}${lg.toString(16).padStart(2,'0')}${lb.toString(16).padStart(2,'0')}`;
+}
+
+function darken(hex, amount) {
+  const {r,g,b} = hexToRgb(hex);
+  const dr = Math.max(0, Math.round(r*(1-amount)));
+  const dg = Math.max(0, Math.round(g*(1-amount)));
+  const db = Math.max(0, Math.round(b*(1-amount)));
+  return `#${dr.toString(16).padStart(2,'0')}${dg.toString(16).padStart(2,'0')}${db.toString(16).padStart(2,'0')}`;
+}
+
+function luminance(hex) {
+  const {r,g,b} = hexToRgb(hex);
+  return (0.299*r + 0.587*g + 0.114*b) / 255;
+}
+
+function applyCustomThemeVars(ct) {
+  const root = document.documentElement;
+  const isDark = luminance(ct.bgColor) < 0.4;
+
+  root.style.setProperty('--custom-bg', ct.bgColor);
+  root.style.setProperty('--custom-bg-light', isDark ? lighten(ct.bgColor, 0.1) : lighten(ct.bgColor, 0.3));
+  root.style.setProperty('--custom-bg-dark', isDark ? darken(ct.bgColor, 0.2) : darken(ct.bgColor, 0.1));
+  root.style.setProperty('--custom-ink', ct.inkColor);
+  root.style.setProperty('--custom-ink-mid', isDark ? darken(ct.inkColor, 0.15) : lighten(ct.inkColor, 0.25));
+  root.style.setProperty('--custom-ink-soft', isDark ? darken(ct.inkColor, 0.35) : lighten(ct.inkColor, 0.45));
+  root.style.setProperty('--custom-ink-faint', isDark ? darken(ct.inkColor, 0.55) : lighten(ct.inkColor, 0.65));
+  root.style.setProperty('--custom-accent', ct.accentColor);
+  root.style.setProperty('--custom-accent-soft', lighten(ct.accentColor, 0.3));
+  root.style.setProperty('--custom-accent-pale', isDark
+    ? `rgba(${hexToRgb(ct.accentColor).r},${hexToRgb(ct.accentColor).g},${hexToRgb(ct.accentColor).b},0.15)`
+    : lighten(ct.accentColor, 0.75));
+  root.style.setProperty('--custom-rule', isDark ? lighten(ct.bgColor, 0.15) : darken(ct.bgColor, 0.12));
+  root.style.setProperty('--custom-font-display', ct.fontDisplay);
+  root.style.setProperty('--custom-font-body', ct.fontBody);
+  root.style.setProperty('--custom-font-lyric', ct.fontLyric);
+
+  if (isDark) {
+    root.style.setProperty('--shadow-sm', 'rgba(0,0,0,0.3)');
+    root.style.setProperty('--shadow-md', 'rgba(0,0,0,0.5)');
+  }
+}
+
+function updateCustomTheme() {
+  const ct = {
+    bgColor:      document.getElementById('customBgColor').value,
+    inkColor:     document.getElementById('customInkColor').value,
+    accentColor:  document.getElementById('customAccentColor').value,
+    fontDisplay:  document.getElementById('customFontDisplay').value,
+    fontBody:     document.getElementById('customFontBody').value,
+    fontLyric:    document.getElementById('customFontLyric').value,
+  };
+
+  applyCustomThemeVars(ct);
+
+  // Update font preview
+  const preview = document.getElementById('customFontPreview');
+  if (preview) {
+    preview.style.fontFamily = ct.fontLyric;
+    preview.style.background = ct.bgColor;
+    preview.style.color = ct.inkColor;
+    preview.style.borderColor = ct.accentColor;
+  }
+
+  // Sync mobile customizer if it exists
+  syncCustomizerUI('mobileThemeCustomizer', ct);
+
+  // Persist
+  _prefs.customTheme = ct;
+  _savePrefs();
+}
+
+function syncCustomizerUI(containerId, ct) {
+  const container = document.getElementById(containerId);
+  if (!container || !container.querySelector('#customBgColor')) return;
+  // Only sync the other panel, not the one being edited
+}
+
+function populateCustomizer(containerId) {
+  const container = document.getElementById(containerId);
+  if (!container || container.dataset.populated) return;
+
+  const ct = _prefs.customTheme || getDefaultCustomTheme();
+
+  container.innerHTML = `
+    <div class="theme-customizer-label">Color Palette Presets</div>
+    <div class="theme-preset-row">
+      <button class="theme-preset-chip" onclick="applyCustomPreset('warmCream')">Warm Cream</button>
+      <button class="theme-preset-chip" onclick="applyCustomPreset('coolSlate')">Cool Slate</button>
+      <button class="theme-preset-chip" onclick="applyCustomPreset('roseDusk')">Rose Dusk</button>
+      <button class="theme-preset-chip" onclick="applyCustomPreset('forest')">Forest</button>
+      <button class="theme-preset-chip" onclick="applyCustomPreset('midnight')">Midnight</button>
+      <button class="theme-preset-chip" onclick="applyCustomPreset('ocean')">Ocean</button>
+    </div>
+    <div class="theme-customizer-label">Colors</div>
+    <div class="theme-customizer-row">
+      <label>Background</label>
+      <input type="color" class="theme-color-input" id="m_customBgColor" value="${ct.bgColor}" onchange="updateCustomThemeFromMobile()">
+    </div>
+    <div class="theme-customizer-row">
+      <label>Text</label>
+      <input type="color" class="theme-color-input" id="m_customInkColor" value="${ct.inkColor}" onchange="updateCustomThemeFromMobile()">
+    </div>
+    <div class="theme-customizer-row">
+      <label>Accent</label>
+      <input type="color" class="theme-color-input" id="m_customAccentColor" value="${ct.accentColor}" onchange="updateCustomThemeFromMobile()">
+    </div>
+    <div class="theme-customizer-label">Fonts</div>
+    <div class="theme-customizer-row">
+      <label>Headings</label>
+      <select class="theme-font-select" id="m_customFontDisplay" onchange="updateCustomThemeFromMobile()">
+        ${CUSTOM_THEME_FONTS.display.map(f => `<option value="${f}" ${f===ct.fontDisplay?'selected':''}>${f.split("'")[1]}</option>`).join('')}
+      </select>
+    </div>
+    <div class="theme-customizer-row">
+      <label>Body</label>
+      <select class="theme-font-select" id="m_customFontBody" onchange="updateCustomThemeFromMobile()">
+        ${CUSTOM_THEME_FONTS.body.map(f => `<option value="${f}" ${f===ct.fontBody?'selected':''}>${f.split("'")[1]}</option>`).join('')}
+      </select>
+    </div>
+    <div class="theme-customizer-row">
+      <label>Lyrics</label>
+      <select class="theme-font-select" id="m_customFontLyric" onchange="updateCustomThemeFromMobile()">
+        ${CUSTOM_THEME_FONTS.lyric.map(f => `<option value="${f}" ${f===ct.fontLyric?'selected':''}>${f.split("'")[1]}</option>`).join('')}
+      </select>
+    </div>
+  `;
+  container.dataset.populated = 'true';
+}
+
+function updateCustomThemeFromMobile() {
+  const ct = {
+    bgColor:      document.getElementById('m_customBgColor').value,
+    inkColor:     document.getElementById('m_customInkColor').value,
+    accentColor:  document.getElementById('m_customAccentColor').value,
+    fontDisplay:  document.getElementById('m_customFontDisplay').value,
+    fontBody:     document.getElementById('m_customFontBody').value,
+    fontLyric:    document.getElementById('m_customFontLyric').value,
+  };
+  applyCustomThemeVars(ct);
+
+  // Sync desktop inputs
+  document.getElementById('customBgColor').value = ct.bgColor;
+  document.getElementById('customInkColor').value = ct.inkColor;
+  document.getElementById('customAccentColor').value = ct.accentColor;
+  document.getElementById('customFontDisplay').value = ct.fontDisplay;
+  document.getElementById('customFontBody').value = ct.fontBody;
+  document.getElementById('customFontLyric').value = ct.fontLyric;
+
+  const preview = document.getElementById('customFontPreview');
+  if (preview) {
+    preview.style.fontFamily = ct.fontLyric;
+    preview.style.background = ct.bgColor;
+    preview.style.color = ct.inkColor;
+    preview.style.borderColor = ct.accentColor;
+  }
+
+  _prefs.customTheme = ct;
+  _savePrefs();
+}
+
+function applyCustomPreset(name) {
+  const preset = CUSTOM_PRESETS[name];
+  if (!preset) return;
+
+  // Update desktop color inputs
+  document.getElementById('customBgColor').value = preset.bg;
+  document.getElementById('customInkColor').value = preset.ink;
+  document.getElementById('customAccentColor').value = preset.accent;
+
+  // Update mobile color inputs if populated
+  const mBg = document.getElementById('m_customBgColor');
+  if (mBg) {
+    mBg.value = preset.bg;
+    document.getElementById('m_customInkColor').value = preset.ink;
+    document.getElementById('m_customAccentColor').value = preset.accent;
+  }
+
+  updateCustomTheme();
+}
+
+function showThemeCustomizer() {
+  const ct = _prefs.customTheme || getDefaultCustomTheme();
+
+  // Set desktop input values
+  document.getElementById('customBgColor').value = ct.bgColor;
+  document.getElementById('customInkColor').value = ct.inkColor;
+  document.getElementById('customAccentColor').value = ct.accentColor;
+  document.getElementById('customFontDisplay').value = ct.fontDisplay;
+  document.getElementById('customFontBody').value = ct.fontBody;
+  document.getElementById('customFontLyric').value = ct.fontLyric;
+
+  const preview = document.getElementById('customFontPreview');
+  if (preview) {
+    preview.style.fontFamily = ct.fontLyric;
+    preview.style.background = ct.bgColor;
+    preview.style.color = ct.inkColor;
+    preview.style.borderColor = ct.accentColor;
+  }
+
+  // Show desktop customizer
+  const panel = document.getElementById('themeCustomizer');
+  if (panel) panel.classList.add('visible');
+
+  // Populate and show mobile customizer
+  populateCustomizer('mobileThemeCustomizer');
+  const mPanel = document.getElementById('mobileThemeCustomizer');
+  if (mPanel) mPanel.classList.add('visible');
+}
+
+function hideThemeCustomizer() {
+  const panel = document.getElementById('themeCustomizer');
+  if (panel) panel.classList.remove('visible');
+  const mPanel = document.getElementById('mobileThemeCustomizer');
+  if (mPanel) mPanel.classList.remove('visible');
 }
 
 function editCurrentVoice() {
