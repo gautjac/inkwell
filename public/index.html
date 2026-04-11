@@ -206,6 +206,23 @@
       transition: all 0.15s;
     }
     .theme-preset-chip:hover { border-color: var(--ink-soft); }
+    .fb-cat-btn, .fb-sev-btn {
+      padding: 7px 12px; font-size: 12px; border: 1px solid var(--rule);
+      border-radius: 18px; cursor: pointer; background: var(--cream);
+      color: var(--ink-soft); font-family: var(--font-body);
+      transition: all 0.15s;
+    }
+    .fb-cat-btn:hover, .fb-sev-btn:hover { border-color: var(--ink-soft); }
+    .fb-cat-btn.active, .fb-sev-btn.active {
+      background: var(--amber-pale); border-color: var(--amber); color: var(--amber);
+    }
+    .gated { opacity: 0.4; pointer-events: none; position: relative; }
+    .gated-click { cursor: pointer !important; pointer-events: auto !important; }
+    .saved-theme-chip { position: relative; padding-right: 20px; }
+    .saved-theme-chip .chip-delete { position:absolute;right:3px;top:50%;transform:translateY(-50%);font-size:9px;color:var(--ink-faint);cursor:pointer;display:none;line-height:1; }
+    .saved-theme-chip:hover .chip-delete { display:block; }
+    .saved-theme-chip .chip-delete:hover { color:var(--amber); }
+    .save-theme-name-input { width:100%;padding:6px 8px;font-size:12px;font-family:var(--font-body);border:1px solid var(--amber);border-radius:6px;background:var(--cream);color:var(--ink);outline:none; }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -451,6 +468,7 @@
     }
 
     .section-item.dragging { opacity: 0.5; cursor: grabbing; }
+    .section-item.drag-ready { border-color: var(--amber); box-shadow: 0 0 0 2px var(--amber-pale); cursor: grab; }
     .section-item.drag-over { border-top: 2px solid var(--amber); margin-top: -2px; }
 
     .section-item:hover:not(.active) { background: var(--cream-dark); }
@@ -1147,7 +1165,9 @@
       display: flex;
       flex-direction: column;
       gap: 6px;
-      flex-shrink: 0;
+      flex: 1;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
       border-bottom: 1px solid var(--rule);
     }
 
@@ -2483,6 +2503,125 @@
     .btn-audio:hover { border-color: var(--amber); color: var(--amber); }
     .btn-audio.has-audio { color: var(--sage); border-color: var(--sage-pale); }
 
+    /* ── Song Starter overlay ────────────────────── */
+    #songStarter {
+      position:fixed;inset:0;z-index:19000;
+      background:var(--cream);
+      display:flex;align-items:center;justify-content:center;
+      overflow-y:auto;
+    }
+    .ss-wrap {
+      width:100%;max-width:680px;
+      padding:48px 32px 40px;
+      animation:obIn 0.4s cubic-bezier(.22,1,.36,1) both;
+    }
+    .ss-header {
+      display:flex;align-items:center;justify-content:space-between;
+      margin-bottom:32px;
+    }
+    .ss-title {
+      font-family:var(--font-display);font-size:28px;color:var(--ink);
+    }
+    .ss-close {
+      background:none;border:none;font-size:22px;color:var(--ink-faint);
+      cursor:pointer;padding:4px 8px;transition:color .15s;
+    }
+    .ss-close:hover { color:var(--ink); }
+    .ss-grid {
+      display:grid;grid-template-columns:1fr 1fr;gap:14px;
+    }
+    @media(max-width:520px){ .ss-grid{grid-template-columns:1fr;} }
+    .ss-card {
+      padding:22px 20px;border:1px solid var(--rule);border-radius:12px;
+      cursor:pointer;background:var(--cream-light);transition:all .18s;
+    }
+    .ss-card:hover { border-color:var(--amber);box-shadow:0 4px 16px rgba(196,96,42,.1); }
+    .ss-card-icon { font-size:24px;margin-bottom:8px; }
+    .ss-card-title { font-family:var(--font-display);font-size:17px;color:var(--ink);margin-bottom:4px; }
+    .ss-card-desc { font-size:12px;color:var(--ink-soft);line-height:1.5; }
+    .ss-content { animation:obIn 0.3s cubic-bezier(.22,1,.36,1) both; }
+    .ss-back {
+      background:none;border:none;font-size:13px;color:var(--ink-faint);
+      cursor:pointer;margin-bottom:20px;font-family:var(--font-body);
+      transition:color .15s;
+    }
+    .ss-back:hover { color:var(--amber); }
+    .ss-subtitle {
+      font-family:var(--font-display);font-size:22px;color:var(--ink);margin-bottom:16px;
+    }
+    .ss-input {
+      width:100%;padding:12px 14px;font-size:14px;font-family:var(--font-body);
+      border:1px solid var(--rule);border-radius:8px;background:var(--cream-light);
+      color:var(--ink);outline:none;transition:border-color .15s;
+    }
+    .ss-input:focus { border-color:var(--amber); }
+    .ss-pills { display:flex;flex-wrap:wrap;gap:6px;margin:12px 0; }
+    .ss-pill {
+      padding:5px 12px;font-size:11px;border:1px solid var(--rule);border-radius:14px;
+      cursor:pointer;background:var(--cream);color:var(--ink-soft);
+      font-family:var(--font-body);transition:all .15s;
+    }
+    .ss-pill:hover { border-color:var(--ink-soft); }
+    .ss-pill.active { background:var(--amber-pale);border-color:var(--amber);color:var(--amber); }
+    .ss-result {
+      margin:20px 0;padding:24px;border:1px solid var(--rule);border-radius:10px;
+      background:var(--cream-light);font-family:var(--font-display);
+      font-size:19px;line-height:1.6;color:var(--ink);font-style:italic;
+      text-align:center;
+    }
+    .ss-seed-card {
+      padding:12px 14px;border:1px solid var(--rule);border-radius:8px;
+      margin-bottom:8px;background:var(--cream-light);
+    }
+    .ss-seed-label {
+      font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;
+      color:var(--ink-faint);margin-bottom:4px;
+    }
+    .ss-seed-text { font-family:var(--font-display);font-size:15px;color:var(--ink-mid);line-height:1.5; }
+    .ss-wordcloud { display:flex;flex-wrap:wrap;gap:8px;margin:16px 0;justify-content:center; }
+    .ss-word {
+      padding:6px 14px;border:1px solid var(--rule);border-radius:16px;
+      cursor:pointer;font-family:var(--font-body);font-size:13px;
+      color:var(--ink-mid);background:var(--cream);transition:all .15s;
+      user-select:none;
+    }
+    .ss-word:hover { border-color:var(--ink-soft); }
+    .ss-word.collected { background:var(--amber-pale);border-color:var(--amber);color:var(--amber); }
+    .ss-actions { display:flex;gap:10px;margin-top:20px;flex-wrap:wrap; }
+    .ss-btn-primary {
+      padding:10px 20px;font-size:13px;font-family:var(--font-body);
+      background:var(--amber);color:#fff;border:none;border-radius:8px;
+      cursor:pointer;transition:opacity .15s;
+    }
+    .ss-btn-primary:hover { opacity:.85; }
+    .ss-btn-primary:disabled { opacity:.4;cursor:default; }
+    .ss-btn-ghost {
+      padding:10px 20px;font-size:13px;font-family:var(--font-body);
+      background:none;color:var(--ink-soft);border:1px solid var(--rule);
+      border-radius:8px;cursor:pointer;transition:all .15s;
+    }
+    .ss-btn-ghost:hover { border-color:var(--ink-soft);color:var(--ink); }
+    .ss-footer {
+      margin-top:28px;text-align:center;
+    }
+    .ss-footer a {
+      font-size:12px;color:var(--ink-faint);cursor:pointer;
+      text-decoration:none;font-family:var(--font-body);transition:color .15s;
+    }
+    .ss-footer a:hover { color:var(--amber); }
+    .ss-loading {
+      text-align:center;padding:24px;color:var(--ink-faint);font-size:13px;
+    }
+    .ss-sub-grid { display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px; }
+    @media(max-width:520px){ .ss-sub-grid{grid-template-columns:1fr;} }
+    .ss-sub-card {
+      padding:14px 16px;border:1px solid var(--rule);border-radius:10px;
+      cursor:pointer;background:var(--cream-light);transition:all .15s;
+    }
+    .ss-sub-card:hover { border-color:var(--amber); }
+    .ss-sub-icon { font-size:18px;margin-bottom:4px; }
+    .ss-sub-title { font-size:13px;font-family:var(--font-body);color:var(--ink); }
+
     /* ── Onboarding overlay ──────────────────────── */
     #onboarding {
       position: fixed; inset: 0; z-index: 20000;
@@ -2533,12 +2672,13 @@
     .ftip-bubble {
       position: fixed;
       z-index: 902;
-      background: var(--ink);
-      color: var(--cream);
+      background: var(--cream-light);
+      color: var(--ink);
+      border: 1px solid var(--rule);
       border-radius: 12px;
       padding: 16px 18px;
       max-width: 260px;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+      box-shadow: 0 8px 32px var(--shadow-md);
       font-family: var(--font-body);
       font-size: 13px;
       line-height: 1.5;
@@ -2554,9 +2694,14 @@
       position: absolute;
       width: 10px;
       height: 10px;
-      background: var(--ink);
+      background: var(--cream-light);
+      border: 1px solid var(--rule);
       transform: rotate(45deg);
     }
+    .ftip-bubble.arrow-left::before  { border-right: none; border-top: none; }
+    .ftip-bubble.arrow-right::before { border-left: none; border-bottom: none; }
+    .ftip-bubble.arrow-top::before   { border-bottom: none; border-right: none; }
+    .ftip-bubble.arrow-bottom::before { border-top: none; border-left: none; }
     .ftip-bubble.arrow-left::before  { left: -5px; top: 20px; }
     .ftip-bubble.arrow-right::before { right: -5px; top: 20px; }
     .ftip-bubble.arrow-top::before   { top: -5px; left: 24px; }
@@ -2573,11 +2718,11 @@
       font-family: var(--font-display);
       font-size: 17px;
       font-weight: 600;
-      color: var(--cream);
+      color: var(--ink);
       margin-bottom: 5px;
     }
     .ftip-body {
-      color: rgba(248,244,237,0.75);
+      color: var(--ink-soft);
       font-size: 13px;
       line-height: 1.55;
       margin-bottom: 14px;
@@ -2604,13 +2749,13 @@
     .ftip-skip {
       background: none;
       border: none;
-      color: rgba(248,244,237,0.4);
+      color: var(--ink-faint);
       font-size: 12px;
       font-family: var(--font-body);
       cursor: pointer;
       text-decoration: underline;
     }
-    .ftip-skip:hover { color: rgba(248,244,237,0.7); }
+    .ftip-skip:hover { color: var(--ink-soft); }
 
     .ob-eyebrow {
       font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase;
@@ -2888,25 +3033,106 @@
 
     /* ── Responsive ──────────────────────────────── */
 
-    /* iPad landscape (1024–1199px) */
-    @media (max-width: 1199px) {
-      .sidebar { width: 170px; }
-      .ai-panel, .collect-panel { width: 260px; }
-      .topbar { padding: 10px 16px; gap: 12px; }
+    /* Overflow menu (hidden on desktop, shown on tablet) */
+    .topbar-overflow-btn { display: none; }
+    .topbar-overflow-menu {
+      display: none; position: absolute; top: calc(100% + 6px); right: 0;
+      background: var(--cream-light); border: 1px solid var(--rule); border-radius: 8px;
+      box-shadow: 0 8px 24px var(--shadow-md); z-index: 1000; min-width: 160px;
+      overflow: hidden; animation: obIn 0.15s cubic-bezier(.22,1,.36,1) both;
+    }
+    .topbar-overflow-menu .overflow-item {
+      padding: 10px 16px; cursor: pointer; font-size: 13px; color: var(--ink-mid);
+      font-family: var(--font-body); display: flex; align-items: center; gap: 8px;
+      min-height: 44px;
+    }
+    .topbar-overflow-menu .overflow-item:hover { background: var(--cream-dark); }
+    .topbar-overflow-menu .overflow-item + .overflow-item { border-top: 1px solid var(--rule); }
 
-      /* Touch targets for iPad */
+    /* Sidebar overlay backdrop */
+    .sidebar-backdrop {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.3);
+      z-index: 499; backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px);
+    }
+    .sidebar-backdrop.open { display: block; }
+
+    /* Meta chips toggle */
+    .meta-chips-toggle { display: none; }
+
+    /* Tablet large landscape (≤1399px) — iPad Pro 13" landscape, etc. */
+    @media (max-width: 1399px) {
+      .topbar { padding: 10px 16px; gap: 10px; }
+      .topbar .topbar-right .btn-ghost { font-size: 12px; padding: 5px 8px; }
+
+      /* Smaller fonts in editor and overview for tablet */
+      .line-input { font-size: 16px; line-height: 26px; height: 26px; padding: 0; margin: 0; }
+      .lyric-line { min-height: 26px; height: 26px; align-items: center; gap: 6px; padding: 0 4px 0 0; }
+      .lyric-line .line-num { font-size: 9px; width: 18px; padding: 0; }
+      .syl-count { padding: 0; font-size: 9px; line-height: 26px; }
+      .ai-badge { padding: 0; line-height: 26px; }
+      .line-move-arrows { display: none; }
+      /* Move FABs up to avoid iPad bottom bar */
+      .ai-fab { bottom: 90px; }
+      .intensifiers-fab { bottom: 150px; }
+      /* Match suggestion text to editor/overview */
+      .ai-suggestion-text { font-size: 16px; line-height: 1.5; }
+      .ai-suggestion { padding: 8px 10px; margin-bottom: 5px; }
+      .cp-suggestions-body { font-size: 16px; }
+      /* Remove ruled paper and margin line on tablet */
+      .editor-area::before, .editor-area::after { display: none; }
+      .line-num { padding-top: 0; }
+      .syl-count { padding-top: 0; line-height: 28px; }
+      .ai-badge { padding-top: 0; }
+      .ov-line { font-size: 16px; line-height: 1.5; }
+      .section-title { font-size: 20px; }
+
+      /* Hide meta chips by default, show toggle */
+      .meta-chips { display: none; }
+      .meta-chips.expanded { display: flex; }
+      .meta-chips-toggle { display: flex; }
+
+      /* Hide split button on tablet (accessible via settings) */
+      .btn-split { display: none; }
+
+      /* Touch targets */
       .chip, .btn-ghost, .btn-split, .btn-audio, .audio-btn, .move-arrow,
       .scratch-item-btn, .phrase-btn, .version-tab, .version-add-btn {
-        min-height: 44px;
-        min-width: 44px;
+        min-height: 44px; min-width: 44px;
       }
     }
 
-    /* iPad portrait (768–1023px) */
-    @media (max-width: 1023px) {
-      .sidebar { width: 160px; }
-      .meta-chips { display: none; }
-      .btn-split { display: none; }
+    /* Tablet (≤1199px) — sidebar overlay + panels overlay */
+    @media (max-width: 1199px) {
+      .sidebar {
+        position: fixed; left: 0; top: 0; bottom: 0; z-index: 500;
+        width: 220px; transform: translateX(-100%);
+        transition: transform 0.28s cubic-bezier(.22,1,.36,1);
+        box-shadow: 4px 0 24px var(--shadow-md);
+      }
+      .sidebar.sidebar-open { transform: translateX(0); }
+
+      /* Section title becomes tappable to open sidebar */
+      .section-title { cursor: pointer; }
+      .section-title::before { content: '☰ '; font-size: 14px; color: var(--ink-faint); }
+
+      /* Compact sidebar items */
+      .section-list li { padding: 6px 8px; font-size: 12px; }
+      .section-list li .section-badge-count { display: none; }
+
+      /* AI & Collect panels as overlays */
+      .ai-panel {
+        position: fixed; right: 0; top: 0; bottom: 0;
+        z-index: 500; width: 300px; max-width: 50vw;
+        box-shadow: -4px 0 24px var(--shadow-md);
+      }
+      .ai-panel.collapsed { width: 0; border-left-width: 0; }
+      .collect-panel {
+        position: fixed; right: 0; top: 0; bottom: 0;
+        z-index: 499; width: 300px; max-width: 50vw;
+        box-shadow: -4px 0 24px var(--shadow-md);
+      }
+      .collect-panel.collapsed { width: 0; border-left-width: 0; }
+
       .topbar { padding: 10px 14px; gap: 10px; }
       #songTitle { font-size: 16px; min-width: 80px; }
       .canvas-header { padding: 14px 16px 10px; flex-wrap: wrap; }
@@ -2914,20 +3140,6 @@
       .ob-wrap { padding: 32px 18px 48px; }
       .ob-choices { grid-template-columns: 1fr 1fr; }
       .ob-choices.cols-3 { grid-template-columns: 1fr 1fr; }
-
-      /* AI & Collect panels as overlays on iPad portrait */
-      .ai-panel {
-        position: fixed; right: 0; top: 0; bottom: 0;
-        z-index: 500; width: 300px; max-width: 45vw;
-        box-shadow: -4px 0 24px var(--shadow-md);
-      }
-      .ai-panel.collapsed { width: 0; border-left-width: 0; }
-      .collect-panel {
-        position: fixed; right: 0; top: 0; bottom: 0;
-        z-index: 499; width: 300px; max-width: 45vw;
-        box-shadow: -4px 0 24px var(--shadow-md);
-      }
-      .collect-panel.collapsed { width: 0; border-left-width: 0; }
     }
 
     /* Mobile (<768px) */
@@ -2988,8 +3200,8 @@
       .fork-btn { margin-left: 0; }
 
       /* Bigger FABs for touch */
-      .ai-fab { width: 52px; height: 52px; font-size: 20px; right: 14px; bottom: 14px; }
-      .intensifiers-fab { width: 48px; height: 48px; bottom: 74px; right: 14px; }
+      .ai-fab { width: 52px; height: 52px; font-size: 20px; right: 14px; bottom: 100px; }
+      .intensifiers-fab { width: 48px; height: 48px; bottom: 164px; right: 14px; }
 
       /* Audio bar compact */
       #audioBar { padding: 8px 12px; }
@@ -3248,6 +3460,21 @@
   </div>
 </div>
 
+<!-- Song Starter overlay -->
+<div id="songStarter" style="display:none" role="dialog" aria-label="Song Starter">
+  <div class="ss-wrap">
+    <div class="ss-header">
+      <span class="ss-title" id="ssTitle">Song Starter</span>
+      <button class="ss-close" onclick="closeSongStarter()">&times;</button>
+    </div>
+    <div id="ssMenu"></div>
+    <div id="ssContent" style="display:none"></div>
+    <div class="ss-footer">
+      <button id="ssBlankBtn" class="ss-btn-ghost" onclick="closeSongStarter();createNewSong();" style="width:100%;max-width:320px;margin:0 auto;display:block;padding:12px 20px;">&#x1F4C4; Start with a blank page</button>
+    </div>
+  </div>
+</div>
+
 <!-- Config bar removed — key is server-side -->
 <!-- Top Bar -->
 <nav class="topbar" aria-label="Song toolbar">
@@ -3265,6 +3492,7 @@
     <div id="songPickerDropdown" style="display:none;position:absolute;top:calc(100% + 8px);left:0;background:var(--cream-light);border:1px solid var(--rule);border-radius:10px;box-shadow:0 10px 30px var(--shadow-md);z-index:1001;min-width:300px;max-width:380px;max-height:480px;overflow-y:auto;animation:obIn 0.15s cubic-bezier(.22,1,.36,1) both;"></div>
   </div>
   <div class="divider-v"></div>
+  <button class="chip meta-chips-toggle" onclick="document.querySelector('.meta-chips').classList.toggle('expanded');this.textContent=document.querySelector('.meta-chips').classList.contains('expanded')?'▾ Meta':'▸ Meta'" title="Show/hide key, tempo, mood">▸ Meta</button>
   <div class="meta-chips">
     <button class="chip" id="chipKey" onclick="editMeta('key')">♩ Key of A</button>
     <button class="chip" id="chipTempo" onclick="editMeta('tempo')">↯ 92 BPM</button>
@@ -3280,36 +3508,21 @@
       </button>
       <div class="voice-dropdown" id="voiceDropdown" style="display:none"></div>
     </div>
+    <button class="btn-ghost" id="cowriterBtn" onclick="toggleAI()" title="AI Co-Writer" style="font-size:12px;padding:5px 10px;">✦ Co-Writer</button>
+    <button class="btn-split" id="splitBtn" onclick="toggleSplit()" title="Split screen: section + full song">⊞ Split</button>
     <button class="btn-audio" id="audioToggleBtn" onclick="toggleAudioBar()" title="Audio Player &amp; Recorder">⏺ Player / Recorder</button>
-    <button onclick="_toggleAudioHelp(event)" style="background:none;border:none;color:var(--ink-faint);font-size:13px;cursor:pointer;padding:2px 4px;line-height:1;margin-left:-4px;" title="How the player works">ⓘ</button>
-    <div id="audioHelpTooltip" style="display:none;position:absolute;z-index:500;top:48px;left:50%;transform:translateX(-50%);
-      background:var(--ink);color:var(--cream);border-radius:10px;padding:14px 16px;max-width:300px;width:90vw;
-      box-shadow:0 8px 32px rgba(0,0,0,0.25);font-family:'Jost',sans-serif;font-size:12px;line-height:1.6;">
-      <div style="font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:600;margin-bottom:8px;">Audio Player &amp; Recorder</div>
-      <div style="color:rgba(248,244,237,0.8);margin-bottom:10px;">Use this to write along with a backing track, or capture vocal ideas on the spot.</div>
-      <div style="display:flex;flex-direction:column;gap:7px;">
-        <div><span style="color:var(--amber);font-weight:600;">♫ Import track</span> — Load any audio file (MP3, WAV, M4A) as a backing track. The waveform appears so you can see the song structure at a glance.</div>
-        <div><span style="color:var(--amber);font-weight:600;">● Record</span> — Record vocal takes over the backing track (or silently). Each take is saved separately and can be replayed or deleted.</div>
-        <div><span style="color:var(--amber);font-weight:600;">Waveform</span> — Click anywhere to jump to that point. Drag the left/right handles to set a loop region.</div>
-        <div><span style="color:var(--amber);font-weight:600;">Loop</span> — Enable looping to repeat a section while you write or practice a line.</div>
-        <div><span style="color:var(--amber);font-weight:600;">Speed</span> — Slow the track down to 0.5× or 0.75× to work through a tricky section.</div>
-      </div>
-      <button onclick="document.getElementById('audioHelpTooltip').style.display='none';event.stopPropagation();" 
-        style="margin-top:12px;background:none;border:1px solid rgba(248,244,237,0.2);border-radius:6px;
-        color:rgba(248,244,237,0.5);font-size:11px;padding:4px 10px;cursor:pointer;font-family:'Jost',sans-serif;">
-        Got it
-      </button>
-    </div>
+    <button class="btn-ghost" id="langToggleBtn" onclick="setLang(getLang()==='fr'?'en':'fr');" title="Switch language" style="font-size:12px;padding:5px 10px;">FR</button>
+    <input type="file" id="importFileInput" accept=".txt,.md" multiple style="display:none" onchange="handleImportFiles(this.files)">
     <div style="position:relative;" id="settingsWrap">
       <button class="btn-ghost" onclick="toggleSettingsMenu()" title="Settings" style="font-size:15px;padding:5px 8px;">⚙︎</button>
       <div id="settingsMenu" style="display:none;position:absolute;top:calc(100% + 6px);right:0;
         background:var(--cream-light);border:1px solid var(--rule);border-radius:8px;
         box-shadow:0 8px 24px var(--shadow-md);z-index:1000;min-width:200px;overflow:hidden;animation:obIn 0.15s cubic-bezier(.22,1,.36,1) both;">
-        <div style="padding:10px 16px;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink-faint);border-bottom:1px solid var(--rule);">Settings</div>
-        <div onclick="setLang(getLang()==='fr'?'en':'fr');toggleSettingsMenu();" style="padding:10px 16px;cursor:pointer;font-size:13px;color:var(--ink-mid);font-family:var(--font-body);display:flex;align-items:center;gap:8px;" onmouseenter="this.style.background='var(--cream-dark)'" onmouseleave="this.style.background=''">
-          <span style="font-size:15px">🌐</span> <span id="settingsLangLabel">Language: English</span>
+        <div style="padding:10px 16px;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink-faint);border-bottom:1px solid var(--rule);display:flex;justify-content:space-between;align-items:center;">
+          <span>Settings</span>
+          <span id="planBadge" style="font-size:9px;letter-spacing:0.08em;padding:2px 8px;border:1px solid var(--rule);border-radius:10px;color:var(--ink-soft);cursor:default;"></span>
         </div>
-        <div style="padding:8px 16px;border-top:1px solid var(--rule);">
+        <div style="padding:8px 16px;">
           <div style="font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:8px;">Font Style</div>
           <div style="display:flex;gap:6px;flex-wrap:wrap;">
             <button onclick="setFontTheme('classic')" id="fontThemeClassic" class="font-theme-btn active" title="Classic: warm cream, editorial">
@@ -3344,6 +3557,8 @@
             <button class="theme-preset-chip" onclick="applyCustomPreset('midnight')">Midnight</button>
             <button class="theme-preset-chip" onclick="applyCustomPreset('ocean')">Ocean</button>
           </div>
+          <div class="theme-customizer-label" id="savedThemesLabel" style="display:none;">My Themes</div>
+          <div class="theme-preset-row" id="savedThemesRow"></div>
           <div class="theme-customizer-label">Colors</div>
           <div class="theme-customizer-row">
             <label>Background</label>
@@ -3405,42 +3620,28 @@
           <div id="customFontPreview" class="theme-font-preview" style="margin-top:8px;padding:8px;border:1px solid var(--rule);border-radius:6px;text-align:center;">
             The quick brown fox jumps over the lazy dog
           </div>
+          <button onclick="saveCustomTheme(this)" style="margin-top:10px;width:100%;padding:8px;font-size:12px;font-family:var(--font-body);background:var(--amber);color:#fff;border:none;border-radius:6px;cursor:pointer;transition:opacity .2s;">Save Theme</button>
         </div>
-        <div onclick="editCurrentVoice();toggleSettingsMenu();" style="padding:10px 16px;cursor:pointer;font-size:13px;color:var(--ink-mid);font-family:var(--font-body);display:flex;align-items:center;gap:8px;border-top:1px solid var(--rule);" onmouseenter="this.style.background='var(--cream-dark)'" onmouseleave="this.style.background=''">
-          <span style="font-size:15px">✎</span> Edit voice profile
+        <div id="settingsImportItem" onclick="toggleSettingsMenu();triggerImport();" style="padding:10px 16px;cursor:pointer;font-size:13px;color:var(--ink-mid);font-family:var(--font-body);display:flex;align-items:center;gap:8px;border-top:1px solid var(--rule);" onmouseenter="this.style.background='var(--cream-dark)'" onmouseleave="this.style.background=''">
+          <span style="font-size:15px">&#x2191;</span> <span data-label>Import</span>
         </div>
-        <div id="voiceLearningStatus" style="padding:10px 16px;border-top:1px solid var(--rule);font-size:12px;color:var(--ink-soft);">
-          <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
-            <span style="font-size:14px;">🧠</span>
-            <span>Voice Learning</span>
-          </div>
-          <div id="voiceLearningInfo" style="font-size:11px;color:var(--ink-faint);margin-left:20px;">Loading...</div>
-          <button onclick="reanalyzeCurrentVoice();" id="reanalyzeBtn" style="margin-top:8px;margin-left:20px;padding:4px 10px;font-size:11px;background:var(--cream);border:1px solid var(--rule);border-radius:4px;cursor:pointer;color:var(--ink-soft);display:none;" onmouseenter="this.style.borderColor='var(--amber)'" onmouseleave="this.style.borderColor='var(--rule)'">Re-analyze voice</button>
+        <div id="settingsExportTxtItem" onclick="toggleSettingsMenu();exportLyrics('txt');" style="padding:10px 16px;cursor:pointer;font-size:13px;color:var(--ink-mid);font-family:var(--font-body);display:flex;align-items:center;gap:8px;border-top:1px solid var(--rule);" onmouseenter="this.style.background='var(--cream-dark)'" onmouseleave="this.style.background=''">
+          <span style="font-size:15px">&#x1F4C4;</span> <span data-label>Export as Text</span>
         </div>
-        <div onclick="_prefs.onboarded=false;_savePrefs();startOnboarding();toggleSettingsMenu();" style="padding:10px 16px;cursor:pointer;font-size:13px;color:var(--ink-mid);font-family:var(--font-body);display:flex;align-items:center;gap:8px;border-top:1px solid var(--rule);" onmouseenter="this.style.background='var(--cream-dark)'" onmouseleave="this.style.background=''">
-          <span style="font-size:15px">↺</span> Restart onboarding
+        <div id="settingsExportMdItem" onclick="toggleSettingsMenu();exportLyrics('md');" style="padding:10px 16px;cursor:pointer;font-size:13px;color:var(--ink-mid);font-family:var(--font-body);display:flex;align-items:center;gap:8px;" onmouseenter="this.style.background='var(--cream-dark)'" onmouseleave="this.style.background=''">
+          <span style="font-size:15px">&#x2726;</span> <span data-label>Export as Markdown</span>
+        </div>
+        <div id="settingsExportPdfItem" onclick="toggleSettingsMenu();exportLyrics('pdf');" style="padding:10px 16px;cursor:pointer;font-size:13px;color:var(--ink-mid);font-family:var(--font-body);display:flex;align-items:center;gap:8px;" onmouseenter="this.style.background='var(--cream-dark)'" onmouseleave="this.style.background=''">
+          <span style="font-size:15px">&#x1F4D1;</span> <span data-label>Export as PDF</span>
+        </div>
+        <div id="settingsTourItem" onclick="_prefs.tourSeen=false;_savePrefs();toggleSettingsMenu();setTimeout(startFeatureTour,300);" style="padding:10px 16px;cursor:pointer;font-size:13px;color:var(--ink-mid);font-family:var(--font-body);display:flex;align-items:center;gap:8px;border-top:1px solid var(--rule);" onmouseenter="this.style.background='var(--cream-dark)'" onmouseleave="this.style.background=''">
+          <span style="font-size:15px">&#x1F9ED;</span> <span data-label>Feature tour</span>
+        </div>
+        <div id="settingsFeedbackItem" onclick="toggleSettingsMenu();openFeedbackModal();" style="padding:10px 16px;cursor:pointer;font-size:13px;color:var(--ink-mid);font-family:var(--font-body);display:flex;align-items:center;gap:8px;border-top:1px solid var(--rule);" onmouseenter="this.style.background='var(--cream-dark)'" onmouseleave="this.style.background=''">
+          <span style="font-size:15px">&#x1F4AC;</span> <span data-label>Send feedback</span>
         </div>
       </div>
     </div>
-    <button class="btn-split" id="splitBtn" onclick="toggleSplit()" title="Split screen: section + full song">⊞ Split</button>
-    <button class="btn-ghost" onclick="triggerImport()" id="importBtn" title="Import songs from iA Writer / Markdown files">Import</button>
-    <input type="file" id="importFileInput" accept=".txt,.md" multiple style="display:none" onchange="handleImportFiles(this.files)">
-    <div style="position:relative;" id="exportWrap">
-    <button class="btn-ghost" onclick="toggleExportMenu()" id="exportBtn">Export ▾</button>
-    <div id="exportMenu" style="display:none;position:absolute;top:calc(100% + 6px);right:0;
-      background:var(--cream-light);border:1px solid var(--rule);border-radius:8px;
-      box-shadow:0 8px 24px var(--shadow-md);z-index:1000;min-width:160px;overflow:hidden;animation:obIn 0.15s cubic-bezier(.22,1,.36,1) both;">
-      <div onclick="exportLyrics('txt')" style="padding:10px 16px;cursor:pointer;font-size:13px;color:var(--ink-mid);font-family:'Jost',sans-serif;display:flex;align-items:center;gap:8px;" onmouseenter="this.style.background='var(--cream-dark)'" onmouseleave="this.style.background=''">
-        <span style="font-size:15px">📄</span> Plain text
-      </div>
-      <div onclick="exportLyrics('md')" style="padding:10px 16px;cursor:pointer;font-size:13px;color:var(--ink-mid);font-family:'Jost',sans-serif;display:flex;align-items:center;gap:8px;border-top:1px solid var(--rule);" onmouseenter="this.style.background='var(--cream-dark)'" onmouseleave="this.style.background=''">
-        <span style="font-size:15px">✦</span> Markdown
-      </div>
-      <div onclick="exportLyrics('pdf')" style="padding:10px 16px;cursor:pointer;font-size:13px;color:var(--ink-mid);font-family:'Jost',sans-serif;display:flex;align-items:center;gap:8px;border-top:1px solid var(--rule);" onmouseenter="this.style.background='var(--cream-dark)'" onmouseleave="this.style.background=''">
-        <span style="font-size:15px">📑</span> PDF
-      </div>
-    </div>
-  </div>
     <button class="btn-primary" id="saveBtn" onclick="saveSong()" style="display:none">Save</button>
   </div>
 </nav>
@@ -3460,6 +3661,7 @@
   <div class="mobile-menu-section">
     <div class="mobile-menu-label">Tools</div>
     <button class="mobile-menu-item" onclick="toggleAI();toggleMobileMenu();">✦ AI Co-Writer</button>
+    <button class="mobile-menu-item" onclick="openSongStarter();toggleMobileMenu();">&#x2728; Song Starter</button>
     <button class="mobile-menu-item" onclick="toggleAudioBar();toggleMobileMenu();">⏺ Player / Recorder</button>
     <button class="mobile-menu-item" onclick="toggleSplit();toggleMobileMenu();">⊞ Split View</button>
     <button class="mobile-menu-item" onclick="triggerImport();toggleMobileMenu();">↑ Import</button>
@@ -3491,8 +3693,9 @@
     </div>
     <div class="theme-customizer" id="mobileThemeCustomizer" style="margin:0 -16px;padding:8px 16px;"></div>
     <button class="mobile-menu-item" onclick="setLang(getLang()==='fr'?'en':'fr');toggleMobileMenu();" id="mobileLangBtn">🌐 Language: English</button>
-    <button class="mobile-menu-item" onclick="editCurrentVoice();toggleMobileMenu();">✎ Edit voice profile</button>
-    <button class="mobile-menu-item" onclick="_prefs.onboarded=false;_savePrefs();startOnboarding();toggleMobileMenu();">↺ Restart onboarding</button>
+    <button class="mobile-menu-item" id="mobileEditVoiceBtn" onclick="editCurrentVoice();toggleMobileMenu();">✎ Edit voice profile</button>
+    <button class="mobile-menu-item" id="mobileTourBtn" onclick="_prefs.tourSeen=false;_savePrefs();toggleMobileMenu();setTimeout(startFeatureTour,300);">&#x1F9ED; Feature tour</button>
+    <button class="mobile-menu-item" id="mobileFeedbackBtn" onclick="toggleMobileMenu();openFeedbackModal();">&#x1F4AC; Send feedback</button>
   </div>
 </div>
 
@@ -3513,7 +3716,7 @@
     <div style="flex:1"></div>
 
     <!-- Rec controls always here -->
-    <button id="recBtn" class="audio-btn" onclick="toggleRecording()" title="Record a take"
+    <button id="recBtn" class="audio-btn" onclick="if(!_canUse('recording')){showUpgradePrompt('recording');return;}toggleRecording()" title="Record a take"
       style="font-size:11px;width:auto;padding:0 13px;height:32px;border-radius:20px;letter-spacing:0.03em;font-family:'Jost',sans-serif;">
       ● Record
     </button>
@@ -3573,13 +3776,14 @@
     <ul class="section-list" id="sectionList"></ul>
     <button class="add-section-btn" id="addSectionBtn" onclick="addSection()">+ Add Section</button>
   </aside>
+  <div class="sidebar-backdrop" id="sidebarBackdrop" onclick="toggleSidebar()"></div>
 
   <!-- Writing Canvas -->
   <main class="canvas-wrap" id="canvasWrap" aria-label="Lyric editor">
     <!-- Section editor pane (always visible) -->
     <div class="editor-pane" id="editorPane">
       <div class="canvas-header">
-        <div class="section-title" id="sectionTitle">—</div>
+        <div class="section-title" id="sectionTitle" onclick="if(window.innerWidth<=1199)toggleSidebar()">—</div>
         <div class="section-badge" id="sectionBadge">—</div>
         <div class="version-controls" id="versionControls" style="display:none;">
           <div class="version-tabs" id="versionTabs"></div>
@@ -3611,6 +3815,7 @@
         <span>Full Song</span>
         <div style="display:flex;align-items:center;gap:8px;">
           <span id="ovLineCount" style="font-size:10px;color:var(--ink-faint)"></span>
+          <button id="ovCopyBtn" class="ov-columns-btn" onclick="copyFullSong(this)" title="Copy full song to clipboard">Copy</button>
           <button id="ovColumnsBtn" class="ov-columns-btn" onclick="toggleOvColumns()" title="Toggle two-column layout">⊞</button>
         </div>
       </div>
@@ -3624,6 +3829,7 @@
       <div class="ai-dot"></div>
       <div class="ai-header-text">
         <div class="ai-title">Co-Writer</div>
+        <span id="aiRemainingBadge" style="font-size:10px;color:var(--ink-faint);font-family:var(--font-body);font-weight:400;margin-left:4px;"></span>
       </div>
       <button class="ai-close" onclick="toggleAI()" aria-label="Close AI panel">×</button>
     </div>
@@ -3665,6 +3871,38 @@
   </aside>
 
 </div>
+
+<script>
+// Instant theme restore from localStorage (runs before Firestore auth to prevent flash)
+(function() {
+  try {
+    var theme = localStorage.getItem('inkwell_fontTheme');
+    if (theme && theme !== 'classic') {
+      document.documentElement.setAttribute('data-font-theme', theme);
+      if (theme === 'custom') {
+        var ct = JSON.parse(localStorage.getItem('inkwell_customTheme') || 'null');
+        if (ct) {
+          var r = document.documentElement.style;
+          r.setProperty('--custom-bg', ct.bgColor);
+          r.setProperty('--custom-bg-light', ct.bgColor + 'e6');
+          r.setProperty('--custom-bg-dark', ct.bgColor);
+          r.setProperty('--custom-ink', ct.inkColor);
+          r.setProperty('--custom-ink-mid', ct.inkColor + 'cc');
+          r.setProperty('--custom-ink-soft', ct.inkColor + '99');
+          r.setProperty('--custom-ink-faint', ct.inkColor + '66');
+          r.setProperty('--custom-accent', ct.accentColor);
+          r.setProperty('--custom-accent-soft', ct.accentColor + 'cc');
+          r.setProperty('--custom-accent-pale', ct.accentColor + '44');
+          r.setProperty('--custom-rule', ct.inkColor + '33');
+          if (ct.fontDisplay) r.setProperty('--custom-font-display', ct.fontDisplay);
+          if (ct.fontBody) r.setProperty('--custom-font-body', ct.fontBody);
+          if (ct.fontLyric) r.setProperty('--custom-font-lyric', ct.fontLyric);
+        }
+      }
+    }
+  } catch(e) {}
+})();
+</script>
 
 <script>
 
@@ -4100,8 +4338,330 @@ let _songLib = {};
 let _profiles = {};
 let _activeProfileId = '';
 let _scratchAll = {};
-let _prefs = { onboarded: false, lang: 'en', currentSongId: null, moods: null, audioBarVisible: false, audioLoopOn: false, loopStartPct: 0.25, loopEndPct: 0.75 };
+let _prefs = { onboarded: false, lang: 'en', currentSongId: null, moods: null, audioBarVisible: false, audioLoopOn: false, loopStartPct: 0.25, loopEndPct: 0.75, plan: 'free', aiUsage: { count: 0, periodStart: new Date().toISOString().slice(0,7) } };
 let _firestoreDb = null;
+
+// ── Inline i18n helper for UI strings ───────────────
+function _tr(en, fr) {
+  try { return (typeof getLang === 'function' && getLang() === 'fr') ? fr : en; }
+  catch(e) { return en; }
+}
+
+// ── Plan / Tier System ───────────────────────────────
+const PLAN_LIMITS = { free: 50, creator: 500, pro: Infinity };
+const FEATURE_GATES = {
+  versioning:   ['creator', 'pro'],
+  recording:    ['creator', 'pro'],
+  customThemes: ['creator', 'pro'],
+  export:       ['creator', 'pro'],
+  multiProfile: ['creator', 'pro'],
+};
+function _getUpgradeMessages() {
+  return {
+    aiLimit:      { title: _tr('AI limit reached','Limite IA atteinte'), desc: _tr('You\u2019ve used all your AI generations this month. Upgrade for more.','Vous avez utilis\u00e9 toutes vos g\u00e9n\u00e9rations IA ce mois-ci. Passez \u00e0 un forfait sup\u00e9rieur pour plus.'), icon: '\u2728' },
+    versioning:   { title: _tr('Section Versioning','Versionnage de sections'), desc: _tr('Fork any section to try a different direction. Compare versions side by side. Keep what works.','Bifurquez une section pour essayer une autre direction. Comparez les versions c\u00f4te \u00e0 c\u00f4te. Gardez ce qui fonctionne.'), icon: '\u2442' },
+    recording:    { title: _tr('Audio Recorder','Enregistreur audio'), desc: _tr('Record melody ideas and vocal takes right alongside your lyrics. Import backing tracks.','Enregistrez des id\u00e9es m\u00e9lodiques et des prises vocales \u00e0 c\u00f4t\u00e9 de vos paroles. Importez des pistes d\u2019accompagnement.'), icon: '\u23FA' },
+    customThemes: { title: _tr('Custom Themes','Th\u00e8mes personnalis\u00e9s'), desc: _tr('Create your own color palette and font combinations. Name and save unlimited themes.','Cr\u00e9ez votre propre palette de couleurs et vos combinaisons de polices. Nommez et enregistrez des th\u00e8mes illimit\u00e9s.'), icon: '\u1F3A8' },
+    export:       { title: _tr('Export Lyrics','Exporter les paroles'), desc: _tr('Export your lyrics as plain text, Markdown, or PDF. Take your songs anywhere.','Exportez vos paroles en texte brut, Markdown ou PDF. Emportez vos chansons partout.'), icon: '\u2913' },
+    multiProfile: { title: _tr('Multiple Voice Profiles','Profils vocaux multiples'), desc: _tr('Create unlimited voice profiles for different writing styles or collaborators.','Cr\u00e9ez des profils vocaux illimit\u00e9s pour diff\u00e9rents styles d\u2019\u00e9criture ou collaborateurs.'), icon: '\u270E' },
+  };
+}
+
+function _canUse(feature) {
+  const plan = _prefs.plan || 'free';
+  return !FEATURE_GATES[feature] || FEATURE_GATES[feature].includes(plan);
+}
+
+function _getAIRemaining() {
+  const plan = _prefs.plan || 'free';
+  const limit = PLAN_LIMITS[plan];
+  if (limit === Infinity) return Infinity;
+  const usage = _prefs.aiUsage || { count: 0 };
+  return Math.max(0, limit - usage.count);
+}
+
+function showUpgradePrompt(feature, data) {
+  const existing = document.getElementById('upgradeModal');
+  if (existing) existing.remove();
+  const UPGRADE_MESSAGES = _getUpgradeMessages();
+  const info = UPGRADE_MESSAGES[feature] || { title: _tr('Upgrade','Forfait sup\u00e9rieur'), desc: _tr('This feature requires a paid plan.','Cette fonctionnalit\u00e9 n\u00e9cessite un forfait pay\u00e9.'), icon: '\u2B50' };
+  const plan = _prefs.plan || 'free';
+  const planLabel = plan === 'free' ? _tr('Free','Gratuit') : (plan.charAt(0).toUpperCase()+plan.slice(1));
+  const modal = document.createElement('div');
+  modal.id = 'upgradeModal';
+  modal.style.cssText = 'position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;background:rgba(26,21,16,0.55);backdrop-filter:blur(4px);animation:obIn 0.15s ease both;';
+  const remaining = feature === 'aiLimit' && data ? ` ${_tr('You\u2019ve used','Vous avez utilis\u00e9')} ${data.used} ${_tr('of','sur')} ${data.limit}.` : '';
+  modal.innerHTML = `
+    <div style="background:var(--cream-light);border:1px solid var(--rule);border-radius:14px;padding:32px 30px 26px;max-width:400px;width:90%;box-shadow:0 20px 60px rgba(26,21,16,0.25);text-align:center;">
+      <div style="font-size:32px;margin-bottom:12px;">${info.icon}</div>
+      <div style="font-family:var(--font-display);font-size:20px;color:var(--ink);margin-bottom:8px;">${info.title}</div>
+      <p style="font-size:13px;color:var(--ink-soft);line-height:1.7;margin-bottom:6px;">${info.desc}${remaining}</p>
+      <p style="font-size:12px;color:var(--ink-faint);margin-bottom:20px;">${_tr('You\u2019re on the','Vous \u00eates sur le forfait')} <strong>${planLabel}</strong> ${_tr('plan.','.')}</p>
+      <div style="display:flex;gap:8px;margin-bottom:10px;">
+        <button onclick="startCheckout('creator')" style="flex:1;padding:12px;background:var(--amber);color:#fff;border:none;border-radius:8px;font-family:var(--font-body);font-size:13px;font-weight:500;cursor:pointer;">${_tr('Creator — $9/mo','Creator — 9$/mois')}</button>
+        <button onclick="startCheckout('pro')" style="flex:1;padding:12px;background:none;color:var(--ink);border:1px solid var(--rule);border-radius:8px;font-family:var(--font-body);font-size:13px;font-weight:500;cursor:pointer;">${_tr('Pro — $19/mo','Pro — 19$/mois')}</button>
+      </div>
+      <a href="https://carmen-marketing.netlify.app#pricing" target="_blank" rel="noopener" style="display:block;text-align:center;font-size:11px;color:var(--ink-faint);margin-bottom:8px;text-decoration:none;">${_tr('Compare plans','Comparer les forfaits')}</a>
+      <button onclick="this.closest('#upgradeModal').remove();" style="background:none;border:none;font-size:12px;color:var(--ink-faint);cursor:pointer;font-family:var(--font-body);">${_tr('Maybe later','Peut-\u00eatre plus tard')}</button>
+    </div>
+  `;
+  modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
+  document.body.appendChild(modal);
+}
+
+// ── Beta feedback system ─────────────────────────────
+function openFeedbackModal() {
+  const existing = document.getElementById('feedbackModal');
+  if (existing) existing.remove();
+  const modal = document.createElement('div');
+  modal.id = 'feedbackModal';
+  modal.style.cssText = 'position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;background:rgba(26,21,16,0.55);backdrop-filter:blur(4px);animation:obIn 0.15s ease both;padding:20px;';
+  modal.innerHTML = `
+    <div style="background:var(--cream-light);border:1px solid var(--rule);border-radius:14px;padding:28px 26px 22px;max-width:460px;width:100%;box-shadow:0 20px 60px rgba(26,21,16,0.25);max-height:90vh;overflow-y:auto;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+        <span style="font-size:22px;">&#x1F4AC;</span>
+        <div style="font-family:var(--font-display);font-size:20px;color:var(--ink);">${_tr('Send feedback','Envoyer des commentaires')}</div>
+      </div>
+      <p style="font-size:12px;color:var(--ink-soft);line-height:1.6;margin-bottom:18px;">${_tr('Help shape Carmen. Every note goes straight to the developer.','Aidez \u00e0 fa\u00e7onner Carmen. Chaque message va directement au d\u00e9veloppeur.')}</p>
+
+      <label style="font-size:11px;color:var(--ink-faint);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px;display:block;">${_tr('What kind of feedback?','Quel type de commentaire\u00a0?')}</label>
+      <div id="fbCategory" style="display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap;">
+        <button class="fb-cat-btn active" data-cat="bug" type="button">&#x1F41B; ${_tr('Bug','Bogue')}</button>
+        <button class="fb-cat-btn" data-cat="feature" type="button">&#x2728; ${_tr('Feature idea','Id\u00e9e de fonctionnalit\u00e9')}</button>
+        <button class="fb-cat-btn" data-cat="general" type="button">&#x1F4AD; ${_tr('General','G\u00e9n\u00e9ral')}</button>
+        <button class="fb-cat-btn" data-cat="love" type="button">&#x2764;&#xFE0F; ${_tr('Love note','Mot doux')}</button>
+      </div>
+
+      <div id="fbSeverityWrap" style="margin-bottom:16px;">
+        <label style="font-size:11px;color:var(--ink-faint);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px;display:block;">${_tr('How bad is it?','C\u2019est grave comment\u00a0?')}</label>
+        <div id="fbSeverity" style="display:flex;gap:6px;">
+          <button class="fb-sev-btn active" data-sev="minor" type="button">${_tr('Minor','Mineur')}</button>
+          <button class="fb-sev-btn" data-sev="annoying" type="button">${_tr('Annoying','Agacant')}</button>
+          <button class="fb-sev-btn" data-sev="blocker" type="button">${_tr('Blocker','Bloquant')}</button>
+        </div>
+      </div>
+
+      <label style="font-size:11px;color:var(--ink-faint);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px;display:block;">${_tr('What happened?','Que s\u2019est-il pass\u00e9\u00a0?')}</label>
+      <textarea id="fbMessage" placeholder="${_tr('Describe the issue, what you expected, and steps to reproduce if applicable...','D\u00e9crivez le probl\u00e8me, ce que vous attendiez, et les \u00e9tapes pour le reproduire si applicable...')}" style="width:100%;min-height:120px;padding:10px 12px;border:1px solid var(--rule);border-radius:8px;background:var(--cream);color:var(--ink);font-family:var(--font-body);font-size:13px;line-height:1.5;resize:vertical;outline:none;margin-bottom:14px;"></textarea>
+
+      <div style="font-size:10px;color:var(--ink-faint);line-height:1.5;margin-bottom:16px;padding:8px 10px;background:var(--cream);border-radius:6px;border:1px solid var(--rule);">
+        ${_tr('Context auto-captured: your email, current song, browser, plan. No screenshots.','Contexte captur\u00e9 automatiquement\u00a0: votre courriel, la chanson en cours, le navigateur, le forfait. Pas de captures d\u2019\u00e9cran.')}
+      </div>
+
+      <div style="display:flex;gap:8px;">
+        <button id="fbSubmitBtn" onclick="submitFeedback()" style="flex:1;padding:11px;background:var(--amber);color:#fff;border:none;border-radius:8px;font-family:var(--font-body);font-size:13px;font-weight:500;cursor:pointer;">${_tr('Send feedback','Envoyer')}</button>
+        <button onclick="document.getElementById('feedbackModal').remove();" style="padding:11px 16px;background:none;border:1px solid var(--rule);border-radius:8px;font-family:var(--font-body);font-size:13px;color:var(--ink-soft);cursor:pointer;">${_tr('Cancel','Annuler')}</button>
+      </div>
+    </div>
+  `;
+  modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
+  document.body.appendChild(modal);
+
+  // Category button handlers
+  modal.querySelectorAll('.fb-cat-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      modal.querySelectorAll('.fb-cat-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      // Show severity only for bugs
+      const sevWrap = document.getElementById('fbSeverityWrap');
+      sevWrap.style.display = btn.dataset.cat === 'bug' ? 'block' : 'none';
+    });
+  });
+  modal.querySelectorAll('.fb-sev-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      modal.querySelectorAll('.fb-sev-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    });
+  });
+
+  setTimeout(() => document.getElementById('fbMessage')?.focus(), 100);
+}
+
+async function submitFeedback() {
+  const modal = document.getElementById('feedbackModal');
+  if (!modal) return;
+  const message = document.getElementById('fbMessage').value.trim();
+  if (!message) { document.getElementById('fbMessage').focus(); return; }
+
+  const submitBtn = document.getElementById('fbSubmitBtn');
+  submitBtn.disabled = true;
+  submitBtn.textContent = _tr('Sending...','Envoi en cours...');
+  submitBtn.style.opacity = '0.6';
+
+  const category = modal.querySelector('.fb-cat-btn.active')?.dataset.cat || 'general';
+  const severity = category === 'bug' ? (modal.querySelector('.fb-sev-btn.active')?.dataset.sev || 'minor') : null;
+
+  const currentSong = currentSongId && _songLib[currentSongId] ? _songLib[currentSongId] : null;
+  const currentSec = sections && sections[current] ? sections[current].name : null;
+
+  const payload = {
+    category,
+    severity,
+    message,
+    createdAt: new Date().toISOString(),
+    user: {
+      uid: _currentUser?.uid || null,
+      email: _currentUser?.email || null,
+      displayName: _currentUser?.displayName || null,
+    },
+    context: {
+      plan: _prefs.plan || 'free',
+      lang: _prefs.lang || 'en',
+      fontTheme: _prefs.fontTheme || 'classic',
+      currentSongId: currentSongId || null,
+      currentSongTitle: currentSong?.title || null,
+      currentSection: currentSec,
+      activeProfileId: getActiveProfileId() || null,
+      activeProfileName: _profiles[getActiveProfileId()]?.profileName || null,
+    },
+    browser: {
+      userAgent: navigator.userAgent,
+      screen: window.innerWidth + 'x' + window.innerHeight,
+      url: window.location.href,
+    },
+    status: 'new',
+  };
+
+  try {
+    if (!_currentUser) throw new Error(_tr('Not signed in','Non connect\u00e9'));
+    await _firestoreDb.collection('feedback').add(payload);
+    modal.remove();
+    showVoiceToast(_tr('Thanks! Your feedback has been sent.','Merci\u00a0! Votre commentaire a \u00e9t\u00e9 envoy\u00e9.'));
+  } catch (e) {
+    console.error('Feedback submit error:', e);
+    submitBtn.disabled = false;
+    submitBtn.textContent = _tr('Send feedback','Envoyer');
+    submitBtn.style.opacity = '1';
+    alert(_tr('Could not send feedback: ','Impossible d\u2019envoyer le commentaire\u00a0: ') + e.message);
+  }
+}
+
+function showProUpgradePrompt() {
+  const existing = document.getElementById('upgradeModal');
+  if (existing) existing.remove();
+  const modal = document.createElement('div');
+  modal.id = 'upgradeModal';
+  modal.style.cssText = 'position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;background:rgba(26,21,16,0.55);backdrop-filter:blur(4px);animation:obIn 0.15s ease both;';
+  modal.innerHTML = `
+    <div style="background:var(--cream-light);border:1px solid var(--rule);border-radius:14px;padding:32px 30px 26px;max-width:400px;width:90%;box-shadow:0 20px 60px rgba(26,21,16,0.25);text-align:center;">
+      <div style="font-size:32px;margin-bottom:12px;">&#x1F680;</div>
+      <div style="font-family:var(--font-display);font-size:20px;color:var(--ink);margin-bottom:8px;">${_tr('Upgrade to Pro','Passer \u00e0 Pro')}</div>
+      <p style="font-size:13px;color:var(--ink-soft);line-height:1.7;margin-bottom:6px;">${_tr('Unlimited AI generations, multi-device sync, and all export formats. Everything Carmen has to offer.','G\u00e9n\u00e9rations IA illimit\u00e9es, synchronisation multi-appareils et tous les formats d\u2019exportation. Tout ce que Carmen a \u00e0 offrir.')}</p>
+      <p style="font-size:12px;color:var(--ink-faint);margin-bottom:20px;">${_tr('You\u2019re currently on the','Vous \u00eates actuellement sur le forfait')} <strong>Creator</strong>${_tr(' plan.','.')}</p>
+      <button onclick="startCheckout('pro')" style="display:block;width:100%;padding:12px;background:var(--amber);color:#fff;border:none;border-radius:8px;font-family:var(--font-body);font-size:14px;font-weight:500;cursor:pointer;margin-bottom:10px;">${_tr('Pro \u2014 $19/mo','Pro \u2014 19$/mois')}</button>
+      <button onclick="this.closest('#upgradeModal').remove();" style="background:none;border:none;font-size:12px;color:var(--ink-faint);cursor:pointer;font-family:var(--font-body);">${_tr('Maybe later','Peut-\u00eatre plus tard')}</button>
+    </div>
+  `;
+  modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
+  document.body.appendChild(modal);
+}
+
+async function startCheckout(plan) {
+  const modal = document.getElementById('upgradeModal');
+  const btns = modal?.querySelectorAll('button');
+  btns?.forEach(b => { b.disabled = true; b.style.opacity = '0.5'; });
+  try {
+    const res = await fetch('https://carmen-marketing.netlify.app/.netlify/functions/create-checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        plan,
+        firebaseUid: _currentUser?.uid || '',
+        successUrl: window.location.origin + '?checkout=success&session_id={CHECKOUT_SESSION_ID}',
+        cancelUrl: window.location.href,
+      })
+    });
+    const data = await res.json();
+    if (data.url) {
+      window.location.href = data.url;
+    } else {
+      throw new Error(data.error || 'Checkout failed');
+    }
+  } catch (e) {
+    alert('Something went wrong. Please try again.');
+    btns?.forEach(b => { b.disabled = false; b.style.opacity = '1'; });
+  }
+}
+
+function _updateAICounter() {
+  const el = document.getElementById('aiRemainingBadge');
+  if (!el) return;
+  const r = _getAIRemaining();
+  el.textContent = r === Infinity ? 'unlimited' : r + ' left';
+  el.style.color = r <= 5 && r !== Infinity ? 'var(--amber)' : 'var(--ink-faint)';
+}
+
+async function _fetchAI(payload) {
+  // Check client-side limit first (fast fail)
+  const remaining = _getAIRemaining();
+  if (remaining <= 0 && (_prefs.plan || 'free') !== 'pro') {
+    const limit = PLAN_LIMITS[_prefs.plan || 'free'];
+    showUpgradePrompt('aiLimit', { used: limit, limit: limit });
+    throw new Error('AI limit reached');
+  }
+  // Get auth token
+  let headers = { 'Content-Type': 'application/json' };
+  if (_currentUser) {
+    try {
+      const token = await _currentUser.getIdToken();
+      headers['Authorization'] = 'Bearer ' + token;
+    } catch(e) {}
+  }
+  const res = await fetch('/.netlify/functions/ai', {
+    method: 'POST', headers,
+    body: JSON.stringify(payload)
+  });
+  if (res.status === 429) {
+    let data = {};
+    try { data = await res.json(); } catch(e) {}
+    showUpgradePrompt('aiLimit', { used: data.used || 0, limit: data.limit || 50 });
+    throw new Error('AI limit reached');
+  }
+  if (!res.ok) throw new Error('AI request failed');
+  // Update local usage counter from response header
+  const aiRemaining = res.headers.get('X-AI-Remaining');
+  if (aiRemaining !== null) {
+    const r = parseInt(aiRemaining, 10);
+    if (!isNaN(r)) {
+      const limit = PLAN_LIMITS[_prefs.plan || 'free'];
+      if (limit !== Infinity) {
+        if (!_prefs.aiUsage) _prefs.aiUsage = { count: 0, periodStart: new Date().toISOString().slice(0,7) };
+        _prefs.aiUsage.count = limit - r;
+      }
+      _updateAICounter();
+    }
+  }
+  return res.json();
+}
+
+function _applyPlanGates() {
+  // Version fork button
+  const forkBtn = document.querySelector('[onclick*="forkVersion"]');
+  if (forkBtn) forkBtn.classList.toggle('gated', !_canUse('versioning'));
+  // Audio record button
+  const recBtn = document.getElementById('recBtn');
+  if (recBtn) recBtn.classList.toggle('gated', !_canUse('recording'));
+  // Custom theme button
+  const customBtn = document.getElementById('fontThemeCustom');
+  if (customBtn) customBtn.classList.toggle('gated', !_canUse('customThemes'));
+  // Export buttons
+  document.querySelectorAll('[onclick*="exportLyrics"]').forEach(el => el.classList.toggle('gated', !_canUse('export')));
+  // AI counter
+  _updateAICounter();
+  // Plan badge
+  const badge = document.getElementById('planBadge');
+  if (badge) {
+    const plan = _prefs.plan || 'free';
+    if (plan === 'pro') {
+      badge.innerHTML = '<span style="color:var(--amber);">PRO</span>';
+    } else if (plan === 'creator') {
+      badge.innerHTML = 'CREATOR <a onclick="toggleSettingsMenu();showProUpgradePrompt()" style="color:var(--amber);text-decoration:none;margin-left:4px;cursor:pointer;">' + _tr('Get Pro','Passer \u00e0 Pro') + '</a>';
+    } else {
+      const freeLabel = _tr('FREE','GRATUIT');
+      badge.innerHTML = freeLabel + ' <a onclick="toggleSettingsMenu();showUpgradePrompt(\'aiLimit\')" style="color:var(--amber);text-decoration:none;margin-left:4px;cursor:pointer;">' + _tr('Upgrade','Mettre \u00e0 niveau') + '</a>';
+    }
+  }
+}
 let _currentUser = null;
 let _syncTimers = {};
 
@@ -4119,6 +4679,12 @@ function _debouncedWrite(key, fn) {
 }
 
 function _savePrefs() {
+  // Mirror theme prefs to localStorage for instant restore on reload
+  try {
+    if (_prefs.fontTheme) localStorage.setItem('inkwell_fontTheme', _prefs.fontTheme);
+    if (_prefs.customTheme) localStorage.setItem('inkwell_customTheme', JSON.stringify(_prefs.customTheme));
+    if (_prefs.savedThemes) localStorage.setItem('inkwell_savedThemes', JSON.stringify(_prefs.savedThemes));
+  } catch(e) {}
   if (!_currentUser) return;
   _debouncedWrite('prefs', () => _userDoc().collection('prefs').doc('current').set(_prefs));
 }
@@ -4238,34 +4804,132 @@ async function analyzeVoicePatterns(profileId) {
 Be specific and accurate based on the actual samples. The distinctiveTraits should capture unique quirks or tendencies.`;
 
   try {
-    const res = await fetch('/.netlify/functions/ai', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-haiku-4-5',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: `Analyze these writing samples:\n\n${samples}` }
-        ],
-        max_tokens: 400,
-        temperature: 0.3
-      })
+    const data = await _fetchAI({
+      model: 'claude-haiku-4-5',
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: `Analyze these writing samples:\n\n${samples}` }
+      ],
+      max_tokens: 400,
+      temperature: 0.3
     });
-    
-    const data = await res.json();
     const content = data.choices?.[0]?.message?.content || '';
     
     // Extract JSON from response
     const jsonMatch = content.match(/\{[\s\S]*\}/);
     if (jsonMatch) {
+      const isFirstAnalysis = !profile.voiceAnalysis;
       profile.voiceAnalysis = JSON.parse(jsonMatch[0]);
       profile.lastAnalyzedSampleCount = profile.writingSamples.length;
       profile.lastAnalyzedAt = new Date().toISOString();
       _saveProfiles();
       console.log('Voice analysis updated:', profile.voiceAnalysis);
+      // Toast notification on first analysis
+      if (isFirstAnalysis) {
+        const traits = profile.voiceAnalysis.distinctiveTraits?.slice(0, 2).join(' & ') || 'your patterns';
+        showVoiceToast(_tr('Carmen has learned your voice \u2014 ','Carmen a appris votre voix \u2014 ') + traits + '.');
+      }
     }
   } catch (err) {
     console.error('Voice analysis failed:', err);
+  }
+}
+
+function showVoiceToast(msg) {
+  const toast = document.createElement('div');
+  toast.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--cream-light);color:var(--ink);border:1px solid var(--rule);border-radius:10px;padding:12px 20px;font-family:var(--font-body);font-size:13px;box-shadow:0 8px 24px var(--shadow-md);z-index:10000;display:flex;align-items:center;gap:8px;animation:obIn 0.3s ease both;max-width:90vw;';
+  toast.innerHTML = '<span style="font-size:16px;">\uD83E\uDDE0</span> ' + msg;
+  document.body.appendChild(toast);
+  setTimeout(() => { toast.style.opacity = '0'; toast.style.transition = 'opacity 0.5s'; setTimeout(() => toast.remove(), 500); }, 5000);
+}
+
+function learnFromSongs() {
+  const profiles = getProfiles();
+  const profileIds = Object.keys(profiles);
+  if (!profileIds.length) { alert(_tr('No voice profiles yet.','Aucun profil vocal pour le moment.')); return; }
+  const lib = getSongLibrary();
+  const songIds = Object.keys(lib);
+  if (!songIds.length) { alert(_tr('No songs in your library.','Aucune chanson dans votre biblioth\u00e8que.')); return; }
+
+  const existing = document.getElementById('learnModal');
+  if (existing) existing.remove();
+
+  const modal = document.createElement('div');
+  modal.id = 'learnModal';
+  modal.style.cssText = 'position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;background:rgba(26,21,16,0.55);backdrop-filter:blur(4px);animation:obIn 0.15s ease both;';
+
+  const profileOptions = profileIds.map(id =>
+    `<option value="${id}">${profiles[id].profileName || 'Unnamed'}</option>`
+  ).join('');
+
+  const linesWord = _tr('lines','lignes');
+  const untitled = _tr('Untitled','Sans titre');
+  const songRows = songIds.map(id => {
+    const song = lib[id];
+    const title = song.title || untitled;
+    const lineCount = (song.sections || []).reduce((n, s) => n + (s.lines || []).filter(l => l.trim()).length, 0);
+    return `<label style="display:flex;align-items:center;gap:8px;padding:6px 0;cursor:pointer;font-size:13px;color:var(--ink-mid);border-bottom:1px solid var(--rule);">
+      <input type="checkbox" value="${id}" checked style="accent-color:var(--amber);width:16px;height:16px;">
+      <span style="flex:1;">${title}</span>
+      <span style="font-size:11px;color:var(--ink-faint);">${lineCount} ${linesWord}</span>
+    </label>`;
+  }).join('');
+
+  modal.innerHTML = `
+    <div style="background:var(--cream-light);border:1px solid var(--rule);border-radius:14px;padding:28px 26px 22px;max-width:440px;width:92%;box-shadow:0 20px 60px rgba(26,21,16,0.25);">
+      <div style="font-family:var(--font-display);font-size:20px;color:var(--ink);margin-bottom:4px;">${_tr('Learn from songs','Apprendre des chansons')}</div>
+      <p style="font-size:12px;color:var(--ink-soft);line-height:1.6;margin-bottom:16px;">${_tr('Select songs and a voice profile. Carmen will capture human-written lines to learn your writing patterns.','S\u00e9lectionnez des chansons et un profil vocal. Carmen capturera les lignes \u00e9crites par l\u2019humain pour apprendre vos sch\u00e9mas d\u2019\u00e9criture.')}</p>
+      <div style="margin-bottom:14px;">
+        <label style="font-size:11px;color:var(--ink-faint);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:4px;display:block;">${_tr('Feed into profile','Alimenter le profil')}</label>
+        <select id="learnProfile" style="width:100%;padding:8px 10px;border:1px solid var(--rule);border-radius:6px;background:var(--cream);color:var(--ink);font-family:var(--font-body);font-size:13px;">
+          ${profileOptions}
+        </select>
+      </div>
+      <div style="margin-bottom:14px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+          <label style="font-size:11px;color:var(--ink-faint);letter-spacing:0.08em;text-transform:uppercase;">${_tr('Songs','Chansons')}</label>
+          <button onclick="document.querySelectorAll('#learnSongList input').forEach(c=>{c.checked=!c.checked})" style="background:none;border:none;font-size:11px;color:var(--amber);cursor:pointer;font-family:var(--font-body);">${_tr('Toggle all','Tout basculer')}</button>
+        </div>
+        <div id="learnSongList" style="max-height:240px;overflow-y:auto;border:1px solid var(--rule);border-radius:6px;padding:4px 10px;">
+          ${songRows}
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button onclick="runLearnFromSongs()" style="flex:1;padding:10px;background:var(--amber);color:#fff;border:none;border-radius:8px;font-family:var(--font-body);font-size:13px;font-weight:500;cursor:pointer;">${_tr('Learn','Apprendre')}</button>
+        <button onclick="document.getElementById('learnModal').remove();" style="padding:10px 16px;background:none;border:1px solid var(--rule);border-radius:8px;font-family:var(--font-body);font-size:13px;color:var(--ink-soft);cursor:pointer;">${_tr('Cancel','Annuler')}</button>
+      </div>
+    </div>
+  `;
+  modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
+  document.body.appendChild(modal);
+}
+
+function runLearnFromSongs() {
+  const profileId = document.getElementById('learnProfile').value;
+  if (!profileId || !_profiles[profileId]) return;
+  const checked = [...document.querySelectorAll('#learnSongList input:checked')].map(c => c.value);
+  if (!checked.length) { alert(_tr('No songs selected.','Aucune chanson s\u00e9lectionn\u00e9e.')); return; }
+
+  // Temporarily set active profile so captureWritingSamples feeds the chosen one
+  const originalActive = getActiveProfileId();
+  setActiveProfile(profileId);
+
+  const profile = _profiles[profileId];
+  const before = (profile.writingSamples || []).length;
+  checked.forEach(id => captureWritingSamples(id));
+  const after = (profile.writingSamples || []).length;
+  const added = after - before;
+
+  // Restore original active profile
+  if (originalActive && originalActive !== profileId) setActiveProfile(originalActive);
+
+  document.getElementById('learnModal').remove();
+
+  if (added > 0) {
+    const profName = _profiles[profileId]?.profileName || _tr('profile','profil');
+    showVoiceToast(added + ' ' + _tr('samples captured into','\u00e9chantillons captur\u00e9s dans') + ' "' + profName + '" ' + _tr('from','depuis') + ' ' + checked.length + ' ' + _tr('songs.','chansons.'));
+  } else {
+    showVoiceToast(_tr('No new samples found \u2014 these songs were already captured.','Aucun nouvel \u00e9chantillon trouv\u00e9 \u2014 ces chansons ont d\u00e9j\u00e0 \u00e9t\u00e9 captur\u00e9es.'));
   }
 }
 
@@ -4300,22 +4964,44 @@ function renderVoiceSwitcher() {
     check.className = 'vo-check';
     check.textContent = id === activeId ? '✓' : '';
 
+    const nameWrap = document.createElement('span');
+    nameWrap.style.cssText = 'flex:1;display:flex;flex-direction:column;';
     const name = document.createElement('span');
     name.textContent = profile.profileName || 'Unnamed';
+    nameWrap.appendChild(name);
+
+    // Voice learning status
+    const sampleCount = profile.writingSamples?.length || 0;
+    const hasAnalysis = !!profile.voiceAnalysis;
+    const statusEl = document.createElement('span');
+    statusEl.style.cssText = 'font-size:10px;color:var(--ink-faint);margin-top:1px;';
+    const samplesWord = _tr('samples','\u00e9chantillons');
+    if (sampleCount === 0) {
+      statusEl.textContent = _tr('Start writing to teach this voice','Commencez \u00e0 \u00e9crire pour enseigner cette voix');
+    } else if (sampleCount < ANALYSIS_THRESHOLD) {
+      statusEl.textContent = '\uD83E\uDDE0 ' + sampleCount + '/' + ANALYSIS_THRESHOLD + ' ' + samplesWord + ' \u00b7 ' + _tr('Learning...','Apprentissage...');
+    } else if (hasAnalysis) {
+      const traits = profile.voiceAnalysis.distinctiveTraits?.slice(0, 2).join(', ') || _tr('patterns learned','sch\u00e9mas appris');
+      statusEl.innerHTML = '\uD83E\uDDE0 <span style="color:var(--sage)">\u2713 ' + _tr('Voice learned','Voix apprise') + '</span> \u00b7 ' + sampleCount + ' ' + samplesWord;
+      statusEl.title = traits;
+    } else {
+      statusEl.textContent = '\uD83E\uDDE0 ' + sampleCount + ' ' + samplesWord + ' \u00b7 ' + _tr('Analysis pending...','Analyse en attente...');
+    }
+    nameWrap.appendChild(statusEl);
 
     const del = document.createElement('span');
     del.className = 'vo-del';
     del.textContent = '×';
-    del.title = 'Delete';
+    del.title = _tr('Delete','Supprimer');
     del.addEventListener('click', e => {
       e.stopPropagation();
-      if (confirm(`Delete "${profile.profileName}"?`)) {
+      if (confirm(_tr('Delete "','Supprimer \u00ab\u00a0') + profile.profileName + _tr('"?','\u00a0\u00bb\u00a0?'))) {
         deleteProfile(id);
       }
     });
 
     opt.appendChild(check);
-    opt.appendChild(name);
+    opt.appendChild(nameWrap);
     opt.appendChild(del);
 
     opt.addEventListener('click', () => {
@@ -4331,7 +5017,7 @@ function renderVoiceSwitcher() {
     const editBtn = document.createElement('button');
     editBtn.className = 'voice-add-btn';
     editBtn.style.color = 'var(--ink-soft)';
-    editBtn.innerHTML = '✎ Edit this voice';
+    editBtn.innerHTML = '\u270E ' + _tr('Edit this voice','Modifier cette voix');
     editBtn.addEventListener('click', () => {
       closeVoiceDropdown();
       editingProfileId = activeId;
@@ -4341,12 +5027,27 @@ function renderVoiceSwitcher() {
       renderObStep();
     });
     dd.appendChild(editBtn);
+
+    const learnBtn = document.createElement('button');
+    learnBtn.className = 'voice-add-btn';
+    learnBtn.style.color = 'var(--ink-soft)';
+    learnBtn.innerHTML = '\uD83E\uDDE0 ' + _tr('Learn from songs','Apprendre des chansons');
+    learnBtn.addEventListener('click', () => {
+      closeVoiceDropdown();
+      learnFromSongs();
+    });
+    dd.appendChild(learnBtn);
   }
 
   const addBtn = document.createElement('button');
   addBtn.className = 'voice-add-btn';
-  addBtn.innerHTML = '+ New voice profile';
+  addBtn.innerHTML = '+ ' + _tr('New voice profile','Nouveau profil vocal');
   addBtn.addEventListener('click', () => {
+    if (!_canUse('multiProfile') && Object.keys(_profiles).length >= 1) {
+      closeVoiceDropdown();
+      showUpgradePrompt('multiProfile');
+      return;
+    }
     closeVoiceDropdown();
     startOnboarding();
   });
@@ -4359,11 +5060,11 @@ function renderVoiceSwitcher() {
   const resetBtn = document.createElement('button');
   resetBtn.className = 'voice-add-btn';
   resetBtn.style.cssText = 'color:var(--ink-faint);font-size:12px';
-  resetBtn.innerHTML = '↺ Restart onboarding';
+  resetBtn.innerHTML = '\uD83E\uDDED ' + _tr('Feature tour','Visite guid\u00e9e');
   resetBtn.addEventListener('click', () => {
     closeVoiceDropdown();
-    _prefs.onboarded = false; _savePrefs();
-    startOnboarding();
+    _prefs.tourSeen = false; _savePrefs();
+    setTimeout(startFeatureTour, 300);
   });
   dd.appendChild(resetBtn);
 }
@@ -4417,47 +5118,94 @@ function finishOnboarding() {
 }
 
 // ── Feature tooltip tour ──────────────────────────
-const FTOUR_STEPS = [
-  {
-    targetId: 'sectionList',
-    arrow: 'arrow-left',
-    title: 'Your song structure',
-    body: 'Each section lives here — verse, chorus, bridge. Add, rename, reorder, or duplicate them as you write.',
-    nextLabel: 'Got it →',
-  },
-  {
-    targetId: 'aiPanel',
-    arrow: 'arrow-right',
-    title: 'AI Co-Writer',
-    body: 'Select any line in the editor, then pick a tool — rhymes, metaphors, rewrites, hooks and more. It writes in your voice.',
-    nextLabel: 'Got it →',
-  },
-  {
-    targetId: 'splitBtn',
-    arrow: 'arrow-top',
-    title: 'Split view',
-    body: 'See your whole song while you work on a section. Great for checking flow and avoiding repetition.',
-    nextLabel: 'Start writing ✦',
-  },
-];
-
+function _getFtourSteps() {
+  const got = _tr('Got it \u2192','Compris \u2192');
+  return [
+    {
+      targetId: 'sectionList',
+      arrow: 'arrow-left',
+      title: _tr('Your song structure','La structure de votre chanson'),
+      body: _tr('Each section lives here \u2014 verse, chorus, bridge. Add, rename, reorder, or duplicate them as you write.','Chaque section vit ici \u2014 couplet, refrain, pont. Ajoutez-les, renommez-les, r\u00e9organisez-les ou dupliquez-les au fil de l\u2019\u00e9criture.'),
+      nextLabel: got,
+    },
+    {
+      targetId: 'voiceSwitcher',
+      arrow: 'arrow-top',
+      title: _tr('Voice Profiles','Profils vocaux'),
+      body: _tr('Create different voices for different styles \u2014 one for folk ballads, another for late-night pop, another for country. Each profile teaches Carmen how you write in that mode, so every suggestion matches the song you\u2019re making.','Cr\u00e9ez diff\u00e9rentes voix pour diff\u00e9rents styles \u2014 une pour les ballades folk, une autre pour la pop de fin de soir\u00e9e, une autre pour le country. Chaque profil apprend \u00e0 Carmen comment vous \u00e9crivez dans ce mode, pour que chaque suggestion corresponde \u00e0 la chanson que vous cr\u00e9ez.'),
+      nextLabel: got,
+    },
+    {
+      targetId: 'aiPanel',
+      arrow: 'arrow-right',
+      title: _tr('AI Co-Writer','Co-auteur IA'),
+      body: _tr('16 tools built for lyric-making. Select a line, pick a tool \u2014 rhymes, rewrites, metaphors, hooks, and more. Everything comes back in your voice.','16 outils con\u00e7us pour l\u2019\u00e9criture de paroles. S\u00e9lectionnez une ligne, choisissez un outil \u2014 rimes, r\u00e9\u00e9critures, m\u00e9taphores, accroches et plus. Tout revient dans votre voix.'),
+      nextLabel: got,
+      beforeShow: function() { if (!aiOpen) toggleAI(); },
+      afterHide: function() { if (aiOpen) toggleAI(); },
+    },
+    {
+      targetId: 'songPickerBtn',
+      arrow: 'arrow-top',
+      title: _tr('Song Starter','D\u00e9marreur de chanson'),
+      body: _tr('Stuck on a blank page? Click New Song to open the Song Starter \u2014 four creative pathways: Spark, Song Seed, Word Pool, or Start From a title, emotion, melody, or story.','Bloqu\u00e9 devant une page blanche\u00a0? Cliquez sur Nouvelle chanson pour ouvrir le D\u00e9marreur \u2014 quatre chemins cr\u00e9atifs\u00a0: \u00c9tincelle, Graine de chanson, Bassin de mots, ou Partir de\u2026 un titre, une \u00e9motion, une m\u00e9lodie ou une histoire.'),
+      nextLabel: got,
+    },
+    {
+      targetId: 'audioToggleBtn',
+      arrow: 'arrow-top',
+      title: _tr('Audio Player & Recorder','Lecteur et enregistreur audio'),
+      body: _tr('Import a backing track (MP3, WAV, M4A) and see its waveform. Record vocal takes right alongside your lyrics. Loop a section, slow it down to 0.5\u00d7 \u2014 everything in one place.','Importez une piste d\u2019accompagnement (MP3, WAV, M4A) et voyez sa forme d\u2019onde. Enregistrez des prises vocales \u00e0 c\u00f4t\u00e9 de vos paroles. Bouclez une section, ralentissez-la \u00e0 0,5\u00d7 \u2014 tout au m\u00eame endroit.'),
+      nextLabel: got,
+    },
+    {
+      targetId: 'settingsWrap',
+      arrow: 'arrow-top',
+      title: _tr('Themes & Settings','Th\u00e8mes et param\u00e8tres'),
+      body: _tr('Choose from built-in themes (Classic, Modern, Typewriter, Night) or create your own with custom colors and fonts. Name and save your favorites.','Choisissez parmi les th\u00e8mes int\u00e9gr\u00e9s (Classique, Moderne, Machine \u00e0 \u00e9crire, Nuit) ou cr\u00e9ez le v\u00f4tre avec des couleurs et polices personnalis\u00e9es. Nommez et enregistrez vos pr\u00e9f\u00e9r\u00e9s.'),
+      nextLabel: got,
+    },
+    {
+      targetId: 'songOverview',
+      arrow: 'arrow-right',
+      title: _tr('Split view','\u00c9cran partag\u00e9'),
+      body: _tr('See your whole song alongside the editor. Jump between sections, spot structural problems, and copy the full lyric in one click.','Voyez toute votre chanson \u00e0 c\u00f4t\u00e9 de l\u2019\u00e9diteur. Sautez entre les sections, rep\u00e9rez les probl\u00e8mes de structure et copiez les paroles compl\u00e8tes en un clic.'),
+      nextLabel: _tr('Start writing \u2726','Commencer \u00e0 \u00e9crire \u2726'),
+      beforeShow: function() { if (!splitOpen) toggleSplit(true); },
+      afterHide: function() { if (splitOpen) toggleSplit(false); },
+    },
+  ];
+}
 let _ftourStep = 0;
 let _ftourEl = null;
+let _ftourActive = []; // populated at tour start with localized steps
 
 function startFeatureTour() {
   if (_prefs.tourSeen) return; // already seen
   _ftourStep = 0;
+  _ftourActive = _getFtourSteps(); // snapshot localized steps at tour start
   _showFtourStep();
 }
 
 function _showFtourStep() {
+  // Run afterHide on previous step
+  const prevStep = _ftourStep > 0 ? _ftourActive[_ftourStep - 1] : null;
+  if (prevStep && prevStep.afterHide) prevStep.afterHide();
+
   _clearFtour();
-  if (_ftourStep >= FTOUR_STEPS.length) {
+  if (_ftourStep >= _ftourActive.length) {
     _finishFtour();
     return;
   }
 
-  const step = FTOUR_STEPS[_ftourStep];
+  const step = _ftourActive[_ftourStep];
+  // Run beforeShow hook (e.g. open AI panel before highlighting it)
+  if (step.beforeShow) step.beforeShow();
+  // Delay to let panel animations settle before measuring position
+  setTimeout(() => _renderFtourBubble(step), step.beforeShow ? 350 : 0);
+}
+
+function _renderFtourBubble(step) {
   const target = document.getElementById(step.targetId);
   if (!target) { _ftourStep++; _showFtourStep(); return; }
 
@@ -4473,13 +5221,13 @@ function _showFtourStep() {
   const bubble = document.createElement('div');
   bubble.className = `ftip-bubble ${step.arrow}`;
 
-  const total = FTOUR_STEPS.length;
+  const total = _ftourActive.length;
   bubble.innerHTML = `
-    <div class="ftip-counter">${_ftourStep + 1} of ${total}</div>
+    <div class="ftip-counter">${_ftourStep + 1} ${_tr('of','de')} ${total}</div>
     <div class="ftip-title">${step.title}</div>
     <div class="ftip-body">${step.body}</div>
     <div class="ftip-actions">
-      <button class="ftip-skip">Skip tour</button>
+      <button class="ftip-skip">${_tr('Skip tour','Ignorer')}</button>
       <button class="ftip-next">${step.nextLabel}</button>
     </div>
   `;
@@ -4526,6 +5274,9 @@ function _clearFtour() {
 }
 
 function _finishFtour() {
+  // Run afterHide on the last step shown
+  const lastStep = _ftourStep > 0 && _ftourStep <= _ftourActive.length ? _ftourActive[_ftourStep - 1] : null;
+  if (lastStep && lastStep.afterHide) lastStep.afterHide();
   _clearFtour();
   _prefs.tourSeen = true;
   _savePrefs();
@@ -4891,20 +5642,15 @@ Attribute1 · Attribute2 · Attribute3`;
 
     const userPrompt = `The songwriter resonated with these samples:\n\n${pickedTexts}\n\nTheir apparent preferences: ${pickedTags.join(', ')}\n\nGenerate 4 new lyric fragments exploring this voice territory. Round ${step.round} of 3${step.round === 3 ? ' (final refinement - make these very close to their voice)' : ''}.`;
 
-    fetch('/.netlify/functions/ai', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-haiku-4-5',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: userPrompt }
-        ],
-        max_tokens: 600,
-        temperature: 0.9
-      })
+    _fetchAI({
+      model: 'claude-haiku-4-5',
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt }
+      ],
+      max_tokens: 600,
+      temperature: 0.9
     })
-    .then(res => res.json())
     .then(data => {
       const content = data.choices[0].message.content.trim();
       // Parse the response into fragments
@@ -5155,6 +5901,7 @@ document.addEventListener('keydown', e => {
     if (compareOpen) closeVersionCompare();
     closeVoiceDropdown();
     closeSongPicker();
+    closeSongStarter();
     closeExportMenu();
   }
 });
@@ -5199,13 +5946,29 @@ function renderSidebar() {
     li.dataset.idx = i;
     li.setAttribute('tabindex', '0');
     li.setAttribute('role', 'button');
-    li.setAttribute('draggable', 'true');
+    li.setAttribute('draggable', 'false');
     li.innerHTML = `
       <div class="section-label">${sec.name}</div>
       <div class="section-lines" id="lc${i}">—</div>
       <span class="section-duplicate" title="Duplicate section">⧉</span>
       <span class="section-delete${onlyOne ? ' disabled' : ''}" title="Delete section">✕</span>`;
     li.onclick = (e) => { if (!e.target.classList.contains('section-delete')) selectSection(i); };
+
+    // Long-press to enable drag (works on touch + desktop)
+    let _lpTimer = null;
+    li.addEventListener('pointerdown', (e) => {
+      if (e.target.classList.contains('section-delete') || e.target.classList.contains('section-duplicate')) return;
+      _lpTimer = setTimeout(() => {
+        _lpTimer = null;
+        li.setAttribute('draggable', 'true');
+        li.classList.add('drag-ready');
+        // Vibrate on mobile if supported
+        if (navigator.vibrate) navigator.vibrate(30);
+      }, 500);
+    });
+    li.addEventListener('pointerup', () => { if (_lpTimer) { clearTimeout(_lpTimer); _lpTimer = null; } });
+    li.addEventListener('pointercancel', () => { if (_lpTimer) { clearTimeout(_lpTimer); _lpTimer = null; } });
+    li.addEventListener('pointermove', () => { if (_lpTimer) { clearTimeout(_lpTimer); _lpTimer = null; } });
     li.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selectSection(i); } };
 
     // Delete handler
@@ -5256,7 +6019,7 @@ function renderSidebar() {
       e.dataTransfer.effectAllowed = 'move';
       e.dataTransfer.setData('text/plain', String(i));
     };
-    li.ondragend = () => { li.classList.remove('dragging'); };
+    li.ondragend = () => { li.classList.remove('dragging'); li.classList.remove('drag-ready'); li.setAttribute('draggable', 'false'); };
     li.ondragover = (e) => {
       e.preventDefault();
       e.dataTransfer.dropEffect = 'move';
@@ -5286,6 +6049,13 @@ function renderSidebar() {
 function selectSection(idx, silent) {
   current = idx;
   selectedLine = null;
+  // On tablet, auto-close sidebar overlay after selecting a section
+  if (_isTablet && typeof _isTablet === 'function' && _isTablet()) {
+    const sidebar = document.querySelector('.sidebar');
+    const backdrop = document.getElementById('sidebarBackdrop');
+    if (sidebar) sidebar.classList.remove('sidebar-open');
+    if (backdrop) backdrop.classList.remove('open');
+  }
   selectionRange = { start: null, end: null };
   document.querySelectorAll('.section-item').forEach((el, i) => {
     el.classList.toggle('active', i === idx);
@@ -5355,8 +6125,9 @@ function renderVersionTabs() {
 }
 
 function forkVersion() {
+  if (!_canUse('versioning')) { showUpgradePrompt('versioning'); return; }
   const sec = sections[current];
-  
+
   // Convert to versioned format if not already
   if (!sec.versions) {
     sec.versions = [{
@@ -5976,10 +6747,34 @@ function showToolInfo(tool) {
 }
 
 // ── AI Panel ──────────────────────────────────────
+function toggleSidebar() {
+  const sidebar = document.querySelector('.sidebar');
+  const backdrop = document.getElementById('sidebarBackdrop');
+  const isOpen = sidebar.classList.contains('sidebar-open');
+  sidebar.classList.toggle('sidebar-open', !isOpen);
+  backdrop.classList.toggle('open', !isOpen);
+}
+
+function toggleOverflowMenu() {
+  const menu = document.getElementById('topbarOverflow');
+  if (menu.style.display === 'none' || !menu.style.display) {
+    menu.style.display = 'block';
+    setTimeout(() => document.addEventListener('click', function _close(e) {
+      if (!menu.contains(e.target)) { menu.style.display = 'none'; document.removeEventListener('click', _close); }
+    }), 10);
+  } else {
+    menu.style.display = 'none';
+  }
+}
+
+function _isTablet() { return window.innerWidth <= 1199; }
+
 function toggleAI() {
   aiOpen = !aiOpen;
   document.getElementById('aiPanel').classList.toggle('collapsed', !aiOpen);
   document.getElementById('aiFab').textContent = aiOpen ? '×' : '✦';
+  // On tablet, close split when opening AI to avoid overlap
+  if (aiOpen && _isTablet() && splitOpen) toggleSplit(false);
   // Mirror collect panel with AI panel
   if (!aiOpen) {
     document.getElementById('collectPanel').classList.add('collapsed');
@@ -6045,18 +6840,11 @@ function openCollectPanel() {
 })();
 
 // ── Split screen ──────────────────────────────────
-function _toggleAudioHelp(e) {
-  e.stopPropagation();
-  const tip = document.getElementById('audioHelpTooltip');
-  tip.style.display = tip.style.display === 'none' ? 'block' : 'none';
-}
-document.addEventListener('click', () => {
-  const tip = document.getElementById('audioHelpTooltip');
-  if (tip) tip.style.display = 'none';
-});
 
 function toggleSplit(forceState) {
   splitOpen = forceState !== undefined ? forceState : !splitOpen;
+  // On tablet, close AI when opening split to avoid overlap
+  if (splitOpen && _isTablet() && aiOpen) { toggleAI(); }
   const wrap = document.getElementById('canvasWrap');
   const ov   = document.getElementById('songOverview');
   const btn  = document.getElementById('splitBtn');
@@ -6221,6 +7009,41 @@ function renderOverview() {
   cnt.textContent = totalLines + (totalLines === 1 ? ' line' : ' lines');
 }
 
+function copyFullSong(btn) {
+  const parts = [];
+  sections.forEach((sec, si) => {
+    let lines;
+    if (hasVersions(sec)) {
+      const v = sec.versions[sec.activeVersion || 0];
+      lines = v.lines;
+    } else {
+      lines = sec.lines;
+    }
+    const filled = lines.filter(l => l.trim());
+    if (!filled.length) return;
+    parts.push('[' + sec.name + ']');
+    lines.forEach(l => { if (l.trim()) parts.push(l); });
+    parts.push('');
+  });
+  const text = parts.join('\n').trim();
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text);
+  } else {
+    const ta = document.createElement('textarea');
+    ta.style.cssText = 'position:fixed;top:-9999px;left:-9999px;opacity:0';
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.focus(); ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+  }
+  if (btn) {
+    const orig = btn.textContent;
+    btn.textContent = 'Copied!';
+    setTimeout(() => { btn.textContent = orig; }, 1200);
+  }
+}
+
 function resetAIPanel() {
   document.getElementById('aiResponse').innerHTML =
     '<div class="ai-empty">' + (typeof t === 'function' ? t('ai.empty') : 'Select a line, then choose a tool above.') + '</div>';
@@ -6263,7 +7086,7 @@ async function runAI(mode) {
   const langInstruction = songLang === 'fr'
     ? ' The song is in French. Respond entirely in French. All suggestions must be in French.'
     : '';
-  const system = `You are an expert lyric writing collaborator. You value specificity over abstraction — concrete details (places, names, objects, sensations) over generic emotions. Keep responses SHORT and immediately useful. Never write AI-sounding filler.` + langInstruction + `${buildSoulPrompt()}`;
+  const system = `You are an expert lyric writing collaborator. You value specificity over abstraction — concrete details (places, names, objects, sensations) over generic emotions. Keep responses SHORT and immediately useful. Never write AI-sounding filler. CRITICAL: Output ONLY what is asked for — no rationale, no explanations, no commentary, no "here's why" notes, no introductions, no sign-offs. Just the results.` + langInstruction + `${buildSoulPrompt()}`;
 
   let user = '';
   if (mode === 'match') {
@@ -6381,22 +7204,19 @@ async function runAI(mode) {
   setAIHtml('<div class="loading-row"><span></span><span></span><span></span></div>');
 
   try {
-    const res = await fetch('/.netlify/functions/ai', {
-      method: 'POST',
-      headers: { 'Content-Type':'application/json' },
-      body: JSON.stringify({
-        model: 'claude-haiku-4-5',
-        messages: [{ role:'system', content: system }, { role:'user', content: user }],
-        max_tokens: (mode === 'bridge' || mode === 'flow') ? 700 : 350,
-        temperature: 0.88
-      })
+    const data = await _fetchAI({
+      model: 'claude-haiku-4-5',
+      messages: [{ role:'system', content: system }, { role:'user', content: user }],
+      max_tokens: (mode === 'bridge' || mode === 'flow') ? 700 : 350,
+      temperature: 0.88
     });
-
-    if (!res.ok) throw new Error(`API ${res.status}`);
-    const data = await res.json();
     renderAIResult(data.choices[0].message.content.trim(), mode);
   } catch(err) {
-    setAIHtml(`<div class="ai-empty">⚠️ ${err.message || 'Something went wrong.'}</div>`);
+    if (err.message === 'AI limit reached') {
+      setAIHtml('<div class="ai-empty">AI limit reached this month.</div>');
+    } else {
+      setAIHtml(`<div class="ai-empty">⚠️ ${err.message || 'Something went wrong.'}</div>`);
+    }
   }
 }
 
@@ -6645,8 +7465,11 @@ function renderAIResult(text, mode) {
   }
 
   // match + unstuck + rewrite + prosody + hook — show as usable suggestion cards
-  text.split('\n').filter(l => l.trim()).forEach(line => {
-    const clean = line.replace(/^\d+\.\s*/, '').trim();
+  // Only keep numbered lines (1. 2. 3.) — strip rationale/explanation text
+  const allLines = text.split('\n').filter(l => l.trim());
+  const numbered = allLines.filter(l => /^\d+[\.\)]/.test(l.trim()));
+  (numbered.length >= 2 ? numbered : allLines).forEach(line => {
+    const clean = line.replace(/^\d+[\.\)]\s*/, '').replace(/^\d+\.\s*/, '').trim();
     if (!clean) return;
     const card = document.createElement('div');
     card.className = 'ai-suggestion';
@@ -6934,17 +7757,14 @@ async function runWordFamily(word) {
   const langInstruction = wfLang === 'fr' ? ' Réponds entièrement en français. Tous les mots suggérés doivent être en français.' : '';
   
   try {
-    const res = await fetch('/.netlify/functions/ai', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-haiku-4-5',
-        messages: [{
-          role: 'system',
-          content: 'You are a creative writing assistant specializing in vocabulary expansion for songwriters.' + langInstruction
-        }, {
-          role: 'user',
-          content: `For the word "${word}", provide creative replacements in three categories. Return ONLY valid JSON, no markdown:
+    const data = await _fetchAI({
+      model: 'claude-haiku-4-5',
+      messages: [{
+        role: 'system',
+        content: 'You are a creative writing assistant specializing in vocabulary expansion for songwriters.' + langInstruction
+      }, {
+        role: 'user',
+        content: `For the word "${word}", provide creative replacements in three categories. Return ONLY valid JSON, no markdown:
 
 {
   "primary": ["word1", "word2", "word3", "word4", "word5"],
@@ -6960,13 +7780,10 @@ EXTENDED: 5 unexpected, creative replacements — not exact synonyms, but words 
 INTENSIFIERS: 3 stronger versions (more intense emotion) and 3 softer versions (gentler, subtler).
 
 Be creative with EXTENDED — these should surprise and inspire a songwriter.`
-        }],
-        max_tokens: 400,
-        temperature: 0.9
-      })
+      }],
+      max_tokens: 400,
+      temperature: 0.9
     });
-    
-    const data = await res.json();
     const text = data.choices?.[0]?.message?.content || '{}';
     
     // Parse JSON
@@ -7412,7 +8229,11 @@ function toggleSettingsMenu() {
   
   if (menu.style.display === 'none') {
     menu.style.display = 'block';
-    setTimeout(() => document.addEventListener('click', closeSettingsMenu, { once: true }), 10);
+    setTimeout(() => document.addEventListener('click', function _outsideClick(e) {
+      if (menu.contains(e.target)) return; // click inside menu — ignore
+      closeSettingsMenu();
+      document.removeEventListener('click', _outsideClick);
+    }), 10);
   } else {
     menu.style.display = 'none';
   }
@@ -7455,6 +8276,7 @@ function closeSettingsMenu() {
 }
 
 function setFontTheme(theme) {
+  if (theme === 'custom' && !_canUse('customThemes')) { showUpgradePrompt('customThemes'); return; }
   document.documentElement.setAttribute('data-font-theme', theme === 'classic' ? '' : theme);
   // Update button states
   document.querySelectorAll('.font-theme-btn').forEach(btn => btn.classList.remove('active'));
@@ -7599,6 +8421,121 @@ function applyCustomThemeVars(ct) {
   }
 }
 
+function saveCustomTheme(btn) {
+  // Replace button with inline name input
+  const wrapper = btn.parentNode;
+  const inputRow = document.createElement('div');
+  inputRow.style.cssText = 'display:flex;gap:6px;margin-top:10px;';
+  inputRow.innerHTML = `
+    <input type="text" class="save-theme-name-input" placeholder="Theme name..." maxlength="24" autofocus>
+    <button onclick="confirmSaveTheme(this)" style="padding:6px 12px;font-size:12px;font-family:var(--font-body);background:var(--amber);color:#fff;border:none;border-radius:6px;cursor:pointer;white-space:nowrap;">Save</button>
+    <button onclick="cancelSaveTheme(this)" style="padding:6px 8px;font-size:12px;font-family:var(--font-body);background:none;border:1px solid var(--rule);border-radius:6px;cursor:pointer;color:var(--ink-soft);">Cancel</button>
+  `;
+  btn.style.display = 'none';
+  wrapper.appendChild(inputRow);
+  const input = inputRow.querySelector('input');
+  input.focus();
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter') confirmSaveTheme(inputRow.querySelector('button'));
+    if (e.key === 'Escape') cancelSaveTheme(inputRow.querySelector('button'));
+  });
+}
+
+function confirmSaveTheme(confirmBtn) {
+  const inputRow = confirmBtn.parentNode;
+  const wrapper = inputRow.parentNode;
+  const saveBtn = wrapper.querySelector('button[onclick^="saveCustomTheme"]');
+  const input = inputRow.querySelector('input');
+  const name = (input.value || '').trim();
+  if (!name) { input.focus(); return; }
+
+  // Build theme object from current customizer values
+  const ct = {
+    name: name,
+    bgColor:     document.getElementById('customBgColor').value,
+    inkColor:    document.getElementById('customInkColor').value,
+    accentColor: document.getElementById('customAccentColor').value,
+    fontDisplay: document.getElementById('customFontDisplay').value,
+    fontBody:    document.getElementById('customFontBody').value,
+    fontLyric:   document.getElementById('customFontLyric').value,
+  };
+
+  // Save to prefs under a slug key
+  if (!_prefs.savedThemes) _prefs.savedThemes = {};
+  const key = 'u_' + Date.now();
+  _prefs.savedThemes[key] = ct;
+  _prefs.customTheme = ct;
+  _savePrefs();
+
+  // Clean up UI
+  inputRow.remove();
+  if (saveBtn) {
+    saveBtn.style.display = '';
+    saveBtn.textContent = 'Saved!';
+    saveBtn.style.opacity = '0.7';
+    setTimeout(() => { saveBtn.textContent = 'Save Theme'; saveBtn.style.opacity = '1'; }, 1200);
+  }
+  renderSavedThemes();
+}
+
+function cancelSaveTheme(cancelBtn) {
+  const inputRow = cancelBtn.parentNode;
+  const wrapper = inputRow.parentNode;
+  const saveBtn = wrapper.querySelector('button[onclick^="saveCustomTheme"]');
+  inputRow.remove();
+  if (saveBtn) saveBtn.style.display = '';
+}
+
+function renderSavedThemes() {
+  const themes = _prefs.savedThemes || {};
+  const keys = Object.keys(themes);
+  ['savedThemesRow', 'm_savedThemesRow'].forEach(rowId => {
+    const row = document.getElementById(rowId);
+    if (!row) return;
+    const label = document.getElementById(rowId === 'savedThemesRow' ? 'savedThemesLabel' : 'm_savedThemesLabel');
+    if (keys.length === 0) {
+      row.innerHTML = '';
+      if (label) label.style.display = 'none';
+      return;
+    }
+    if (label) label.style.display = '';
+    row.innerHTML = keys.map(k => {
+      const t = themes[k];
+      return `<button class="theme-preset-chip saved-theme-chip" onclick="applySavedTheme('${k}')" style="background:${t.bgColor};color:${t.inkColor};border-color:${t.accentColor};" title="${t.name}">${t.name}<span class="chip-delete" onclick="event.stopPropagation();deleteSavedTheme('${k}')">&#x2715;</span></button>`;
+    }).join('');
+  });
+}
+
+function applySavedTheme(key) {
+  const t = (_prefs.savedThemes || {})[key];
+  if (!t) return;
+  // Load values into desktop customizer inputs
+  document.getElementById('customBgColor').value = t.bgColor;
+  document.getElementById('customInkColor').value = t.inkColor;
+  document.getElementById('customAccentColor').value = t.accentColor;
+  document.getElementById('customFontDisplay').value = t.fontDisplay;
+  document.getElementById('customFontBody').value = t.fontBody;
+  document.getElementById('customFontLyric').value = t.fontLyric;
+  // Also update mobile inputs
+  const mBg = document.getElementById('m_customBgColor');
+  if (mBg) {
+    mBg.value = t.bgColor;
+    document.getElementById('m_customInkColor').value = t.inkColor;
+    document.getElementById('m_customAccentColor').value = t.accentColor;
+    document.getElementById('m_customFontDisplay').value = t.fontDisplay;
+    document.getElementById('m_customFontBody').value = t.fontBody;
+    document.getElementById('m_customFontLyric').value = t.fontLyric;
+  }
+  updateCustomTheme();
+}
+
+function deleteSavedTheme(key) {
+  if (!_prefs.savedThemes) return;
+  delete _prefs.savedThemes[key];
+  _savePrefs();
+  renderSavedThemes();
+}
+
 function updateCustomTheme() {
   const ct = {
     bgColor:      document.getElementById('customBgColor').value,
@@ -7650,6 +8587,8 @@ function populateCustomizer(containerId) {
       <button class="theme-preset-chip" onclick="applyCustomPreset('midnight')">Midnight</button>
       <button class="theme-preset-chip" onclick="applyCustomPreset('ocean')">Ocean</button>
     </div>
+    <div class="theme-customizer-label" id="m_savedThemesLabel" style="display:none;">My Themes</div>
+    <div class="theme-preset-row" id="m_savedThemesRow"></div>
     <div class="theme-customizer-label">Colors</div>
     <div class="theme-customizer-row">
       <label>Background</label>
@@ -7682,6 +8621,7 @@ function populateCustomizer(containerId) {
         ${CUSTOM_THEME_FONTS.lyric.map(f => `<option value="${f}" ${f===ct.fontLyric?'selected':''}>${f.split("'")[1]}</option>`).join('')}
       </select>
     </div>
+    <button onclick="saveCustomTheme(this)" style="margin-top:10px;width:100%;padding:8px;font-size:12px;font-family:var(--font-body);background:var(--amber);color:#fff;border:none;border-radius:6px;cursor:pointer;transition:opacity .2s;">Save Theme</button>
   `;
   container.dataset.populated = 'true';
 }
@@ -7764,6 +8704,9 @@ function showThemeCustomizer() {
   populateCustomizer('mobileThemeCustomizer');
   const mPanel = document.getElementById('mobileThemeCustomizer');
   if (mPanel) mPanel.classList.add('visible');
+
+  // Render saved user themes
+  renderSavedThemes();
 }
 
 function hideThemeCustomizer() {
@@ -7794,6 +8737,14 @@ function editCurrentVoice() {
 // ── Import from iA Writer / Markdown ─────────────────────────────────────────
 
 function triggerImport() {
+  const profileId = getActiveProfileId();
+  const profile = profileId ? _profiles[profileId] : null;
+  const profileName = profile?.profileName || _tr('No voice profile','Aucun profil vocal');
+  const msg = _tr(
+    `Imported songs will teach your active voice profile:\n\n"${profileName}"\n\nIf these songs belong to a different writing style, switch your voice profile first.\n\nContinue with "${profileName}"?`,
+    `Les chansons import\u00e9es enseigneront \u00e0 votre profil vocal actif\u00a0:\n\n\u00ab ${profileName} \u00bb\n\nSi ces chansons appartiennent \u00e0 un style d\u2019\u00e9criture diff\u00e9rent, changez d\u2019abord de profil vocal.\n\nContinuer avec \u00ab ${profileName} \u00bb\u00a0?`
+  );
+  if (!confirm(msg)) return;
   document.getElementById('importFileInput').click();
 }
 
@@ -7961,6 +8912,7 @@ function showImportToast(msg) {
 }
 
 function exportLyrics(fmt) {
+  if (!_canUse('export')) { showUpgradePrompt('export'); document.getElementById('exportMenu').style.display = 'none'; return; }
   document.getElementById('exportMenu').style.display = 'none';
   const title = document.getElementById('songTitle').value || 'Untitled Song';
   const slug  = title.replace(/[^a-z0-9]/gi, '_');
@@ -8262,6 +9214,391 @@ function loadSongFromLibrary(songId) {
   closeSongPicker();
 }
 
+// ── Song Starter ─────────────────────────────────────
+const SS_GENRES = ['Folk','Pop','Rock','R&B','Country','Hip-Hop','Indie','Blues','Jazz'];
+const SS_EMOTIONS = ['Joy','Longing','Rage','Wonder','Grief','Defiance','Hope','Nostalgia','Freedom','Heartbreak'];
+let _ssGenre = '';
+let _ssEmotion = '';
+
+function openSongStarter() {
+  closeSongPicker();
+  const el = document.getElementById('songStarter');
+  el.style.display = 'flex';
+  // Localize header title and blank page button
+  const titleEl = document.getElementById('ssTitle');
+  if (titleEl) titleEl.textContent = _tr('Song Starter','D\u00e9marreur de chanson');
+  const blankBtn = document.getElementById('ssBlankBtn');
+  if (blankBtn) blankBtn.innerHTML = '\uD83D\uDCC4 ' + _tr('Start with a blank page','Partir d\u2019une page blanche');
+  const menu = document.getElementById('ssMenu');
+  const content = document.getElementById('ssContent');
+  content.style.display = 'none';
+  menu.style.display = '';
+  menu.innerHTML = `<div class="ss-grid">
+    <div class="ss-card" onclick="ssShowView('spark')">
+      <div class="ss-card-icon">&#x2728;</div>
+      <div class="ss-card-title">${_tr('Spark','\u00c9tincelle')}</div>
+      <div class="ss-card-desc">${_tr('Get a random creative prompt \u2014 a theme, emotion, first line, or scenario to ignite your song.','Obtenez une invitation cr\u00e9ative al\u00e9atoire \u2014 un th\u00e8me, une \u00e9motion, une premi\u00e8re ligne ou un sc\u00e9nario pour allumer votre chanson.')}</div>
+    </div>
+    <div class="ss-card" onclick="ssShowView('seed')">
+      <div class="ss-card-icon">&#x1F331;</div>
+      <div class="ss-card-title">${_tr('Song Seed','Graine de chanson')}</div>
+      <div class="ss-card-desc">${_tr('Describe your idea and get a one-line hint planted in every section to guide your writing.','D\u00e9crivez votre id\u00e9e et obtenez un indice d\u2019une ligne plant\u00e9 dans chaque section pour guider votre \u00e9criture.')}</div>
+    </div>
+    <div class="ss-card" onclick="ssShowView('wordpool')">
+      <div class="ss-card-icon">&#x1F4A7;</div>
+      <div class="ss-card-title">${_tr('Word Pool','Bassin de mots')}</div>
+      <div class="ss-card-desc">${_tr('Generate a cloud of evocative words around a theme. Tap to collect, then start writing.','G\u00e9n\u00e9rez un nuage de mots \u00e9vocateurs autour d\u2019un th\u00e8me. Touchez pour collecter, puis commencez \u00e0 \u00e9crire.')}</div>
+    </div>
+    <div class="ss-card" onclick="ssShowView('startfrom')">
+      <div class="ss-card-icon">&#x1F9ED;</div>
+      <div class="ss-card-title">${_tr('Start From...','Partir de...')}</div>
+      <div class="ss-card-desc">${_tr('Begin from a title, an emotion, a melody idea, or a story \u2014 and let AI scaffold the rest.','Commencez par un titre, une \u00e9motion, une id\u00e9e m\u00e9lodique ou une histoire \u2014 et laissez l\u2019IA \u00e9chafauder le reste.')}</div>
+    </div>
+  </div>`;
+}
+
+function closeSongStarter() {
+  document.getElementById('songStarter').style.display = 'none';
+}
+
+function ssShowView(view) {
+  document.getElementById('ssMenu').style.display = 'none';
+  const c = document.getElementById('ssContent');
+  c.style.display = '';
+  c.innerHTML = '';
+  c.className = 'ss-content';
+  if (view === 'spark') renderSpark(c);
+  else if (view === 'seed') renderSeed(c);
+  else if (view === 'wordpool') renderWordPool(c);
+  else if (view === 'startfrom') renderStartFrom(c);
+}
+
+function ssBack() {
+  document.getElementById('ssContent').style.display = 'none';
+  document.getElementById('ssMenu').style.display = '';
+}
+
+async function ssCallAI(system, user, maxTokens, temp) {
+  const soulCtx = (typeof buildSoulPrompt === 'function') ? buildSoulPrompt() : '';
+  const langNote = (typeof getLang === 'function' && getLang() === 'fr')
+    ? '\nIMPORTANT: Respond entirely in French.' : '';
+  const data = await _fetchAI({
+    model: 'claude-haiku-4-5',
+    messages: [
+      { role:'system', content: system + soulCtx + langNote },
+      { role:'user', content: user }
+    ],
+    max_tokens: maxTokens,
+    temperature: temp
+  });
+  return data.choices[0].message.content.trim();
+}
+
+function ssGenrePills(selectedVar) {
+  return `<div class="ss-pills">${SS_GENRES.map(g =>
+    `<span class="ss-pill${window[selectedVar]===g?' active':''}" onclick="window['${selectedVar}']=window['${selectedVar}']==='${g}'?'':'${g}';this.parentNode.querySelectorAll('.ss-pill').forEach(p=>p.classList.remove('active'));if(window['${selectedVar}'])this.classList.add('active');">${g}</span>`
+  ).join('')}</div>`;
+}
+
+function starterApplySeeds(seeds) {
+  closeSongStarter();
+  createNewSong();
+  const sectionNames = sections.map(s => s.name.toLowerCase());
+  seeds.forEach(seed => {
+    const idx = sectionNames.findIndex(n => n.includes(seed.section.toLowerCase()));
+    if (idx >= 0) {
+      sections[idx].lines[0] = seed.seed;
+      sections[idx].sources[0] = 'ai';
+    }
+  });
+  selectSection(0);
+  renderSidebar();
+  if (splitOpen) renderOverview();
+}
+
+// ── Spark Generator ──
+function renderSpark(c) {
+  _ssGenre = '';
+  c.innerHTML = `
+    <button class="ss-back" onclick="ssBack()">&larr; ${_tr('Back','Retour')}</button>
+    <div class="ss-subtitle">${_tr('Spark','\u00c9tincelle')}</div>
+    <p style="font-size:13px;color:var(--ink-soft);margin-bottom:12px;">${_tr('Pick a genre (optional) and generate a creative spark to ignite your song.','Choisissez un genre (optionnel) et g\u00e9n\u00e9rez une \u00e9tincelle cr\u00e9ative pour allumer votre chanson.')}</p>
+    ${ssGenrePills('_ssGenre')}
+    <div class="ss-actions">
+      <button class="ss-btn-primary" onclick="runSpark()">${_tr('Generate a Spark','G\u00e9n\u00e9rer une \u00e9tincelle')}</button>
+    </div>
+    <div id="ssSparkResult"></div>
+  `;
+}
+
+async function runSpark() {
+  const res = document.getElementById('ssSparkResult');
+  res.innerHTML = '<div class="ss-loading">' + _tr('Sparking...','G\u00e9n\u00e9ration...') + '</div>';
+  try {
+    const genre = _ssGenre ? `Genre: ${_ssGenre}. ` : '';
+    const text = await ssCallAI(
+      'You are a songwriting muse. Give evocative, specific, surprising creative sparks — not generic advice.',
+      `${genre}Give me one creative spark for a song: a vivid theme, emotion, opening line, or scenario. Be specific and poetic. One paragraph max. No labels or prefixes.`,
+      200, 0.95
+    );
+    res.innerHTML = `
+      <div class="ss-result">${text}</div>
+      <div class="ss-actions">
+        <button class="ss-btn-primary" onclick="starterUseSparkAsLine()">${_tr('Use as first line','Utiliser comme premi\u00e8re ligne')}</button>
+        <button class="ss-btn-ghost" onclick="runSpark()">${_tr('Another','Une autre')}</button>
+        <button class="ss-btn-ghost" onclick="ssCollectSpark()">${_tr('Collect','Collecter')}</button>
+      </div>
+    `;
+  } catch(e) {
+    res.innerHTML = '<div class="ss-loading" style="color:var(--amber);">' + _tr('Something went wrong. Try again.','Une erreur est survenue. R\u00e9essayez.') + '</div>';
+  }
+}
+
+function starterUseSparkAsLine() {
+  const text = document.querySelector('#ssSparkResult .ss-result')?.textContent?.trim();
+  if (!text) return;
+  closeSongStarter();
+  createNewSong();
+  sections[0].lines[0] = text;
+  sections[0].sources[0] = 'ai';
+  selectSection(0);
+  renderSidebar();
+}
+
+function ssCollectSpark() {
+  const text = document.querySelector('#ssSparkResult .ss-result')?.textContent?.trim();
+  if (text && typeof addToScratchPad === 'function') addToScratchPad(text);
+}
+
+// ── Song Seed ──
+function renderSeed(c) {
+  _ssGenre = '';
+  c.innerHTML = `
+    <button class="ss-back" onclick="ssBack()">&larr; ${_tr('Back','Retour')}</button>
+    <div class="ss-subtitle">${_tr('Song Seed','Graine de chanson')}</div>
+    <p style="font-size:13px;color:var(--ink-soft);margin-bottom:12px;">${_tr('Describe your idea, and get a seed hint planted in every section.','D\u00e9crivez votre id\u00e9e et recevez un indice plant\u00e9 dans chaque section.')}</p>
+    <input class="ss-input" id="ssSeedInput" placeholder="${_tr('What\u2019s this song about?','De quoi parle cette chanson\u00a0?')}" maxlength="200" autofocus>
+    ${ssGenrePills('_ssGenre')}
+    <div class="ss-actions">
+      <button class="ss-btn-primary" onclick="runSeed()">${_tr('Plant Seeds','Planter les graines')}</button>
+    </div>
+    <div id="ssSeedResult"></div>
+  `;
+  c.querySelector('#ssSeedInput').addEventListener('keydown', e => { if (e.key === 'Enter') runSeed(); });
+}
+
+async function runSeed() {
+  const input = document.getElementById('ssSeedInput')?.value?.trim();
+  if (!input) return;
+  const res = document.getElementById('ssSeedResult');
+  res.innerHTML = '<div class="ss-loading">' + _tr('Planting seeds...','Plantation des graines...') + '</div>';
+  try {
+    const genre = _ssGenre ? `Genre: ${_ssGenre}. ` : '';
+    const raw = await ssCallAI(
+      'You are a songwriting collaborator. Help scaffold songs by providing one evocative seed line or question per section. Return ONLY valid JSON.',
+      `${genre}Song idea: "${input}"\n\nReturn a JSON array of objects with "section" and "seed" keys. Include these sections: Verse 1, Pre-Chorus, Chorus, Verse 2, Bridge, Outro. Each seed should be a single evocative line, image, or question (not a full lyric). Example: [{"section":"Verse 1","seed":"Picture the last time you saw them, standing in the doorway"}]`,
+      500, 0.88
+    );
+    const seeds = JSON.parse(raw.replace(/```json?\n?/g,'').replace(/```/g,'').trim());
+    let html = seeds.map(s => `
+      <div class="ss-seed-card">
+        <div class="ss-seed-label">${s.section}</div>
+        <div class="ss-seed-text">${s.seed}</div>
+      </div>
+    `).join('');
+    html += `<div class="ss-actions">
+      <button class="ss-btn-primary" onclick="ssApplySeedResults()">${_tr('Start with these seeds','Commencer avec ces graines')}</button>
+      <button class="ss-btn-ghost" onclick="runSeed()">${_tr('New seeds','Nouvelles graines')}</button>
+    </div>`;
+    res.innerHTML = html;
+    res._seeds = seeds;
+  } catch(e) {
+    res.innerHTML = '<div class="ss-loading" style="color:var(--amber);">' + _tr('Could not generate seeds. Try again.','Impossible de g\u00e9n\u00e9rer des graines. R\u00e9essayez.') + '</div>';
+  }
+}
+
+function ssApplySeedResults() {
+  const seeds = document.getElementById('ssSeedResult')?._seeds;
+  if (seeds) starterApplySeeds(seeds);
+}
+
+// ── Word Pool ──
+function renderWordPool(c) {
+  c.innerHTML = `
+    <button class="ss-back" onclick="ssBack()">&larr; ${_tr('Back','Retour')}</button>
+    <div class="ss-subtitle">${_tr('Word Pool','Bassin de mots')}</div>
+    <p style="font-size:13px;color:var(--ink-soft);margin-bottom:12px;">${_tr('Enter a theme or mood, and get a cloud of evocative words to inspire your writing.','Entrez un th\u00e8me ou une ambiance, et recevez un nuage de mots \u00e9vocateurs pour inspirer votre \u00e9criture.')}</p>
+    <input class="ss-input" id="ssWordInput" placeholder="${_tr('Theme or mood (e.g. ocean at night, bittersweet goodbye)','Th\u00e8me ou ambiance (p.\u00a0ex. oc\u00e9an la nuit, adieu doux-amer)')}" maxlength="120" autofocus>
+    <div class="ss-actions" style="margin-top:12px;">
+      <button class="ss-btn-primary" onclick="runWordPool()">${_tr('Generate Words','G\u00e9n\u00e9rer des mots')}</button>
+    </div>
+    <div id="ssWordResult"></div>
+  `;
+  c.querySelector('#ssWordInput').addEventListener('keydown', e => { if (e.key === 'Enter') runWordPool(); });
+}
+
+async function runWordPool() {
+  const input = document.getElementById('ssWordInput')?.value?.trim();
+  if (!input) return;
+  const res = document.getElementById('ssWordResult');
+  res.innerHTML = '<div class="ss-loading">' + _tr('Gathering words...','Rassemblement des mots...') + '</div>';
+  try {
+    const raw = await ssCallAI(
+      'You are a poetic word curator. Return ONLY a valid JSON array of strings, no commentary.',
+      `Theme: "${input}"\n\nReturn a JSON array of 35 evocative, specific, sensory words (mix of nouns, verbs, adjectives, a few unexpected ones) that a songwriter could use. No generic words. Example: ["phosphorescent","tide","unravel","copper","shiver"]`,
+      350, 0.92
+    );
+    const words = JSON.parse(raw.replace(/```json?\n?/g,'').replace(/```/g,'').trim());
+    let html = '<div class="ss-wordcloud">';
+    words.forEach(w => {
+      html += `<span class="ss-word" onclick="ssToggleWord(this,'${w.replace(/'/g,"\\'")}')">${w}</span>`;
+    });
+    html += '</div>';
+    html += `<div class="ss-actions">
+      <button class="ss-btn-primary" onclick="ssStartWithWords()">${_tr('Start writing','Commencer \u00e0 \u00e9crire')}</button>
+      <button class="ss-btn-ghost" onclick="runWordPool()">${_tr('New words','Nouveaux mots')}</button>
+    </div>`;
+    res.innerHTML = html;
+  } catch(e) {
+    res.innerHTML = '<div class="ss-loading" style="color:var(--amber);">' + _tr('Could not generate words. Try again.','Impossible de g\u00e9n\u00e9rer des mots. R\u00e9essayez.') + '</div>';
+  }
+}
+
+function ssToggleWord(el, word) {
+  el.classList.toggle('collected');
+  if (el.classList.contains('collected') && typeof addToScratchPad === 'function') {
+    addToScratchPad(word);
+  }
+}
+
+function ssStartWithWords() {
+  closeSongStarter();
+  createNewSong();
+  // Open collect panel so words are visible
+  if (typeof openCollectPanel === 'function') openCollectPanel();
+}
+
+// ── Start From... ──
+function renderStartFrom(c) {
+  c.innerHTML = `
+    <button class="ss-back" onclick="ssBack()">&larr; ${_tr('Back','Retour')}</button>
+    <div class="ss-subtitle">${_tr('Start From...','Partir de...')}</div>
+    <p style="font-size:13px;color:var(--ink-soft);margin-bottom:16px;">${_tr('Choose a starting point and let AI scaffold your song.','Choisissez un point de d\u00e9part et laissez l\u2019IA \u00e9chafauder votre chanson.')}</p>
+    <div class="ss-sub-grid">
+      <div class="ss-sub-card" onclick="ssStartFromPath('title')">
+        <div class="ss-sub-icon">&#x1F3B5;</div>
+        <div class="ss-sub-title">${_tr('A Title','Un titre')}</div>
+      </div>
+      <div class="ss-sub-card" onclick="ssStartFromPath('emotion')">
+        <div class="ss-sub-icon">&#x1F494;</div>
+        <div class="ss-sub-title">${_tr('An Emotion','Une \u00e9motion')}</div>
+      </div>
+      <div class="ss-sub-card" onclick="ssStartFromPath('melody')">
+        <div class="ss-sub-icon">&#x1F3B6;</div>
+        <div class="ss-sub-title">${_tr('A Melody Idea','Une id\u00e9e m\u00e9lodique')}</div>
+      </div>
+      <div class="ss-sub-card" onclick="ssStartFromPath('story')">
+        <div class="ss-sub-icon">&#x1F4D6;</div>
+        <div class="ss-sub-title">${_tr('A Story','Une histoire')}</div>
+      </div>
+    </div>
+    <div id="ssFromContent"></div>
+  `;
+}
+
+function ssStartFromPath(path) {
+  const c = document.getElementById('ssFromContent');
+  _ssEmotion = '';
+  if (path === 'title') {
+    c.innerHTML = `
+      <input class="ss-input" id="ssFromInput" placeholder="${_tr('Your working title...','Votre titre provisoire...')}" maxlength="100" autofocus>
+      <div class="ss-actions" style="margin-top:12px;">
+        <button class="ss-btn-primary" onclick="runStartFrom('title')">${_tr('Scaffold from title','\u00c9chafauder \u00e0 partir du titre')}</button>
+      </div>
+      <div id="ssFromResult"></div>
+    `;
+    c.querySelector('#ssFromInput').addEventListener('keydown', e => { if (e.key === 'Enter') runStartFrom('title'); });
+  } else if (path === 'emotion') {
+    c.innerHTML = `
+      <div class="ss-pills" id="ssEmotionPills">${SS_EMOTIONS.map(e =>
+        `<span class="ss-pill" onclick="_ssEmotion='${e}';this.parentNode.querySelectorAll('.ss-pill').forEach(p=>p.classList.remove('active'));this.classList.add('active');">${e}</span>`
+      ).join('')}</div>
+      <div class="ss-actions">
+        <button class="ss-btn-primary" onclick="runStartFrom('emotion')">${_tr('Build from emotion','Construire \u00e0 partir de l\u2019\u00e9motion')}</button>
+      </div>
+      <div id="ssFromResult"></div>
+    `;
+  } else if (path === 'melody') {
+    c.innerHTML = `
+      <input class="ss-input" id="ssFromInput" placeholder="${_tr('Describe the feel (e.g. slow waltz, minor key, driving beat)','D\u00e9crivez l\u2019ambiance (p.\u00a0ex. valse lente, mineur, rythme soutenu)')}" maxlength="150" autofocus>
+      <div class="ss-actions" style="margin-top:12px;">
+        <button class="ss-btn-primary" onclick="runStartFrom('melody')">${_tr('Suggest lyrics for this feel','Sugg\u00e9rer des paroles pour cette ambiance')}</button>
+      </div>
+      <div id="ssFromResult"></div>
+    `;
+    c.querySelector('#ssFromInput').addEventListener('keydown', e => { if (e.key === 'Enter') runStartFrom('melody'); });
+  } else if (path === 'story') {
+    c.innerHTML = `
+      <input class="ss-input" id="ssFromInput" placeholder="${_tr('Your story in one sentence...','Votre histoire en une phrase...')}" maxlength="200" autofocus>
+      <div class="ss-actions" style="margin-top:12px;">
+        <button class="ss-btn-primary" onclick="runStartFrom('story')">${_tr('Build song structure','Construire la structure de la chanson')}</button>
+      </div>
+      <div id="ssFromResult"></div>
+    `;
+    c.querySelector('#ssFromInput').addEventListener('keydown', e => { if (e.key === 'Enter') runStartFrom('story'); });
+  }
+}
+
+async function runStartFrom(path) {
+  let input = '';
+  if (path === 'emotion') {
+    input = _ssEmotion;
+  } else {
+    input = document.getElementById('ssFromInput')?.value?.trim();
+  }
+  if (!input) return;
+
+  const res = document.getElementById('ssFromResult');
+  res.innerHTML = '<div class="ss-loading">' + _tr('Building your song...','Construction de votre chanson...') + '</div>';
+
+  const prompts = {
+    title: `Song title: "${input}"\n\nScaffold a song around this title. Return a JSON array of {section, seed} objects for: Verse 1, Pre-Chorus, Chorus, Verse 2, Bridge, Outro. Each seed should be an evocative starting line or image inspired by the title.`,
+    emotion: `Core emotion: ${input}\n\nMap this emotion across a song arc. Return a JSON array of {section, seed} objects for: Verse 1, Pre-Chorus, Chorus, Verse 2, Bridge, Outro. Each seed should capture a different facet or stage of this emotion.`,
+    melody: `Melody feel: "${input}"\n\nSuggest lyric directions that match this musical feel. Return a JSON array of {section, seed} objects for: Verse 1, Pre-Chorus, Chorus, Verse 2, Bridge, Outro. Each seed should suggest rhythm, phrasing, and imagery that fits the described melody.`,
+    story: `Story: "${input}"\n\nStructure this story as a song. Return a JSON array of {section, seed} objects for: Verse 1, Pre-Chorus, Chorus, Verse 2, Bridge, Outro. Each seed should advance the narrative with a vivid image or moment.`
+  };
+
+  try {
+    const raw = await ssCallAI(
+      'You are a songwriting collaborator. Help scaffold songs with evocative seed lines. Return ONLY valid JSON.',
+      prompts[path],
+      500, 0.88
+    );
+    const seeds = JSON.parse(raw.replace(/```json?\n?/g,'').replace(/```/g,'').trim());
+    let html = seeds.map(s => `
+      <div class="ss-seed-card">
+        <div class="ss-seed-label">${s.section}</div>
+        <div class="ss-seed-text">${s.seed}</div>
+      </div>
+    `).join('');
+    html += `<div class="ss-actions">
+      <button class="ss-btn-primary" onclick="ssApplyFromResults()">${_tr('Start with these','Commencer avec ceux-ci')}</button>
+      <button class="ss-btn-ghost" onclick="runStartFrom('${path}')">${_tr('Try again','R\u00e9essayer')}</button>
+    </div>`;
+    res.innerHTML = html;
+    res._seeds = seeds;
+  } catch(e) {
+    res.innerHTML = '<div class="ss-loading" style="color:var(--amber);">' + _tr('Could not generate. Try again.','Impossible de g\u00e9n\u00e9rer. R\u00e9essayez.') + '</div>';
+  }
+}
+
+function ssApplyFromResults() {
+  const seeds = document.getElementById('ssFromResult')?._seeds;
+  if (seeds) starterApplySeeds(seeds);
+}
+
+// ── End Song Starter ─────────────────────────────────
+
 function createNewSong() {
   // Save current song first
   if (currentSongId) {
@@ -8433,7 +9770,7 @@ function _renderSongPickerResults() {
 
   // ── New song button ──
   html += `
-    <div onclick="createNewSong()" style="padding:10px 14px;cursor:pointer;font-family:'Jost',sans-serif;font-size:13px;color:var(--amber);display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--rule);" onmouseenter="this.style.background='var(--cream-dark)'" onmouseleave="this.style.background=''">
+    <div onclick="openSongStarter()" style="padding:10px 14px;cursor:pointer;font-family:'Jost',sans-serif;font-size:13px;color:var(--amber);display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--rule);" onmouseenter="this.style.background='var(--cream-dark)'" onmouseleave="this.style.background=''">
       ${t('song.new')}
     </div>
   `;
@@ -8877,6 +10214,68 @@ function syncMobileSections() {
     // Restore loop state (will be applied when audio is loaded)
     if (typeof audioLoopOn !== 'undefined') audioLoopOn = !!_prefs.audioLoopOn;
 
+    // Apply plan gates
+    if (typeof _applyPlanGates === 'function') _applyPlanGates();
+
+    // Handle checkout success redirect
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('checkout') === 'success') {
+      const sessionId = urlParams.get('session_id');
+      // Clean URL immediately
+      window.history.replaceState({}, '', window.location.pathname);
+      if (sessionId) {
+        // Show a processing modal while we verify with the server
+        const processingModal = document.createElement('div');
+        processingModal.id = 'processingModal';
+        processingModal.style.cssText = 'position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;background:rgba(26,21,16,0.55);backdrop-filter:blur(4px);animation:obIn 0.15s ease both;';
+        processingModal.innerHTML = `
+          <div style="background:var(--cream-light);border:1px solid var(--rule);border-radius:14px;padding:32px 30px 26px;max-width:400px;width:90%;box-shadow:0 20px 60px rgba(26,21,16,0.25);text-align:center;">
+            <div style="font-size:32px;margin-bottom:12px;">&#x2728;</div>
+            <div style="font-family:var(--font-display);font-size:22px;color:var(--ink);margin-bottom:8px;">${_tr('Processing your upgrade...','Traitement de votre abonnement...')}</div>
+            <p style="font-size:13px;color:var(--ink-soft);line-height:1.7;">${_tr('Verifying your payment with Stripe.','V\u00e9rification de votre paiement avec Stripe.')}</p>
+          </div>
+        `;
+        document.body.appendChild(processingModal);
+
+        // Verify server-side and update plan
+        fetch('/.netlify/functions/verify-checkout', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sessionId })
+        }).then(r => r.json()).then(data => {
+          processingModal.remove();
+          if (data.success && data.plan) {
+            // Refresh prefs from Firestore to get the authoritative plan
+            _userDoc().collection('prefs').doc('current').get().then(doc => {
+              if (doc.exists) {
+                _prefs = { ..._prefs, ...doc.data() };
+                _applyPlanGates();
+              }
+            }).catch(() => {});
+            const newPlan = data.plan;
+            const successModal = document.createElement('div');
+            successModal.style.cssText = 'position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;background:rgba(26,21,16,0.55);backdrop-filter:blur(4px);animation:obIn 0.15s ease both;';
+            const planCap = newPlan.charAt(0).toUpperCase() + newPlan.slice(1);
+            successModal.innerHTML = `
+              <div style="background:var(--cream-light);border:1px solid var(--rule);border-radius:14px;padding:32px 30px 26px;max-width:400px;width:90%;box-shadow:0 20px 60px rgba(26,21,16,0.25);text-align:center;">
+                <div style="font-size:32px;margin-bottom:12px;">&#x2728;</div>
+                <div style="font-family:var(--font-display);font-size:22px;color:var(--ink);margin-bottom:8px;">${_tr('Welcome to','Bienvenue dans')} ${planCap}${_tr('!','\u00a0!')}</div>
+                <p style="font-size:13px;color:var(--ink-soft);line-height:1.7;margin-bottom:20px;">${_tr('Your plan has been upgraded. All','Votre forfait a \u00e9t\u00e9 mis \u00e0 niveau. Toutes les fonctionnalit\u00e9s')} ${planCap} ${_tr('features are now unlocked.','sont maintenant d\u00e9verrouill\u00e9es.')}</p>
+                <button onclick="this.closest('div[style]').parentElement.remove();" style="padding:12px 24px;background:var(--amber);color:#fff;border:none;border-radius:8px;font-family:var(--font-body);font-size:14px;font-weight:500;cursor:pointer;">${_tr('Start Writing','Commencer \u00e0 \u00e9crire')}</button>
+              </div>
+            `;
+            successModal.addEventListener('click', e => { if (e.target === successModal) successModal.remove(); });
+            document.body.appendChild(successModal);
+          } else {
+            alert(_tr('Could not verify your payment: ','Impossible de v\u00e9rifier votre paiement\u00a0: ') + (data.error || _tr('Unknown error','Erreur inconnue')) + _tr('. Please refresh the page or contact support.','. Veuillez actualiser la page ou contacter le support.'));
+          }
+        }).catch(e => {
+          processingModal.remove();
+          alert(_tr('Could not verify your payment: ','Impossible de v\u00e9rifier votre paiement\u00a0: ') + e.message);
+        });
+      }
+    }
+
     // Show onboarding if never completed
     if (!_prefs.onboarded) {
       setTimeout(startOnboarding, 400);
@@ -8889,12 +10288,16 @@ function syncMobileSections() {
   const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
   const isIOSSafari = isIOS && isSafari;
 
+  let _signingIn = false; // guard against transient null-user state during sign-in
+
   window.firebaseSignIn = function() {
+    _signingIn = true;
     const provider = new firebase.auth.GoogleAuthProvider();
-    
+
     // On iOS Safari, popup is the only reliable method (redirect fails due to ITP)
     // We need to ensure popup isn't blocked by calling it synchronously from user gesture
     auth.signInWithPopup(provider).catch(e => {
+      _signingIn = false;
       if (e.code === 'auth/popup-blocked' || e.code === 'auth/popup-closed-by-user' || e.code === 'auth/cancelled-popup-request') {
         if (isIOSSafari) {
           // Don't use redirect on iOS Safari — it will fail with storage partitioning error
@@ -8925,6 +10328,7 @@ function syncMobileSections() {
   });
 
   let _appLoaded = false; // once the app renders, never go back to sign-in gate automatically
+  let _gateTimer = null;  // debounce showing the login gate
 
   auth.onAuthStateChanged(async function(user) {
     _currentUser = user;
@@ -8941,6 +10345,9 @@ function syncMobileSections() {
     }, 12000);
 
     if (user) {
+      // Cancel any pending gate timer — real user arrived
+      if (_gateTimer) { clearTimeout(_gateTimer); _gateTimer = null; }
+      _signingIn = false;
       gate.style.display = 'none';
       loading.style.display = 'flex';
 
@@ -8972,10 +10379,18 @@ function syncMobileSections() {
       loading.style.display = 'none';
     } else {
       clearTimeout(_loadingTimeout);
-      // Only show sign-in gate if app hasn't loaded yet — don't kick out a user mid-session
-      if (!_appLoaded) {
-        loading.style.display = 'none';
-        gate.style.display = 'flex';
+      // Don't show gate immediately — Firebase often fires null briefly on page load
+      // while it checks persisted auth (IndexedDB), or during redirect sign-in flow.
+      // Wait 1.5s to see if a real user arrives before showing the gate.
+      if (!_appLoaded && !_signingIn && !_gateTimer) {
+        _gateTimer = setTimeout(() => {
+          _gateTimer = null;
+          // Only show gate if still no user after the delay
+          if (!_currentUser && !_appLoaded) {
+            loading.style.display = 'none';
+            gate.style.display = 'flex';
+          }
+        }, 1500);
       }
     }
   });
