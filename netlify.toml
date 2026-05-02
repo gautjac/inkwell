@@ -3,6 +3,12 @@
   publish = "netlify"
   functions = "netlify/functions"
 
+# Firebase web API keys (AIza...) are intentionally client-visible — they
+# identify the project, security is enforced via Firestore rules. Skip
+# the scanner on the files that embed them.
+[build.environment]
+  SECRETS_SCAN_OMIT_PATHS = "public/translate.html,public/translations.js,netlify/translate.html,netlify/translations.js,netlify/index.html,public/index.html,netlify/functions/ai.js,netlify/functions/stripe-webhook.js,netlify/functions/verify-checkout.js"
+
 [[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/:splat"
