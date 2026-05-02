@@ -1,10 +1,28 @@
 [build]
-  publish = "public"
+  command = "npm run build"
+  publish = "netlify"
   functions = "netlify/functions"
 
 [[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/:splat"
+  status = 200
+
+# PostHog reverse proxy — bypasses ad blockers
+[[redirects]]
+  from = "/ingest/static/*"
+  to = "https://us-assets.i.posthog.com/static/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/ingest/*"
+  to = "https://us.i.posthog.com/:splat"
+  status = 200
+
+# French rhyme API proxy (drime.a3nm.net)
+[[redirects]]
+  from = "/rhyme-fr/*"
+  to = "https://drime.a3nm.net/:splat"
   status = 200
 
 # Never cache HTML — always fresh

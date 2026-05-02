@@ -20,9 +20,21 @@ const DEFAULT_TRANSLATIONS = {
     'btn.save': 'Save',
     'btn.saved': 'Saved ✓',
     'btn.player': '⏺ Player / Recorder',
+    'btn.cowriter': 'Co-Writer',
     'export.txt': 'Plain text',
     'export.md': 'Markdown',
     'export.pdf': 'PDF',
+    'settings.import': 'Import',
+    'settings.export.txt': 'Export as Text',
+    'settings.export.md': 'Export as Markdown',
+    'settings.export.pdf': 'Export as PDF',
+    'settings.tour': 'Feature tour',
+    'settings.feedback': 'Send feedback',
+    'mobile.editVoice': '✎ Edit voice profile',
+    'mobile.tour': '🧭 Feature tour',
+    'mobile.feedback': '💬 Send feedback',
+    'plan.badge.upgrade': 'Upgrade',
+    'plan.badge.getPro': 'Get Pro',
 
     // Sidebar
     'sidebar.structure': 'Song Structure',
@@ -267,9 +279,21 @@ const DEFAULT_TRANSLATIONS = {
     'btn.save': 'Enregistrer',
     'btn.saved': 'Enregistré ✓',
     'btn.player': '⏺ Lecteur / Enregistreur',
+    'btn.cowriter': 'Co-auteur',
     'export.txt': 'Texte brut',
     'export.md': 'Markdown',
     'export.pdf': 'PDF',
+    'settings.import': 'Importer',
+    'settings.export.txt': 'Exporter en texte',
+    'settings.export.md': 'Exporter en Markdown',
+    'settings.export.pdf': 'Exporter en PDF',
+    'settings.tour': 'Visite guid\u00e9e',
+    'settings.feedback': 'Envoyer des commentaires',
+    'mobile.editVoice': '\u270e Modifier le profil vocal',
+    'mobile.tour': '\ud83e\udded Visite guid\u00e9e',
+    'mobile.feedback': '\ud83d\udcac Envoyer des commentaires',
+    'plan.badge.upgrade': 'Mettre \u00e0 niveau',
+    'plan.badge.getPro': 'Passer \u00e0 Pro',
 
     // Sidebar
     'sidebar.structure': 'Structure de la chanson',
@@ -564,7 +588,7 @@ function applyTranslations() {
   if (addSec) addSec.textContent = t('sidebar.add');
 
   // AI panel title/subtitle
-  const aiTitle = document.getElementById('aiPanelTitle') || document.querySelector('.ai-title');
+  const aiTitle = document.getElementById('aiTitleLabel') || document.querySelector('.ai-title');
   if (aiTitle) aiTitle.textContent = t('ai.title');
   const aiSub = document.getElementById('aiPanelSub') || document.querySelector('.ai-subtitle');
   if (aiSub) aiSub.textContent = t('ai.subtitle');
@@ -661,6 +685,38 @@ function applyTranslations() {
   // Fork button
   const forkBtn = document.getElementById('forkBtn');
   if (forkBtn) forkBtn.textContent = t('version.fork');
+
+  // Settings menu items (Import, Export, Feature tour, Send feedback)
+  const settingsItems = {
+    settingsImportItem: 'settings.import',
+    settingsExportTxtItem: 'settings.export.txt',
+    settingsExportMdItem: 'settings.export.md',
+    settingsExportPdfItem: 'settings.export.pdf',
+    settingsTourItem: 'settings.tour',
+    settingsFeedbackItem: 'settings.feedback',
+  };
+  Object.entries(settingsItems).forEach(([id, key]) => {
+    const el = document.getElementById(id);
+    if (el) {
+      const label = el.querySelector('[data-label]');
+      if (label) label.textContent = t(key);
+    }
+  });
+
+  // Co-Writer button
+  const cowriterBtn = document.getElementById('cowriterBtn');
+  if (cowriterBtn) cowriterBtn.textContent = '\u2726 ' + t('btn.cowriter');
+
+  // Mobile menu items
+  const mobileEditVoice = document.getElementById('mobileEditVoiceBtn');
+  if (mobileEditVoice) mobileEditVoice.textContent = t('mobile.editVoice');
+  const mobileTour = document.getElementById('mobileTourBtn');
+  if (mobileTour) mobileTour.textContent = t('mobile.tour');
+  const mobileFeedback = document.getElementById('mobileFeedbackBtn');
+  if (mobileFeedback) mobileFeedback.textContent = t('mobile.feedback');
+
+  // Refresh plan badge to localize Upgrade/Get Pro link
+  if (typeof _applyPlanGates === 'function') _applyPlanGates();
 }
 
 

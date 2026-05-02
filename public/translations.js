@@ -588,7 +588,7 @@ function applyTranslations() {
   if (addSec) addSec.textContent = t('sidebar.add');
 
   // AI panel title/subtitle
-  const aiTitle = document.getElementById('aiPanelTitle') || document.querySelector('.ai-title');
+  const aiTitle = document.getElementById('aiTitleLabel') || document.querySelector('.ai-title');
   if (aiTitle) aiTitle.textContent = t('ai.title');
   const aiSub = document.getElementById('aiPanelSub') || document.querySelector('.ai-subtitle');
   if (aiSub) aiSub.textContent = t('ai.subtitle');

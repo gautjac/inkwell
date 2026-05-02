@@ -12,7 +12,11 @@ const OUT      = path.join(ROOT, 'netlify');
 const DEPLOY   = process.argv.includes('--deploy');
 const DRY_RUN  = process.argv.includes('--dry-run');
 const SITE_ID  = 'a31584df-8099-4292-8607-89a982ea9cf4';
-const TOKEN    = process.env.NETLIFY_AUTH_TOKEN || 'SCRUBBED_NETLIFY_AUTH_TOKEN';
+const TOKEN    = process.env.NETLIFY_AUTH_TOKEN;
+if (DEPLOY && !TOKEN) {
+  console.error('NETLIFY_AUTH_TOKEN not set. Run: export NETLIFY_AUTH_TOKEN=...');
+  process.exit(1);
+}
 
 console.log('🔨 Building Inkwell…');
 
@@ -77,12 +81,23 @@ if (!DRY_RUN) {
     }
   }
 
-  // audio.js — extract from wrapper if needed
+  // audio.js — extract AUDIO_JS + REC_JS from template literal wrappers
   const audioSrc = fs.readFileSync(path.join(SRC, 'audio-engine.js'), 'utf8');
-  const wrapIdx = audioSrc.indexOf('const AUDIO_JS = `');
-  const audioJs = wrapIdx >= 0
-    ? audioSrc.slice(wrapIdx + 'const AUDIO_JS = `'.length, audioSrc.lastIndexOf('\n`;\n'))
-    : audioSrc;
+  let audioJs = audioSrc;
+  const audioStart = audioSrc.indexOf('const AUDIO_JS = `');
+  const recStart = audioSrc.indexOf('const REC_JS = `');
+  if (audioStart >= 0 && recStart >= 0) {
+    // Extract content between backticks for each block
+    const audioContent = audioSrc.slice(
+      audioStart + 'const AUDIO_JS = `'.length,
+      audioSrc.indexOf('\n`;', audioStart + 20)
+    );
+    const recContent = audioSrc.slice(
+      recStart + 'const REC_JS = `'.length,
+      audioSrc.indexOf('\n`;', recStart + 20)
+    );
+    audioJs = audioContent + '\n\n' + recContent;
+  }
   fs.writeFileSync(path.join(OUT, 'audio.js'), audioJs);
   console.log('   ✓ audio.js');
 }
@@ -93,7 +108,7 @@ if (DEPLOY && !DRY_RUN) {
     cwd: ROOT, stdio: 'inherit',
     env: { ...process.env, NETLIFY_AUTH_TOKEN: TOKEN }
   });
-  console.log('\n✅ https://inkwell-lyric-app.netlify.app');
+  console.log('\n✅ https://app.carmencowriter.com');
 } else if (DRY_RUN) {
   console.log('\n⚠️  Dry run only.');
 } else {

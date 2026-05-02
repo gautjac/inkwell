@@ -73,7 +73,7 @@ exports.handler = async (event) => {
   // stores the plan update in a simple JSON store or uses Netlify Blobs.
   // For now, we use the Firebase REST API — you may need to add a temporary
   // Firestore rule to allow writes to the 'plan' field from the server.
-  const FIREBASE_API_KEY = process.env.FIREBASE_API_KEY || 'AIzaSyBTAN4kfoaea6RCwN0qUfeTbfqBwXigEDw';
+  const FIREBASE_API_KEY = process.env.FIREBASE_API_KEY || 'AIzaSyBuEpnxGya3KgBRjfuz4hvwz_i7BOZFHTU';
 
   async function updateUserPlan(firebaseUid, plan, stripeCustomerId) {
     const docPath = `users/${firebaseUid}/prefs/current`;

@@ -2471,6 +2471,295 @@
 
     .speed-select:focus { border-color: var(--amber); }
 
+    /* Section headers */
+    .audio-section-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+    .audio-section-label {
+      font-family: var(--font-display);
+      font-size: 9.5px;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--ink-faint);
+    }
+
+    /* Backing track info */
+    .backing-info {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 0;
+    }
+    .backing-info .backing-name { display: none; }
+    .backing-info .backing-remove { display: none; }
+    .backing-info.has-track .backing-empty { display: none; }
+    .backing-info.has-track .backing-name {
+      display: block;
+      font-family: var(--font-display);
+      font-style: italic;
+      font-size: 14px;
+      color: var(--ink-mid);
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .backing-info.has-track .backing-remove {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      border: 1px solid var(--rule);
+      background: none;
+      color: var(--ink-faint);
+      cursor: pointer;
+      font-size: 12px;
+      flex-shrink: 0;
+    }
+    .backing-info.has-track .backing-remove:hover { color: #c44; border-color: #c44; }
+    .backing-empty {
+      font-family: var(--font-display);
+      font-style: italic;
+      font-size: 12px;
+      color: var(--ink-faint);
+    }
+
+    /* Active take label */
+    .active-take-label {
+      font-family: var(--font-display);
+      font-size: 12px;
+      font-style: italic;
+      color: var(--amber);
+      padding: 2px 0;
+    }
+
+    /* Record take button */
+    .audio-rec-btn {
+      font-size: 11px;
+      width: auto;
+      padding: 0 13px;
+      height: 32px;
+      border-radius: 20px;
+      letter-spacing: 0.03em;
+      font-family: var(--font-body);
+      border: 1px solid var(--rule);
+      background: none;
+      color: var(--ink-mid);
+      cursor: pointer;
+      transition: all 0.13s;
+      flex-shrink: 0;
+    }
+    .audio-rec-btn:hover { border-color: var(--amber); color: var(--amber); }
+
+    /* Take rows */
+    .take-row {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 5px 0;
+      border-bottom: 1px solid var(--rule);
+      transition: background 0.1s;
+    }
+    .take-row.active-take {
+      background: var(--amber-pale);
+      border-radius: 6px;
+      padding: 5px 6px;
+      border-bottom-color: transparent;
+    }
+    .take-play-btn {
+      width: 28px !important;
+      height: 28px !important;
+      font-size: 11px !important;
+      flex-shrink: 0;
+    }
+    .take-play-btn.active {
+      background: var(--amber) !important;
+      border-color: var(--amber) !important;
+      color: #fff !important;
+    }
+    .take-label {
+      flex: 1;
+      font-family: var(--font-display);
+      font-size: 14px;
+      font-style: italic;
+      color: var(--ink-mid);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      cursor: default;
+    }
+    .take-rename-input {
+      flex: 1;
+      font-family: var(--font-display);
+      font-size: 14px;
+      font-style: italic;
+      color: var(--ink);
+      background: var(--cream);
+      border: 1px solid var(--amber);
+      border-radius: 4px;
+      padding: 2px 6px;
+      outline: none;
+    }
+    .take-section-badge {
+      font-size: 9px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--ink-faint);
+      flex-shrink: 0;
+      max-width: 60px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .take-star-btn {
+      background: none;
+      border: none;
+      font-size: 14px;
+      cursor: pointer;
+      color: var(--ink-faint);
+      flex-shrink: 0;
+      padding: 0 2px;
+      transition: color 0.1s;
+    }
+    .take-star-btn:hover { color: var(--amber); }
+    .take-star-btn.starred { color: var(--amber); }
+    .take-action-btn {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      border: 1px solid var(--rule);
+      background: none;
+      color: var(--ink-faint);
+      font-size: 11px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: all 0.1s;
+    }
+    .take-action-btn:hover { border-color: var(--amber); color: var(--amber); }
+    .take-del-btn:hover { border-color: #c44; color: #c44; }
+
+    /* Metronome controls */
+    .metronome-bpm-input {
+      width: 48px;
+      padding: 2px 4px;
+      border: 1px solid var(--rule);
+      border-radius: 4px;
+      background: none;
+      font-size: 11px;
+      font-family: var(--font-body);
+      color: var(--ink-mid);
+      text-align: center;
+      outline: none;
+      -moz-appearance: textfield;
+    }
+    .metronome-bpm-input::-webkit-inner-spin-button,
+    .metronome-bpm-input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+    .metronome-bpm-input:focus { border-color: var(--amber); }
+
+    .metronome-vol-slider {
+      width: 50px;
+      height: 4px;
+      -webkit-appearance: none;
+      appearance: none;
+      background: var(--rule);
+      border-radius: 2px;
+      outline: none;
+      cursor: pointer;
+    }
+    .metronome-vol-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--amber);
+      cursor: pointer;
+    }
+    .metronome-vol-slider::-moz-range-thumb {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--amber);
+      border: none;
+      cursor: pointer;
+    }
+
+    /* Beat sequencer grid */
+    .beat-pattern-row {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-bottom: 6px;
+    }
+    .beat-pattern-btn {
+      width: 28px; height: 24px;
+      border: 1px solid var(--rule);
+      border-radius: 4px;
+      background: none;
+      font-family: var(--font-body);
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--ink-faint);
+      cursor: pointer;
+      transition: all 0.1s;
+    }
+    .beat-pattern-btn:hover { border-color: var(--amber); color: var(--amber); }
+    .beat-pattern-btn.active { background: var(--ink); color: var(--cream); border-color: var(--ink); }
+    .beat-clear-btn {
+      width: 24px; height: 24px;
+      border: 1px solid var(--rule);
+      border-radius: 4px;
+      background: none;
+      font-size: 10px;
+      color: var(--ink-faint);
+      cursor: pointer;
+      margin-left: 4px;
+    }
+    .beat-clear-btn:hover { border-color: #c44; color: #c44; }
+    .beat-vol-wrap { margin-left: auto; display: flex; align-items: center; }
+
+    .beat-grid {
+      display: grid;
+      grid-template-columns: 28px repeat(16, 1fr);
+      gap: 2px;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    .beat-label {
+      font-family: var(--font-body);
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      color: var(--ink-faint);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 22px;
+    }
+    .beat-cell {
+      height: 22px;
+      border-radius: 3px;
+      background: var(--cream-dark);
+      cursor: pointer;
+      transition: background 0.08s, opacity 0.08s;
+      border: 1px solid transparent;
+    }
+    .beat-cell:hover { border-color: var(--amber); }
+    .beat-cell.hit {
+      background: var(--amber);
+    }
+    .beat-cell.bar-start { border-left: 2px solid var(--rule); }
+    .beat-cell.playing {
+      box-shadow: inset 0 0 0 2px var(--ink);
+    }
+
     .audio-upload-btn {
       padding: 6px 12px;
       border: 1px dashed var(--rule);
@@ -2658,7 +2947,7 @@
     .ftip-overlay {
       position: fixed;
       inset: 0;
-      z-index: 900;
+      z-index: 20000;
       pointer-events: none;
     }
     .ftip-spotlight {
@@ -2666,12 +2955,12 @@
       border-radius: 8px;
       box-shadow: 0 0 0 9999px rgba(0,0,0,0.45);
       pointer-events: none;
-      z-index: 901;
+      z-index: 20001;
       transition: all 0.3s cubic-bezier(.22,1,.36,1);
     }
     .ftip-bubble {
       position: fixed;
-      z-index: 902;
+      z-index: 20002;
       background: var(--cream-light);
       color: var(--ink);
       border: 1px solid var(--rule);
@@ -3236,23 +3525,509 @@
       }
     }
 
-    /* Small phones (<480px) */
+    /* ── iPhone layout (≤480px) — full redesign ─────────
+       Overrides the 767px mobile block for small phones.
+       Single surface: writing canvas fills screen, everything else is a sheet. */
     @media (max-width: 480px) {
-      .topbar { padding: 6px 8px; gap: 6px; }
-      .topbar-right { gap: 2px; }
-      .logo { font-size: 15px; }
-      #songTitle { font-size: 14px; }
-      .section-title { font-size: 20px; }
-      .line-input { font-size: 18px; line-height: 32px; }
-      .lyric-line { min-height: 32px; }
-      .editor-area { padding: 12px 10px 28px; }
-      .canvas-header { padding: 10px 10px 8px; }
+      /* Main container must stack vertically on iPhone so song row + canvas + bottom bar stack */
+      .main { flex-direction: column !important; }
 
-      /* Narrower mobile menu */
-      .mobile-menu { width: 280px; }
+      /* Tighten topbar to essentials */
+      .topbar { padding: 6px 10px; gap: 6px; min-height: 44px; }
+      .topbar-right { gap: 2px; }
+      .topbar .logo { font-size: 15px; }
+      #songTitle { display: none; } /* song title moves to iphone row */
+      .topbar .meta-chips, .topbar .meta-chips-toggle,
+      .topbar #tagEditorWrap, .topbar #touchstonesWrap,
+      .topbar .voice-switcher,
+      .topbar #cowriterBtn, .topbar .btn-split,
+      .topbar #langToggleBtn, .topbar .btn-audio { display: none !important; }
+
+      /* Re-show settings gear on iPhone (it's hidden by the 767px block) */
+      #settingsWrap { display: block !important; }
+      #settingsWrap > button { min-height: 44px; min-width: 44px; }
+      /* Settings menu dropdown: full-width on iPhone */
+      #settingsMenu {
+        position: fixed !important;
+        top: 56px !important;
+        left: 12px !important;
+        right: 12px !important;
+        min-width: 0 !important;
+        width: calc(100vw - 24px) !important;
+        max-height: calc(100vh - 80px) !important;
+        overflow-y: auto !important;
+      }
+
+      /* Song picker dropdown: positioned relative to viewport on iPhone */
+      #songPickerDropdown {
+        position: fixed !important;
+        top: 112px !important;
+        left: 12px !important;
+        right: 12px !important;
+        min-width: 0 !important;
+        max-width: none !important;
+        width: calc(100vw - 24px) !important;
+        max-height: calc(100vh - 180px) !important;
+      }
+
+      /* Song picker button may still exist */
+      .topbar #songPickerBtn { display: none; }
 
       /* Auth bar even more compact */
       #authBar .auth-name { display: none; }
+      #authBar { padding: 4px 12px; }
+
+      /* Hide FABs — replaced by bottom bar */
+      .ai-fab, .intensifiers-fab { display: none !important; }
+
+      /* Show iPhone-only UI */
+      #iphoneSongRow {
+        display: flex !important;
+        flex-direction: column;
+        gap: 0;
+        width: 100%;
+        background: var(--cream-light);
+        border-bottom: 1px solid var(--rule);
+        flex-shrink: 0;
+        order: 1;
+      }
+      /* Canvas takes remaining space on iPhone */
+      .canvas-wrap {
+        order: 2;
+        flex: 1 1 auto !important;
+        min-height: 0;
+      }
+      #iphoneBottomBar {
+        display: flex !important;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        padding: 8px 12px calc(8px + env(safe-area-inset-bottom)) 12px;
+        background: var(--cream-light);
+        border-top: 1px solid var(--rule);
+        flex-shrink: 0;
+        z-index: 50;
+        width: 100%;
+        order: 3;
+      }
+
+      /* Song title row */
+      .iph-song-title-wrap {
+        display: flex;
+        justify-content: center;
+        padding: 8px 12px 2px;
+      }
+      .iph-song-title {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 8px 18px;
+        font-family: var(--font-display);
+        font-style: italic;
+        font-size: 18px;
+        color: var(--ink);
+        cursor: pointer;
+        min-height: 44px;
+        background: var(--cream);
+        border: 1px solid var(--rule);
+        border-radius: 22px;
+        max-width: calc(100vw - 24px);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .iph-song-title:active { background: var(--cream-dark); }
+      #iphSongTitleText {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        max-width: calc(100vw - 80px);
+      }
+      .iph-chevron {
+        font-size: 12px;
+        opacity: 0.55;
+        flex-shrink: 0;
+      }
+      .iph-section-pill-wrap {
+        display: flex;
+        justify-content: center;
+        padding: 0 12px 8px;
+      }
+
+      /* Touchstones strip on iPhone */
+      .iph-touchstones-strip {
+        display: flex;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        gap: 6px;
+        padding: 4px 12px 6px;
+        scrollbar-width: none;
+      }
+      .iph-touchstones-strip::-webkit-scrollbar { display: none; }
+      .iph-ts-chip {
+        flex-shrink: 0;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 4px 10px;
+        border-radius: 20px;
+        background: var(--amber-pale);
+        border: 1px solid var(--amber);
+        font-size: 11px;
+        color: var(--amber);
+        font-family: var(--font-body);
+        white-space: nowrap;
+      }
+      .iph-ts-chip.add {
+        background: none;
+        border: 1px dashed var(--amber);
+        cursor: pointer;
+        min-height: 32px;
+      }
+
+      /* Section pill */
+      .iph-section-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 14px;
+        border: 1px solid var(--rule);
+        border-radius: 20px;
+        background: var(--cream);
+        font-family: var(--font-body);
+        font-size: 12px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--ink-soft);
+        cursor: pointer;
+        min-height: 32px;
+      }
+
+      /* Bottom action bar buttons */
+      .iph-bb-btn {
+        width: 44px;
+        height: 44px;
+        background: none;
+        border: 1px solid var(--rule);
+        border-radius: 10px;
+        color: var(--ink-soft);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+      .iph-bb-btn:disabled {
+        opacity: 0.3;
+        pointer-events: none;
+      }
+      .iph-bb-cowriter {
+        flex: 1;
+        height: 48px;
+        background: var(--amber);
+        color: #fff;
+        border: none;
+        border-radius: 12px;
+        font-family: var(--font-body);
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        box-shadow: 0 4px 18px rgba(196,96,42,0.25);
+      }
+      .iph-bb-cowriter:active { transform: scale(0.97); }
+
+      /* iPhone sheets (bottom-up panels) */
+      .iph-sheet {
+        position: fixed;
+        inset: 0;
+        z-index: 10000;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        pointer-events: none;
+      }
+      .iph-sheet-backdrop {
+        position: absolute;
+        inset: 0;
+        background: rgba(26,21,16,0.45);
+        opacity: 0;
+        transition: opacity 0.2s;
+        pointer-events: all;
+      }
+      .iph-sheet.open .iph-sheet-backdrop { opacity: 1; }
+      .iph-sheet-body {
+        position: relative;
+        background: var(--cream-light);
+        border-top-left-radius: 18px;
+        border-top-right-radius: 18px;
+        box-shadow: 0 -8px 32px rgba(26,21,16,0.25);
+        padding: 8px 0 calc(16px + env(safe-area-inset-bottom));
+        max-height: 80vh;
+        display: flex;
+        flex-direction: column;
+        transform: translateY(100%);
+        transition: transform 0.28s cubic-bezier(.22,1,.36,1);
+        pointer-events: all;
+      }
+      .iph-sheet.open .iph-sheet-body { transform: translateY(0); }
+      .iph-sheet-handle {
+        width: 40px;
+        height: 4px;
+        background: var(--rule);
+        border-radius: 2px;
+        margin: 6px auto 8px;
+        flex-shrink: 0;
+      }
+      .iph-sheet-title {
+        font-family: var(--font-display);
+        font-size: 16px;
+        color: var(--ink);
+        text-align: center;
+        padding: 4px 16px 12px;
+        border-bottom: 1px solid var(--rule);
+        flex-shrink: 0;
+      }
+      .iph-sheet-content {
+        flex: 1;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        padding: 8px 0;
+      }
+      .iph-sheet-action {
+        margin: 8px 16px 0;
+        padding: 12px;
+        background: none;
+        border: 1px dashed var(--rule);
+        border-radius: 8px;
+        color: var(--ink-soft);
+        font-family: var(--font-body);
+        font-size: 13px;
+        cursor: pointer;
+        flex-shrink: 0;
+        min-height: 44px;
+      }
+      .iph-sheet-action:hover { border-color: var(--amber); color: var(--amber); }
+
+      /* Section sheet items */
+      .iph-sec-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 14px 16px;
+        border-bottom: 1px solid var(--rule);
+        cursor: pointer;
+        font-family: var(--font-body);
+        font-size: 15px;
+        color: var(--ink-mid);
+        min-height: 52px;
+      }
+      .iph-sec-item:active { background: var(--cream-dark); }
+      .iph-sec-item.current {
+        background: var(--cream);
+        color: var(--ink);
+        font-weight: 500;
+      }
+      .iph-sec-item-count {
+        font-size: 11px;
+        color: var(--ink-faint);
+      }
+
+      /* Co-Writer sheet overrides - slide up from bottom instead of from right */
+      .ai-panel {
+        position: fixed !important;
+        left: 0 !important;
+        right: 0 !important;
+        top: auto !important;
+        bottom: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        height: 75vh !important;
+        border-left: none !important;
+        border-top: 1px solid var(--rule) !important;
+        border-top-left-radius: 18px !important;
+        border-top-right-radius: 18px !important;
+        box-shadow: 0 -8px 32px rgba(26,21,16,0.3) !important;
+        transform: translateY(100%) !important;
+        transition: transform 0.28s cubic-bezier(.22,1,.36,1) !important;
+        opacity: 1 !important;
+        padding-bottom: env(safe-area-inset-bottom) !important;
+      }
+      .ai-panel.collapsed {
+        transform: translateY(100%) !important;
+        width: 100% !important;
+        opacity: 1 !important;
+      }
+      .ai-panel:not(.collapsed) { transform: translateY(0) !important; }
+      .ai-panel-header { padding: 14px 16px 10px !important; }
+      .ai-panel-header::before {
+        content: '';
+        position: absolute;
+        top: 6px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 40px;
+        height: 4px;
+        background: var(--rule);
+        border-radius: 2px;
+      }
+      .ai-panel-header { position: relative !important; padding-top: 18px !important; }
+
+      .collect-panel {
+        position: fixed !important;
+        left: 0 !important;
+        right: 0 !important;
+        top: auto !important;
+        bottom: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        height: 80vh !important;
+        border-left: none !important;
+        border-top: 1px solid var(--rule) !important;
+        border-top-left-radius: 18px !important;
+        border-top-right-radius: 18px !important;
+        box-shadow: 0 -8px 32px rgba(26,21,16,0.3) !important;
+        transform: translateY(100%) !important;
+        transition: transform 0.28s cubic-bezier(.22,1,.36,1) !important;
+        opacity: 1 !important;
+        padding-bottom: env(safe-area-inset-bottom) !important;
+        /* Above ai-panel so tool results cover the tool list cleanly */
+        z-index: 600 !important;
+      }
+      .collect-panel.collapsed {
+        transform: translateY(100%) !important;
+        width: 100% !important;
+        opacity: 1 !important;
+      }
+      .collect-panel:not(.collapsed) { transform: translateY(0) !important; }
+
+      /* iPhone: hide the "Collected" bottom half and divider — small screens don't have room */
+      .collect-panel .cp-divider,
+      .collect-panel .cp-collected { display: none !important; }
+      .collect-panel .cp-suggestions {
+        flex: 1 1 auto !important;
+        height: 100% !important;
+        max-height: none !important;
+        display: flex !important;
+        flex-direction: column !important;
+      }
+      .collect-panel #aiResponse {
+        flex: 1 1 auto !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+      }
+      /* iPhone: sheet-handle for the collect panel header */
+      .collect-panel .cp-section-header {
+        position: relative;
+        padding-top: 22px !important;
+        flex-wrap: wrap;
+      }
+      .collect-panel .cp-section-header::before {
+        content: '';
+        position: absolute;
+        top: 8px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 40px;
+        height: 4px;
+        background: var(--rule);
+        border-radius: 2px;
+      }
+      /* "Tools" back button on iPhone */
+      .iph-tools-back {
+        display: inline-flex !important;
+        align-items: center;
+        gap: 4px;
+        background: none;
+        border: 1px solid var(--rule);
+        border-radius: 18px;
+        padding: 6px 14px;
+        font-family: var(--font-body);
+        font-size: 12px;
+        color: var(--amber);
+        cursor: pointer;
+        min-height: 32px;
+      }
+      .iph-tools-back:active { background: var(--cream-dark); }
+      .iph-suggestions-close { display: inline-flex !important; }
+
+      /* Canvas and editor tweaks for iPhone */
+      .logo { font-size: 15px; }
+      .section-title { font-size: 18px; display: none; } /* replaced by iph section pill */
+      .canvas-header { display: none; } /* replaced by iphone song row */
+      .line-input { font-size: 17px; line-height: 28px; padding: 0; }
+      .lyric-line { min-height: 28px; align-items: center; gap: 4px; }
+      .lyric-line .line-num { font-size: 9px; width: 16px; padding: 0; }
+      .syl-count { padding: 0; font-size: 9px; line-height: 28px; }
+      .ai-badge { padding: 0; line-height: 28px; }
+      .line-move-arrows { display: none; }
+      .editor-area { padding: 10px 12px 16px; }
+      .editor-area::before, .editor-area::after { display: none; }
+
+      /* Hide audio bar on iPhone (available via menu) */
+      #audioBar { display: none !important; }
+
+      /* Suggestion cards: bigger tap targets */
+      .collect-panel .ai-suggestion {
+        padding: 14px 14px !important;
+        margin-bottom: 10px !important;
+      }
+      .collect-panel .ai-suggestion-text {
+        font-size: 17px !important;
+        line-height: 1.5 !important;
+        margin-bottom: 12px !important;
+      }
+      .collect-panel .ai-suggestion-meta {
+        gap: 10px !important;
+        flex-wrap: wrap;
+      }
+      /* Eliminate iOS 300ms tap delay on ALL interactive elements */
+      .collect-panel button,
+      .collect-panel .rhyme-tag,
+      .collect-panel .phrase-chip,
+      .collect-panel .ai-suggestion,
+      .iph-tools-back,
+      .iph-suggestions-close,
+      #iphToastUndo {
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      .collect-panel .use-btn {
+        padding: 10px 16px !important;
+        font-size: 13px !important;
+        min-height: 44px !important;
+        flex: 1;
+        font-weight: 500;
+      }
+      .collect-panel .collect-btn,
+      .collect-panel .suggestion-delete-btn {
+        padding: 10px 12px !important;
+        font-size: 14px !important;
+        min-height: 44px !important;
+        min-width: 44px !important;
+      }
+      .collect-panel .rhyme-tag {
+        padding: 10px 14px !important;
+        font-size: 15px !important;
+        min-height: 44px !important;
+      }
+      .collect-panel .phrase-chip {
+        padding: 12px 14px !important;
+        font-size: 15px !important;
+      }
+      .collect-panel #aiResponse {
+        padding: 12px 14px 20px !important;
+      }
+      .collect-panel .cp-section-header {
+        padding: 22px 14px 10px !important;
+      }
+      .collect-panel .cp-section-title { font-size: 16px !important; }
     }
 
     /* ── Auth bar ──────────────────────────────────── */
@@ -3420,8 +4195,70 @@
       color: var(--ink-faint);
     }
   </style>
+
 </head>
 <body>
+
+<!-- PostHog Analytics -->
+<script type="text/javascript">
+  !function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.crossOrigin="anonymous",p.async=!0,p.src=s.api_host.replace(".i.posthog.com","-assets.i.posthog.com")+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+".people (stub)"},o="init capture register register_once register_for_session unregister unregister_for_session getFeatureFlag getFeatureFlagPayload isFeatureEnabled reloadFeatureFlags updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures on onFeatureFlags onSessionId getSurveys getActiveMatchingSurveys renderSurvey canRenderSurvey getNextSurveyStep identify setPersonProperties group resetGroups setPersonPropertiesForFlags resetPersonPropertiesForFlags setGroupPropertiesForFlags resetGroupPropertiesForFlags reset get_distinct_id getGroups get_session_id get_session_replay_url alias set_config startSessionRecording stopSessionRecording sessionRecordingStarted captureException loadToolbar get_property getSessionProperty createPersonProfile opt_in_capturing opt_out_capturing has_opted_in_capturing has_opted_out_capturing clear_opt_in_out_capturing debug getPageviewId".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
+  posthog.init('phc_rKACNDfxEQoinnSgUXBUNjJX3XVnVJycyrknjpm55MJB', {
+    api_host: '/ingest',
+    ui_host: 'https://us.posthog.com',
+    defaults: '2026-01-30',
+    person_profiles: 'identified_only',
+    capture_pageview: false,
+    autocapture: true,
+    persistence: 'localStorage',
+    session_recording: { maskAllInputs: false }
+  });
+
+  // ── UTM Capture: persist attribution across the whole journey ──────
+  // Captures first-touch UTMs (so we know where someone ORIGINALLY came from,
+  // not their last session). Stored in localStorage so it survives across
+  // visits until the user signs in and gets identified in PostHog.
+  (function() {
+    try {
+      var params = new URLSearchParams(window.location.search);
+      var utmKeys = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'];
+      var captured = {};
+      var hasUtm = false;
+      utmKeys.forEach(function(k) {
+        var v = params.get(k);
+        if (v) { captured[k] = v; hasUtm = true; }
+      });
+      // Also capture the referrer (first time only)
+      if (hasUtm || !localStorage.getItem('carmen_attribution')) {
+        if (hasUtm) {
+          captured.landing_url = window.location.href;
+          captured.referrer = document.referrer || '(direct)';
+          captured.first_seen_at = new Date().toISOString();
+          // First-touch: only write if not already set
+          if (!localStorage.getItem('carmen_attribution_first')) {
+            localStorage.setItem('carmen_attribution_first', JSON.stringify(captured));
+          }
+          // Last-touch: always overwrite
+          localStorage.setItem('carmen_attribution_last', JSON.stringify(captured));
+        }
+      }
+      // Expose for later use when user signs in
+      window._carmenAttribution = {
+        first: JSON.parse(localStorage.getItem('carmen_attribution_first') || 'null'),
+        last: JSON.parse(localStorage.getItem('carmen_attribution_last') || 'null')
+      };
+      // Register UTMs as super-properties — attached to EVERY future event
+      // so you can filter any event or funnel by utm_source, etc.
+      if (typeof posthog !== 'undefined' && window._carmenAttribution.last) {
+        var _super = {};
+        ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'].forEach(function(k) {
+          var v = window._carmenAttribution.last[k];
+          if (v) _super[k] = v;
+        });
+        if (Object.keys(_super).length) posthog.register(_super);
+      }
+    } catch(e) { console.warn('UTM capture failed:', e); }
+  })();
+</script>
 
 <!-- Sign-in gate -->
 <div id="signInGate" style="display:none">
@@ -3499,6 +4336,7 @@
     <button class="chip" id="chipMood" onclick="editMeta('mood')" title="Mood — used by the AI co-writer to match the emotional tone of suggestions">◎ Melancholic</button>
   </div>
   <div id="tagEditorWrap" style="padding:0 0 4px 0;"></div>
+  <div id="touchstonesWrap" style="padding:0 0 4px 0;"></div>
   <div class="topbar-right">
     <div class="voice-switcher" id="voiceSwitcher">
       <button class="voice-btn" id="voiceBtn" onclick="toggleVoiceDropdown()">
@@ -3702,31 +4540,31 @@
 <!-- Audio Player Bar -->
 <div id="audioBar">
 
-  <!-- Top row: import + record always visible -->
-  <div class="audio-top-row" style="align-items:center;gap:10px;">
-    <!-- Import button -->
-    <button class="audio-upload-btn" onclick="document.getElementById('audioFileInput').click()" title="Import backing track">
-      ♫ Import track
-    </button>
-    <input type="file" id="audioFileInput" accept="audio/*" style="display:none" onchange="loadAudioFile(this)" aria-label="Import audio file">
+  <!-- ═══ BACKING TRACK SECTION ═══ -->
+  <div class="audio-section">
+    <div class="audio-section-header">
+      <span class="audio-section-label">Backing Track</span>
+      <div style="flex:1"></div>
+      <button class="audio-upload-btn" onclick="document.getElementById('audioFileInput').click()" title="Import audio file">♫ Import</button>
+      <input type="file" id="audioFileInput" accept="audio/*" style="display:none" onchange="loadAudioFile(this)" aria-label="Import audio file">
+      <button id="recBackingBtn" class="audio-upload-btn" onclick="if(!_canUse('recording')){showUpgradePrompt('recording');return;}startBackingRecording()" title="Record a backing track">● Record</button>
+      <button class="audio-upload-btn" onclick="showExportDialog()" title="Export audio mix">⬇ Export</button>
+    </div>
 
-    <!-- Filename (when loaded) -->
-    <span class="audio-filename" id="audioFilename" style="display:none"></span>
+    <!-- Backing track info -->
+    <div id="backingTrackInfo" class="backing-info">
+      <span class="backing-empty">No backing track — import or record one</span>
+      <span class="backing-name" id="backingTrackName"></span>
+      <button class="backing-remove" onclick="clearBackingTrack(false)" title="Remove backing track">×</button>
+    </div>
 
-    <div style="flex:1"></div>
-
-    <!-- Rec controls always here -->
-    <button id="recBtn" class="audio-btn" onclick="if(!_canUse('recording')){showUpgradePrompt('recording');return;}toggleRecording()" title="Record a take"
-      style="font-size:11px;width:auto;padding:0 13px;height:32px;border-radius:20px;letter-spacing:0.03em;font-family:'Jost',sans-serif;">
-      ● Record
-    </button>
-    <span id="recTimer" style="font-size:11px;font-variant-numeric:tabular-nums;color:#c4602a;min-width:36px;font-family:'Jost',sans-serif;font-weight:500;"></span>
-    <span class="audio-time" id="audioTimeDisplay" style="display:none">0:00 / 0:00</span>
+    <!-- Active take indicator -->
+    <div id="activeTakeLabel" class="active-take-label" style="display:none"></div>
   </div>
 
-  <!-- Waveform (shown after file loaded) -->
-  <div id="waveformSection" style="display:none">
-    <div id="waveformWrap">
+  <!-- Waveform (shown after backing loaded) -->
+  <div id="waveformSection">
+    <div id="waveformWrap" style="display:none">
       <canvas id="waveCanvas"></canvas>
       <div id="playhead"></div>
       <div id="loopRegion"></div>
@@ -3757,12 +4595,35 @@
         <option value="1.5">1.5×</option>
       </select>
       <button class="audio-btn" onclick="clearLoop()" title="Clear loop" style="font-size:10px;width:28px;height:28px">✕</button>
+      <div class="audio-divider"></div>
+      <button class="loop-tag" id="metronomeToggle" onclick="toggleMetronome()" title="Toggle metronome click">♩ Click</button>
+      <input type="number" id="metronomeBpmInput" class="metronome-bpm-input" value="120" min="20" max="300" step="1" title="BPM" onchange="metronomeBPM=parseInt(this.value)||120">
+      <input type="range" id="metronomeVolume" class="metronome-vol-slider" min="0" max="1" step="0.05" value="0.5" oninput="setMetronomeVolume(this.value)" title="Click volume">
+      <div class="audio-divider"></div>
+      <button class="loop-tag" id="beatToggle" onclick="toggleBeat()" title="Toggle beat pattern">🥁 Beat</button>
     </div>
+    <span class="audio-time" id="audioTimeDisplay" style="display:none">0:00 / 0:00</span>
   </div>
 
-  <!-- Takes list — always visible -->
-  <div id="takesSection">
-    <div id="takesList" style="padding:2px 0;max-height:130px;overflow-y:auto;"></div>
+  <!-- ═══ BEAT PATTERN SECTION ═══ -->
+  <div id="beatSection" style="display:none;border-top:1px solid var(--rule);padding-top:8px;margin-top:4px;">
+    <div id="beatGrid"></div>
+  </div>
+
+  <!-- ═══ VOCAL TAKES SECTION ═══ -->
+  <div class="audio-section" style="border-top:1px solid var(--rule);padding-top:8px;margin-top:4px;">
+    <div class="audio-section-header">
+      <span class="audio-section-label">Vocal Takes</span>
+      <select id="takeSectionFilter" class="speed-select" style="font-size:10px;margin-left:8px;">
+        <option value="all">All sections</option>
+      </select>
+      <div style="flex:1"></div>
+      <button id="recBtn" class="audio-rec-btn" onclick="if(!_canUse('recording')){showUpgradePrompt('recording');return;}toggleRecording()" title="Record a vocal take over the backing track">
+        🎤 Record Take
+      </button>
+      <span id="recTimer" style="font-size:11px;font-variant-numeric:tabular-nums;color:#c4602a;min-width:36px;font-family:var(--font-body);font-weight:500;"></span>
+    </div>
+    <div id="takesList" style="padding:2px 0;max-height:200px;overflow-y:auto;"></div>
   </div>
 
 </div>
@@ -3777,6 +4638,48 @@
     <button class="add-section-btn" id="addSectionBtn" onclick="addSection()">+ Add Section</button>
   </aside>
   <div class="sidebar-backdrop" id="sidebarBackdrop" onclick="toggleSidebar()"></div>
+
+  <!-- iPhone-only song title row + section pill + touchstones strip -->
+  <div id="iphoneSongRow" style="display:none;">
+    <div class="iph-song-title-wrap">
+      <div class="iph-song-title" id="iphSongTitle" onclick="toggleSongPicker()">
+        <span id="iphSongTitleText">Untitled Song</span>
+        <span class="iph-chevron">&#9662;</span>
+      </div>
+    </div>
+    <div class="iph-touchstones-strip" id="iphTouchstonesStrip"></div>
+    <div class="iph-section-pill-wrap">
+      <div class="iph-section-pill" id="iphSectionPill" onclick="openSectionSheet()">
+        <span id="iphSectionPillText">&mdash;</span>
+        <span class="iph-chevron" style="font-size:10px;">&#9662;</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- iPhone-only bottom action bar -->
+  <div id="iphoneBottomBar" style="display:none;">
+    <button class="iph-bb-btn" onclick="iphPrevSection()" aria-label="Previous section" id="iphPrevBtn">
+      <span style="font-size:22px;">&#9664;</span>
+    </button>
+    <button class="iph-bb-cowriter" onclick="iphOpenCowriter()" aria-label="Co-Writer">
+      <span style="font-size:18px;">&#x2726;</span>
+      <span id="iphCowriterLabel">Co-Writer</span>
+    </button>
+    <button class="iph-bb-btn" onclick="iphNextSection()" aria-label="Next section" id="iphNextBtn">
+      <span style="font-size:22px;">&#9654;</span>
+    </button>
+  </div>
+
+  <!-- iPhone Section Sheet -->
+  <div id="sectionSheet" class="iph-sheet" style="display:none;">
+    <div class="iph-sheet-backdrop" onclick="closeSectionSheet()"></div>
+    <div class="iph-sheet-body">
+      <div class="iph-sheet-handle"></div>
+      <div class="iph-sheet-title" id="sectionSheetTitle">Sections</div>
+      <div class="iph-sheet-content" id="sectionSheetContent"></div>
+      <button class="iph-sheet-action" onclick="closeSectionSheet();addSection();" id="sectionSheetAddBtn">+ Add Section</button>
+    </div>
+  </div>
 
   <!-- Writing Canvas -->
   <main class="canvas-wrap" id="canvasWrap" aria-label="Lyric editor">
@@ -3828,7 +4731,7 @@
     <div class="ai-panel-header">
       <div class="ai-dot"></div>
       <div class="ai-header-text">
-        <div class="ai-title">Co-Writer</div>
+        <div class="ai-title" id="aiTitleLabel">Co-Writer</div>
         <span id="aiRemainingBadge" style="font-size:10px;color:var(--ink-faint);font-family:var(--font-body);font-weight:400;margin-left:4px;"></span>
       </div>
       <button class="ai-close" onclick="toggleAI()" aria-label="Close AI panel">×</button>
@@ -3843,9 +4746,11 @@
     <!-- Top half: AI suggestions -->
     <div class="cp-suggestions" id="cpSuggestions">
       <div class="cp-section-header">
+        <button class="iph-tools-back" id="iphToolsBackBtn" onclick="iphBackToTools()" aria-label="Back to tools" style="display:none;">&#x2039; Tools</button>
         <span class="cp-section-title" id="aiPanelTitle">Suggestions</span>
         <span class="cp-section-sub" id="aiPanelSub"></span>
         <div class="ai-dot" id="aiDot"></div>
+        <button class="ai-close iph-suggestions-close" id="iphSuggestionsCloseBtn" onclick="iphCloseSuggestions()" aria-label="Close" style="display:none;margin-left:auto;">&times;</button>
       </div>
       <div class="cp-suggestions-body" id="aiResponse">
         <div class="ai-empty" id="aiEmptyMsg">Select a line, then choose a tool above.</div>
@@ -4401,7 +5306,7 @@ function showUpgradePrompt(feature, data) {
         <button onclick="startCheckout('creator')" style="flex:1;padding:12px;background:var(--amber);color:#fff;border:none;border-radius:8px;font-family:var(--font-body);font-size:13px;font-weight:500;cursor:pointer;">${_tr('Creator — $9/mo','Creator — 9$/mois')}</button>
         <button onclick="startCheckout('pro')" style="flex:1;padding:12px;background:none;color:var(--ink);border:1px solid var(--rule);border-radius:8px;font-family:var(--font-body);font-size:13px;font-weight:500;cursor:pointer;">${_tr('Pro — $19/mo','Pro — 19$/mois')}</button>
       </div>
-      <a href="https://carmen-marketing.netlify.app#pricing" target="_blank" rel="noopener" style="display:block;text-align:center;font-size:11px;color:var(--ink-faint);margin-bottom:8px;text-decoration:none;">${_tr('Compare plans','Comparer les forfaits')}</a>
+      <a href="https://carmencowriter.com/#pricing" target="_blank" rel="noopener" style="display:block;text-align:center;font-size:11px;color:var(--ink-faint);margin-bottom:8px;text-decoration:none;">${_tr('Compare plans','Comparer les forfaits')}</a>
       <button onclick="this.closest('#upgradeModal').remove();" style="background:none;border:none;font-size:12px;color:var(--ink-faint);cursor:pointer;font-family:var(--font-body);">${_tr('Maybe later','Peut-\u00eatre plus tard')}</button>
     </div>
   `;
@@ -4527,6 +5432,10 @@ async function submitFeedback() {
     await _firestoreDb.collection('feedback').add(payload);
     modal.remove();
     showVoiceToast(_tr('Thanks! Your feedback has been sent.','Merci\u00a0! Votre commentaire a \u00e9t\u00e9 envoy\u00e9.'));
+    // PostHog: track feedback submission
+    if (typeof posthog !== 'undefined') {
+      posthog.capture('feedback_submitted', { category: payload.category || 'unknown' });
+    }
   } catch (e) {
     console.error('Feedback submit error:', e);
     submitBtn.disabled = false;
@@ -4561,7 +5470,7 @@ async function startCheckout(plan) {
   const btns = modal?.querySelectorAll('button');
   btns?.forEach(b => { b.disabled = true; b.style.opacity = '0.5'; });
   try {
-    const res = await fetch('https://carmen-marketing.netlify.app/.netlify/functions/create-checkout', {
+    const res = await fetch('https://carmencowriter.com/.netlify/functions/create-checkout', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -4617,7 +5526,22 @@ async function _fetchAI(payload) {
     showUpgradePrompt('aiLimit', { used: data.used || 0, limit: data.limit || 50 });
     throw new Error('AI limit reached');
   }
-  if (!res.ok) throw new Error('AI request failed');
+  if (!res.ok) {
+    // Surface the actual error so we can see what's wrong
+    let errMsg = `AI request failed (${res.status})`;
+    try {
+      const errData = await res.json();
+      if (errData.error) errMsg += `: ${errData.error}`;
+      if (errData.message) errMsg += `: ${errData.message}`;
+    } catch(e) {
+      try {
+        const txt = await res.text();
+        if (txt) errMsg += `: ${txt.slice(0, 200)}`;
+      } catch(e2) {}
+    }
+    console.error('[ai fetch]', errMsg);
+    throw new Error(errMsg);
+  }
   // Update local usage counter from response header
   const aiRemaining = res.headers.get('X-AI-Remaining');
   if (aiRemaining !== null) {
@@ -4678,6 +5602,14 @@ function _debouncedWrite(key, fn) {
   }, 500);
 }
 
+// Strip server-managed fields (plan, aiUsage, stripeCustomerId) before writing prefs.
+// These are only set by the AI endpoint (aiUsage) and Stripe verify-checkout (plan).
+// Writing them from the client would be blocked by Firestore rules.
+function _clientSafePrefs() {
+  const { plan, aiUsage, stripeCustomerId, ...clientPrefs } = _prefs;
+  return clientPrefs;
+}
+
 function _savePrefs() {
   // Mirror theme prefs to localStorage for instant restore on reload
   try {
@@ -4686,7 +5618,7 @@ function _savePrefs() {
     if (_prefs.savedThemes) localStorage.setItem('inkwell_savedThemes', JSON.stringify(_prefs.savedThemes));
   } catch(e) {}
   if (!_currentUser) return;
-  _debouncedWrite('prefs', () => _userDoc().collection('prefs').doc('current').set(_prefs));
+  _debouncedWrite('prefs', () => _userDoc().collection('prefs').doc('current').set(_clientSafePrefs(), { merge: true }));
 }
 
 // ── Voice profile storage ─────────────────────────
@@ -5107,12 +6039,19 @@ function finishOnboarding() {
   _prefs.onboarded = true;
   // Write immediately (not debounced) so it persists even if page is closed right away
   if (_currentUser) {
-    _userDoc().collection('prefs').doc('current').set(_prefs)
+    _userDoc().collection('prefs').doc('current').set(_clientSafePrefs(), { merge: true })
       .catch(e => console.error('Prefs save error:', e));
   }
   document.getElementById('onboarding').style.display = 'none';
   renderVoiceSwitcher();
   editingProfileId = null;
+  // PostHog: track onboarding completion
+  if (typeof posthog !== 'undefined') {
+    posthog.capture('onboarding_completed', {
+      profile_name: writerSoul.profileName || '',
+      genres: (writerSoul.genres || []).join(', ')
+    });
+  }
   // Show feature tour after a short delay
   setTimeout(startFeatureTour, 600);
 }
@@ -5136,34 +6075,91 @@ function _getFtourSteps() {
       nextLabel: got,
     },
     {
+      targetId: 'touchstonesWrap',
+      arrow: 'arrow-top',
+      title: _tr('Touchstones','Points de rep\u00e8re'),
+      body: _tr('Add words, images, or themes that guide every AI suggestion for this song. Think of them as a tonal compass \u2014 a lighthouse, a season, a color, a memory. Each tool you use will lean toward them, without forcing them in.','Ajoutez des mots, des images ou des th\u00e8mes qui guident chaque suggestion IA pour cette chanson. Pensez \u00e0 une boussole tonale \u2014 un phare, une saison, une couleur, un souvenir. Chaque outil que vous utilisez s\u2019en inspirera, sans les forcer.'),
+      nextLabel: got,
+    },
+    {
       targetId: 'aiPanel',
       arrow: 'arrow-right',
       title: _tr('AI Co-Writer','Co-auteur IA'),
       body: _tr('16 tools built for lyric-making. Select a line, pick a tool \u2014 rhymes, rewrites, metaphors, hooks, and more. Everything comes back in your voice.','16 outils con\u00e7us pour l\u2019\u00e9criture de paroles. S\u00e9lectionnez une ligne, choisissez un outil \u2014 rimes, r\u00e9\u00e9critures, m\u00e9taphores, accroches et plus. Tout revient dans votre voix.'),
       nextLabel: got,
       beforeShow: function() { if (!aiOpen) toggleAI(); },
-      afterHide: function() { if (aiOpen) toggleAI(); },
     },
     {
-      targetId: 'songPickerBtn',
-      arrow: 'arrow-top',
-      title: _tr('Song Starter','D\u00e9marreur de chanson'),
-      body: _tr('Stuck on a blank page? Click New Song to open the Song Starter \u2014 four creative pathways: Spark, Song Seed, Word Pool, or Start From a title, emotion, melody, or story.','Bloqu\u00e9 devant une page blanche\u00a0? Cliquez sur Nouvelle chanson pour ouvrir le D\u00e9marreur \u2014 quatre chemins cr\u00e9atifs\u00a0: \u00c9tincelle, Graine de chanson, Bassin de mots, ou Partir de\u2026 un titre, une \u00e9motion, une m\u00e9lodie ou une histoire.'),
+      targetId: 'toolInfoBox',
+      arrow: 'arrow-right',
+      title: _tr('Every tool explains itself','Chaque outil s\u2019explique'),
+      body: _tr('Tap the (i) icon next to any tool to see what it does, when to use it, and a pro tip. This is "Find rhymes" \u2014 your other 15 tools each have their own card.','Touchez l\u2019ic\u00f4ne (i) \u00e0 c\u00f4t\u00e9 de tout outil pour voir ce qu\u2019il fait, quand l\u2019utiliser, et une astuce. Voici \u00ab Trouver des rimes \u00bb \u2014 les 15 autres outils ont chacun leur fiche.'),
       nextLabel: got,
+      beforeShow: function() {
+        // Find the rhyme tool and pop its info modal as a live demo
+        const findTool = (mode) => {
+          if (typeof AI_TOOLS === 'undefined') return null;
+          for (const group of AI_TOOLS) {
+            for (const tool of (group.tools || [])) {
+              if (tool.mode === mode) return tool;
+            }
+          }
+          return null;
+        };
+        const rhymeTool = findTool('rhyme');
+        if (rhymeTool && typeof showToolInfo === 'function') showToolInfo(rhymeTool);
+      },
+      afterHide: function() {
+        document.getElementById('toolInfoModal')?.remove();
+        if (aiOpen) toggleAI();
+      },
+    },
+    {
+      targetId: 'songStarter',
+      arrow: 'arrow-bottom',
+      title: _tr('Song Starter','D\u00e9marreur de chanson'),
+      body: _tr('Stuck on a blank page? The Song Starter offers four creative pathways: Spark for a quick line, Song Seed for a structured starting point, Word Pool to brainstorm vocabulary, or Start From a title, emotion, melody, or story.','Bloqu\u00e9 devant une page blanche\u00a0? Le D\u00e9marreur offre quatre chemins cr\u00e9atifs\u00a0: \u00c9tincelle pour une ligne rapide, Graine de chanson pour un point de d\u00e9part structur\u00e9, Bassin de mots pour faire du brainstorming de vocabulaire, ou Partir de\u2026 un titre, une \u00e9motion, une m\u00e9lodie ou une histoire.'),
+      nextLabel: got,
+      beforeShow: function() { if (typeof openSongStarter === 'function') openSongStarter(); },
+      afterHide: function() { if (typeof closeSongStarter === 'function') closeSongStarter(); },
     },
     {
       targetId: 'audioToggleBtn',
       arrow: 'arrow-top',
       title: _tr('Audio Player & Recorder','Lecteur et enregistreur audio'),
-      body: _tr('Import a backing track (MP3, WAV, M4A) and see its waveform. Record vocal takes right alongside your lyrics. Loop a section, slow it down to 0.5\u00d7 \u2014 everything in one place.','Importez une piste d\u2019accompagnement (MP3, WAV, M4A) et voyez sa forme d\u2019onde. Enregistrez des prises vocales \u00e0 c\u00f4t\u00e9 de vos paroles. Bouclez une section, ralentissez-la \u00e0 0,5\u00d7 \u2014 tout au m\u00eame endroit.'),
+      body: _tr('Import a backing track or record one in the app (guitar, piano, hum a melody). Then record vocal takes layered over it \u2014 keep multiple takes per section, star your favorites, and export stems to take into your DAW.','Importez une piste d\u2019accompagnement ou enregistrez-la directement dans l\u2019app (guitare, piano, fredonner une m\u00e9lodie). Puis enregistrez des prises vocales par-dessus \u2014 gardez plusieurs prises par section, marquez vos pr\u00e9f\u00e9r\u00e9es, et exportez les pistes s\u00e9par\u00e9es vers votre DAW.'),
       nextLabel: got,
     },
     {
-      targetId: 'settingsWrap',
+      targetId: 'beatToggle',
+      arrow: 'arrow-top',
+      title: _tr('Drum Machine','Bo\u00eete \u00e0 rythmes'),
+      body: _tr('Tap out a beat to write to. Eight built-in instruments (kick, clap, hi-hat, shaker, cowbell, more), 16 steps, four pattern slots (A/B/C/D). Plays in sync with your backing track and metronome \u2014 or by itself if you just want a groove. Patterns save with the song, and the beat exports as MIDI for your DAW.','Tapez un rythme pour \u00e9crire dessus. Huit instruments int\u00e9gr\u00e9s (grosse caisse, clap, charley, shaker, cloche, et plus), 16 pas, quatre patrons (A/B/C/D). Joue en synchro avec votre piste d\u2019accompagnement et le m\u00e9tronome \u2014 ou seul si vous voulez juste un groove. Les patrons s\u2019enregistrent avec la chanson, et le rythme s\u2019exporte en MIDI pour votre DAW.'),
+      nextLabel: got,
+      beforeShow: function() {
+        // Make sure audio bar is open and beat is toggled on so the grid is visible
+        if (!audioBarVisible && typeof toggleAudioBar === 'function') toggleAudioBar();
+        if (typeof beatOn !== 'undefined' && !beatOn && typeof toggleBeat === 'function') toggleBeat();
+      },
+      afterHide: function() {
+        // Close the beat section and audio bar so the user returns to a clean editor view
+        if (typeof beatOn !== 'undefined' && beatOn && typeof toggleBeat === 'function') toggleBeat();
+        if (audioBarVisible && typeof toggleAudioBar === 'function') toggleAudioBar();
+      },
+    },
+    {
+      targetId: 'settingsMenu',
       arrow: 'arrow-top',
       title: _tr('Themes & Settings','Th\u00e8mes et param\u00e8tres'),
       body: _tr('Choose from built-in themes (Classic, Modern, Typewriter, Night) or create your own with custom colors and fonts. Name and save your favorites.','Choisissez parmi les th\u00e8mes int\u00e9gr\u00e9s (Classique, Moderne, Machine \u00e0 \u00e9crire, Nuit) ou cr\u00e9ez le v\u00f4tre avec des couleurs et polices personnalis\u00e9es. Nommez et enregistrez vos pr\u00e9f\u00e9r\u00e9s.'),
       nextLabel: got,
+      beforeShow: function() {
+        const menu = document.getElementById('settingsMenu');
+        if (menu && menu.style.display === 'none' && typeof toggleSettingsMenu === 'function') toggleSettingsMenu();
+      },
+      afterHide: function() {
+        if (typeof closeSettingsMenu === 'function') closeSettingsMenu();
+      },
     },
     {
       targetId: 'songOverview',
@@ -5396,7 +6392,7 @@ function renderObStep() {
     skipLink.onclick = () => {
       _prefs.onboarded = true;
       if (_currentUser) {
-        _userDoc().collection('prefs').doc('current').set(_prefs)
+        _userDoc().collection('prefs').doc('current').set(_clientSafePrefs(), { merge: true })
           .catch(e => console.error('Prefs save error:', e));
       }
       document.getElementById('onboarding').style.display = 'none';
@@ -5493,7 +6489,7 @@ function renderObStep() {
     skip.textContent = isFr ? 'Passer la configuration →' : 'Skip setup and start writing →';
     skip.onclick = () => {
       _prefs.onboarded = true;
-      if (_currentUser) _userDoc().collection('prefs').doc('current').set(_prefs).catch(() => {});
+      if (_currentUser) _userDoc().collection('prefs').doc('current').set(_clientSafePrefs(), { merge: true }).catch(() => {});
       document.getElementById('onboarding').style.display = 'none';
     };
 
@@ -5842,6 +6838,20 @@ function buildSoulPrompt() {
   return prompt;
 }
 
+function buildTouchstonesPrompt() {
+  const lib = (typeof _songLib !== 'undefined') ? _songLib : {};
+  const song = currentSongId && lib[currentSongId];
+  const list = (song && song.touchstones) || [];
+  if (!list.length) return '';
+  return '\n\n--- SONG TOUCHSTONES ---\n' +
+    'The writer has identified these as guiding words, images, and themes for this song: ' +
+    list.join(', ') + '.\n' +
+    'Treat them as a tonal compass. Let them shape the imagery, mood, and vocabulary of your suggestions. ' +
+    'Weave them in where they fit naturally — do not force every suggestion to literally include them, ' +
+    'but suggestions should feel connected to this set of touchstones.\n' +
+    '--- END TOUCHSTONES ---';
+}
+
 // ── State ─────────────────────────────────────────
 // lines: array of strings
 // sources: parallel array — 'human' | 'ai'
@@ -6065,6 +7075,7 @@ function selectSection(idx, silent) {
   renderVersionTabs();
   renderEditor();
   renderOverview();
+  if (typeof updateIphoneSectionPill === 'function') updateIphoneSectionPill();
   if (!silent) resetAIPanel();
 }
 
@@ -6421,6 +7432,14 @@ function renderEditor() {
       syl.className = 'syl-count' + (e.target.value ? ' filled' : '');
       updateLineCounts();
       renderOverview();
+      // PostHog: track first line typed (once per session)
+      if (e.target.value.trim() && !window._phFirstLineTracked && typeof posthog !== 'undefined') {
+        window._phFirstLineTracked = true;
+        posthog.capture('first_line_typed', {
+          section_name: sections[current]?.name || '',
+          song_id: currentSongId || ''
+        });
+      }
       // Auto-save to Firestore (debounced via _debouncedWrite inside saveSong)
       saveSong();
     });
@@ -6702,6 +7721,7 @@ function showToolInfo(tool) {
 
   const box = document.createElement('div');
   box.className = 'info-modal-box';
+  box.id = 'toolInfoBox';
 
   const icon = document.createElement('div');
   icon.className = 'info-modal-icon';
@@ -6768,13 +7788,253 @@ function toggleOverflowMenu() {
 }
 
 function _isTablet() { return window.innerWidth <= 1199; }
+function _isIPhone() { return window.innerWidth <= 480; }
+
+// ── iPhone helpers ────────────────────────────────────
+function _haptic(ms) {
+  if (navigator.vibrate && _isIPhone()) {
+    try { navigator.vibrate(ms || 10); } catch(e) {}
+  }
+}
+
+function updateIphoneSongTitle() {
+  const el = document.getElementById('iphSongTitleText');
+  if (!el) return;
+  const titleInput = document.getElementById('songTitle');
+  const title = titleInput?.value?.trim() || _tr('Untitled Song','Chanson sans titre');
+  el.textContent = title;
+}
+
+function updateIphoneSectionPill() {
+  const el = document.getElementById('iphSectionPillText');
+  if (!el) return;
+  const sec = sections && sections[current];
+  el.textContent = sec?.name || '—';
+  // Update prev/next buttons
+  const prevBtn = document.getElementById('iphPrevBtn');
+  const nextBtn = document.getElementById('iphNextBtn');
+  if (prevBtn) prevBtn.disabled = (current <= 0);
+  if (nextBtn) nextBtn.disabled = (current >= (sections?.length || 1) - 1);
+}
+
+function updateIphoneTouchstones() {
+  const strip = document.getElementById('iphTouchstonesStrip');
+  if (!strip) return;
+  const lib = getSongLibrary();
+  const song = currentSongId && lib[currentSongId];
+  const list = (song && song.touchstones) || [];
+  let html = '';
+  list.forEach((word) => {
+    const safe = word.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+    html += `<span class="iph-ts-chip" onclick="_haptic(5);removeTouchstone('${safe}', event)">
+      \u2726 ${word} <span style="opacity:0.6;font-size:13px;margin-left:2px;">\u00d7</span>
+    </span>`;
+  });
+  html += `<span class="iph-ts-chip add" onclick="_haptic(5);promptAddTouchstone(event)">
+    \u2726 ${_tr('+ touchstone','+ rep\u00e8re')}
+  </span>`;
+  strip.innerHTML = html;
+}
+
+function iphPrevSection() {
+  _haptic(8);
+  if (current > 0) selectSection(current - 1);
+}
+
+function iphNextSection() {
+  _haptic(8);
+  if (current < sections.length - 1) selectSection(current + 1);
+}
+
+function iphOpenCowriter() {
+  _haptic(10);
+  // Always land on the tool list: close collect panel (suggestions) and open ai panel
+  const collectPanel = document.getElementById('collectPanel');
+  if (collectPanel && !collectPanel.classList.contains('collapsed')) {
+    collectPanel.classList.add('collapsed');
+    collectPanelOpen = false;
+  }
+  // Clear any stale suggestions so the user starts fresh each time
+  const aiResponse = document.getElementById('aiResponse');
+  if (aiResponse) {
+    aiResponse.innerHTML = '<div class="ai-empty" id="aiEmptyMsg">' + _tr('Pick a tool above to get suggestions.', 'Choisissez un outil pour obtenir des suggestions.') + '</div>';
+  }
+  if (!aiOpen) {
+    aiOpen = true;
+    document.getElementById('aiPanel').classList.remove('collapsed');
+  }
+}
+
+// Toast notification for iPhone — with optional Undo button
+function _showIphToast(msg, showUndo) {
+  const existing = document.getElementById('iphToast');
+  if (existing) existing.remove();
+  const toast = document.createElement('div');
+  toast.id = 'iphToast';
+  toast.style.cssText = `
+    position:fixed; bottom:calc(80px + env(safe-area-inset-bottom)); left:50%;
+    transform:translateX(-50%); background:var(--ink); color:var(--cream);
+    padding:10px 16px; border-radius:22px; font-family:var(--font-body);
+    font-size:13px; z-index:20000; opacity:0;
+    transition:opacity 0.2s; display:flex; align-items:center; gap:12px;
+    box-shadow:0 8px 24px rgba(26,21,16,0.35);
+    touch-action:manipulation; white-space:nowrap;
+  `;
+  const label = document.createElement('span');
+  label.textContent = msg;
+  toast.appendChild(label);
+
+  let autoHideTimer;
+  if (showUndo) {
+    const undoBtn = document.createElement('button');
+    undoBtn.id = 'iphToastUndo';
+    undoBtn.textContent = _tr('Undo', 'Annuler');
+    undoBtn.style.cssText = `
+      background:var(--amber); color:#fff; border:none;
+      border-radius:14px; padding:6px 14px; font-size:13px;
+      font-family:var(--font-body); font-weight:600; cursor:pointer;
+      min-height:32px; touch-action:manipulation;
+      -webkit-tap-highlight-color:transparent;
+    `;
+    undoBtn.addEventListener('click', () => {
+      _haptic(8);
+      undo();
+      clearTimeout(autoHideTimer);
+      toast.style.opacity = '0';
+      setTimeout(() => toast.remove(), 200);
+      _showIphToast(_tr('Undone ✓', 'Annulé ✓'), false);
+    });
+    toast.appendChild(undoBtn);
+  }
+
+  document.body.appendChild(toast);
+  requestAnimationFrame(() => { toast.style.opacity = '1'; });
+  autoHideTimer = setTimeout(() => {
+    toast.style.opacity = '0';
+    setTimeout(() => toast.remove(), 300);
+  }, showUndo ? 5000 : 1800);
+}
+
+// Back from suggestions to the tool list on iPhone
+function iphBackToTools() {
+  _haptic(8);
+  const collectPanel = document.getElementById('collectPanel');
+  if (collectPanel) {
+    collectPanel.classList.add('collapsed');
+    collectPanelOpen = false;
+  }
+  aiOpen = true;
+  document.getElementById('aiPanel').classList.remove('collapsed');
+}
+
+// Fully dismiss the suggestions sheet on iPhone
+function iphCloseSuggestions() {
+  _haptic(8);
+  const collectPanel = document.getElementById('collectPanel');
+  if (collectPanel) {
+    collectPanel.classList.add('collapsed');
+    collectPanelOpen = false;
+  }
+  // Also ensure ai panel is closed so the user is back to the editor
+  aiOpen = false;
+  document.getElementById('aiPanel').classList.add('collapsed');
+}
+
+// ── Section Sheet (iPhone) ────────────────────────────
+function openSectionSheet() {
+  _haptic(8);
+  const sheet = document.getElementById('sectionSheet');
+  if (!sheet) return;
+  renderSectionSheet();
+  sheet.style.display = 'flex';
+  // Force reflow then add open class for animation
+  void sheet.offsetHeight;
+  sheet.classList.add('open');
+}
+
+function closeSectionSheet() {
+  const sheet = document.getElementById('sectionSheet');
+  if (!sheet) return;
+  sheet.classList.remove('open');
+  setTimeout(() => { sheet.style.display = 'none'; }, 300);
+}
+
+function renderSectionSheet() {
+  const content = document.getElementById('sectionSheetContent');
+  if (!content) return;
+  const titleEl = document.getElementById('sectionSheetTitle');
+  if (titleEl) titleEl.textContent = _tr('Sections','Sections');
+  const addBtn = document.getElementById('sectionSheetAddBtn');
+  if (addBtn) addBtn.textContent = _tr('+ Add Section','+ Ajouter une section');
+  let html = '';
+  sections.forEach((sec, i) => {
+    const lines = (sec.lines || []).filter(l => l.trim()).length;
+    const isCurrent = i === current;
+    html += `<div class="iph-sec-item${isCurrent ? ' current' : ''}" onclick="_haptic(8);selectSection(${i});closeSectionSheet();">
+      <span>${sec.name || '—'}</span>
+      <span class="iph-sec-item-count">${lines} ${_tr('lines','lignes')}</span>
+    </div>`;
+  });
+  content.innerHTML = html;
+}
+
+// ── iPhone swipe gesture for section navigation ──────
+let _swipeStartX = null;
+let _swipeStartY = null;
+function _attachSwipeNav() {
+  const area = document.getElementById('editorPane');
+  if (!area || area._swipeAttached) return;
+  area._swipeAttached = true;
+  area.addEventListener('touchstart', (e) => {
+    if (!_isIPhone()) return;
+    _swipeStartX = e.touches[0].clientX;
+    _swipeStartY = e.touches[0].clientY;
+  }, { passive: true });
+  area.addEventListener('touchend', (e) => {
+    if (!_isIPhone() || _swipeStartX === null) return;
+    const dx = e.changedTouches[0].clientX - _swipeStartX;
+    const dy = e.changedTouches[0].clientY - _swipeStartY;
+    _swipeStartX = _swipeStartY = null;
+    // Horizontal swipe dominant, > 80px, not in an input
+    if (Math.abs(dx) > 80 && Math.abs(dx) > Math.abs(dy) * 2) {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+      if (dx < 0) iphNextSection(); else iphPrevSection();
+    }
+  }, { passive: true });
+}
+
+// ── iPhone keyboard scroll handling ──────────────────
+function _attachKeyboardScroll() {
+  if (!_isIPhone()) return;
+  document.addEventListener('focusin', (e) => {
+    if (!_isIPhone()) return;
+    if (e.target.classList && e.target.classList.contains('line-input')) {
+      setTimeout(() => {
+        e.target.scrollIntoView({ block: 'center', behavior: 'smooth' });
+      }, 300);
+    }
+  });
+}
+
+// Refresh all iPhone UI bits
+function updateIphoneUI() {
+  if (!_isIPhone()) return;
+  updateIphoneSongTitle();
+  updateIphoneSectionPill();
+  updateIphoneTouchstones();
+  _attachSwipeNav();
+}
+
 
 function toggleAI() {
   aiOpen = !aiOpen;
   document.getElementById('aiPanel').classList.toggle('collapsed', !aiOpen);
-  document.getElementById('aiFab').textContent = aiOpen ? '×' : '✦';
+  const fab = document.getElementById('aiFab');
+  if (fab) fab.textContent = aiOpen ? '×' : '✦';
   // On tablet, close split when opening AI to avoid overlap
   if (aiOpen && _isTablet() && splitOpen) toggleSplit(false);
+  // Haptic feedback on iPhone
+  if (_isIPhone()) _haptic(8);
   // Mirror collect panel with AI panel
   if (!aiOpen) {
     document.getElementById('collectPanel').classList.add('collapsed');
@@ -6877,7 +8137,7 @@ function toggleOvColumns() {
     // Auto-save song title on change
     const songTitleEl = document.getElementById('songTitle');
     if (songTitleEl) {
-      songTitleEl.addEventListener('input', () => saveSong());
+      songTitleEl.addEventListener('input', () => { saveSong(); if (typeof updateIphoneSongTitle === 'function') updateIphoneSongTitle(); });
     }
 
     const resizer = document.getElementById('splitResizer');
@@ -7058,6 +8318,27 @@ function extractContentWords(line) {
 async function runAI(mode) {
   if (!aiOpen) toggleAI();
   openCollectPanel();
+  // On iPhone, the two panels overlay each other — close the tool sheet
+  // so the suggestions sheet becomes visible. Show the "Tools" back button.
+  if (_isIPhone()) {
+    aiOpen = false;
+    document.getElementById('aiPanel').classList.add('collapsed');
+    const back = document.getElementById('iphToolsBackBtn');
+    if (back) back.style.display = 'inline-flex';
+    const close = document.getElementById('iphSuggestionsCloseBtn');
+    if (close) close.style.display = 'inline-flex';
+    _haptic(8);
+  }
+
+  // PostHog: track Co-Writer tool usage
+  if (typeof posthog !== 'undefined') {
+    posthog.capture('cowriter_tool_used', {
+      tool: mode,
+      section_name: sections[current]?.name || '',
+      has_selected_line: selectedLine !== null,
+      is_iphone: _isIPhone()
+    });
+  }
 
   const sec = sections[current];
   const { lines: currentLines } = getCurrentLines();
@@ -7086,7 +8367,7 @@ async function runAI(mode) {
   const langInstruction = songLang === 'fr'
     ? ' The song is in French. Respond entirely in French. All suggestions must be in French.'
     : '';
-  const system = `You are an expert lyric writing collaborator. You value specificity over abstraction — concrete details (places, names, objects, sensations) over generic emotions. Keep responses SHORT and immediately useful. Never write AI-sounding filler. CRITICAL: Output ONLY what is asked for — no rationale, no explanations, no commentary, no "here's why" notes, no introductions, no sign-offs. Just the results.` + langInstruction + `${buildSoulPrompt()}`;
+  const system = `You are an expert lyric writing collaborator. You value specificity over abstraction — concrete details (places, names, objects, sensations) over generic emotions. Keep responses SHORT and immediately useful. Never write AI-sounding filler. CRITICAL: Output ONLY what is asked for — no rationale, no explanations, no commentary, no "here's why" notes, no introductions, no sign-offs. Just the results.` + langInstruction + buildSoulPrompt() + buildTouchstonesPrompt();
 
   let user = '';
   if (mode === 'match') {
@@ -7097,15 +8378,10 @@ async function runAI(mode) {
     user = `Section: "${sec.name}"\nCurrent lyrics:\n${allLines||'(none yet)'}\n\nAsk the songwriter 3 SHORT questions (under 15 words each) to make these lyrics more specific and concrete. Think: what exact moment? what's the object/place/person? what's the sensory detail? Return ONLY the questions numbered 1. 2. 3.`;
   }
   if (mode === 'rhyme') {
-    // French songs → use AI (Datamuse is English-only)
-    // English songs → use Datamuse API for richer rhyme data
+    // Both English and French use dedicated rhyme APIs (Datamuse for EN, drime for FR)
     const lastWord = (line.trim().split(/\s+/).pop() || '').replace(/[^a-zA-ZÀ-ÿ]/g,'');
-    if (songLang === 'fr') {
-      user = `Mot: "${lastWord || '(dernier mot de la ligne sélectionnée)'}"\n\nDonne 12 mots qui riment bien avec ce mot en français. Mélange des rimes parfaites et des rimes approximatives. Pour chaque mot, ajoute le nombre de syllabes entre parenthèses. Format: une colonne, un mot par ligne, ex:\ncœur (1)\npeur (1)\nbonheur (2)`;
-    } else {
-      runRhymeBrowser(lastWord || 'love');
-      return;
-    }
+    runRhymeBrowser(lastWord || (songLang === 'fr' ? 'amour' : 'love'), songLang);
+    return;
   }
   if (mode === 'unstuck') {
     user = `Section: "${sec.name}"\nCurrent lyrics:\n${allLines||'(none yet)'}\n\nThe writer is stuck. Give 3 completely different creative directions for this section — different emotions, perspectives, or metaphors. Each: 1-2 sentences of concept, NOT actual lyrics. Make them genuinely distinct. Number them 1. 2. 3.`;
@@ -7225,14 +8501,19 @@ function renderAIResult(text, mode) {
   container.innerHTML = '';
 
   if (mode === 'rhyme') {
-    const rhymes = text.split(',').map(r => r.trim()).filter(Boolean);
+    // Parse rhymes — handle comma-separated, line-separated, or numbered lists
+    let rhymes = text.includes(',')
+      ? text.split(',').map(r => r.trim()).filter(Boolean)
+      : text.split('\n').map(r => r.replace(/^\d+[\.\)]\s*/, '').trim()).filter(Boolean);
     const cloud = document.createElement('div');
     cloud.className = 'rhyme-cloud';
     rhymes.forEach(r => {
       const tag = document.createElement('span');
       tag.className = 'rhyme-tag';
       tag.textContent = r;
-      tag.onclick = () => insertRhyme(r);
+      // Extract just the word (without syllable count) for insertion
+      const wordOnly = r.replace(/\s*\(\d+\)\s*$/, '').trim();
+      tag.onclick = () => insertRhyme(wordOnly);
       cloud.appendChild(tag);
     });
     container.appendChild(cloud);
@@ -7352,7 +8633,7 @@ function renderAIResult(text, mode) {
 
       const lbl = document.createElement('div');
       lbl.className = 'bridge-draft-label';
-      lbl.textContent = `Bridge ${idx + 1}`;
+      lbl.textContent = _tr('Bridge', 'Pont') + ` ${idx + 1}`;
       card.appendChild(lbl);
 
       const body = document.createElement('div');
@@ -7392,7 +8673,7 @@ function renderAIResult(text, mode) {
     // "Get 3 more" button
     const moreBtn = document.createElement('button');
     moreBtn.className = 'bridge-more-btn';
-    moreBtn.textContent = '↻ Get 3 more';
+    moreBtn.textContent = _tr('↻ Get 3 more', '↻ 3 autres ponts');
     moreBtn.addEventListener('click', () => runAI('bridge'));
     container.appendChild(moreBtn);
     return;
@@ -7513,6 +8794,25 @@ function renderAIResult(text, mode) {
 }
 
 function useSuggestion(text) {
+  // On iPhone, skip the modal — directly replace the selected line and close the panel
+  if (_isIPhone()) {
+    if (selectedLine === null) {
+      // Auto-select the first empty line, or line 0
+      const { lines } = getCurrentLines();
+      const emptyIdx = lines.findIndex(l => !l.trim());
+      selectedLine = emptyIdx >= 0 ? emptyIdx : 0;
+    }
+    _haptic(12);
+    applySuggestion('replace', text, selectedLine);
+    // Close the suggestions panel so the editor is visible
+    const cp = document.getElementById('collectPanel');
+    if (cp) { cp.classList.add('collapsed'); collectPanelOpen = false; }
+    aiOpen = false;
+    document.getElementById('aiPanel').classList.add('collapsed');
+    // Show toast with Undo button so the user can revert the blind choice
+    _showIphToast(_tr('Line replaced ✓', 'Ligne remplacée ✓'), true);
+    return;
+  }
   if (selectedLine === null) {
     alert(t('modal.use.alert'));
     return;
@@ -7611,6 +8911,13 @@ function showUseModal(text) {
 
 function applySuggestion(mode, text, lineIdx) {
   snapshot();
+  // PostHog: track suggestion applied
+  if (typeof posthog !== 'undefined') {
+    posthog.capture('suggestion_applied', {
+      action: mode,
+      is_iphone: _isIPhone()
+    });
+  }
   const { lines, sources } = getCurrentLines();
   const newLines = text.split('\n').filter(l => l.trim());
 
@@ -7677,6 +8984,50 @@ const INTENSIFIERS_BY_MOOD = {
   }
 };
 
+const INTENSIFIERS_BY_MOOD_FR = {
+  // Verbes et adjectifs regroupés par ton émotionnel
+  melancholic: {
+    verbs: ['languir', 'sombrer', 'se faner', 'se briser', 's\'effondrer', 'hanter', 'errer', 'se noyer'],
+    adjectives: ['creux', 'éteint', 'brisé', 'muet', 'vide', 'gris', 'lourd', 'froid']
+  },
+  hopeful: {
+    verbs: ['renaître', 'éclore', 'briller', 's\'élever', 'embraser', 'éveiller', 'respirer', 'germer'],
+    adjectives: ['doré', 'lumineux', 'chaud', 'ouvert', 'neuf', 'vivant', 'libre', 'léger']
+  },
+  anthemic: {
+    verbs: ['rugir', 'brûler', 'combattre', 'se dresser', 'flamber', 'conquérir', 'tonner', 'gronder'],
+    adjectives: ['féroce', 'sauvage', 'invincible', 'audacieux', 'puissant', 'brave', 'infini', 'vrai']
+  },
+  bittersweet: {
+    verbs: ['se souvenir', 'lâcher prise', 'accepter', 'chérir', 'pardonner', 'tourner la page', 'libérer'],
+    adjectives: ['tendre', 'doux-amer', 'doux', 'fragile', 'silencieux', 'nostalgique', 'reconnaissant']
+  },
+  raw: {
+    verbs: ['crier', 'saigner', 'déchirer', 'arracher', 's\'écraser', 'exploser', 'exposer', 'avouer'],
+    adjectives: ['cru', 'nu', 'brutal', 'brut', 'vrai', 'honnête', 'sale', 'entier']
+  },
+  dreamy: {
+    verbs: ['flotter', 'dériver', 'errer', 'se dissoudre', 'miroiter', 'murmurer', 'fondre', 's\'estomper'],
+    adjectives: ['brumeux', 'doux', 'doré', 'lointain', 'éthéré', 'velouté', 'feutré', 'lent']
+  },
+  urgent: {
+    verbs: ['courir', 'foncer', 'poursuivre', 'saisir', 's\'emparer', 'fuir', 's\'échapper', 'atteindre'],
+    adjectives: ['rapide', 'désespéré', 'pressant', 'immédiat', 'féroce', 'vif', 'électrique', 'vivant']
+  },
+  tender: {
+    verbs: ['tenir', 'toucher', 'chuchoter', 'caresser', 'bercer', 'abriter', 'garder', 'rester'],
+    adjectives: ['doux', 'tendre', 'chaud', 'proche', 'calme', 'sûr', 'petit', 'délicat']
+  },
+  dark: {
+    verbs: ['rôder', 'ramper', 'consumer', 'dévorer', 'empoisonner', 'corrompre', 'détruire', 'ensevelir'],
+    adjectives: ['sombre', 'noir', 'tordu', 'glacé', 'mort', 'creux', 'tranchant', 'amer']
+  },
+  playful: {
+    verbs: ['danser', 'tourner', 'rire', 'jouer', 'taquiner', 'sautiller', 'bondir', 'virevolter'],
+    adjectives: ['vif', 'rapide', 'pétillant', 'sucré', 'fou', 'drôle', 'léger', 'espiègle']
+  }
+};
+
 function toggleIntensifiers() {
   intensifiersOpen = !intensifiersOpen;
   const panel = document.getElementById('intensifiersPanel');
@@ -7687,14 +9038,18 @@ function toggleIntensifiers() {
 function renderIntensifiers() {
   const body = document.getElementById('intensifiersBody');
   const moodText = document.getElementById('chipMood')?.textContent?.replace('◎', '').trim().toLowerCase() || 'melancholic';
-  
+
+  // Pick language-appropriate word list
+  const isFr = (typeof currentLang === 'string' ? currentLang : (typeof getLang === 'function' ? getLang() : 'en')) === 'fr';
+  const moodList = isFr ? INTENSIFIERS_BY_MOOD_FR : INTENSIFIERS_BY_MOOD;
+
   // Find matching mood or default
-  let words = INTENSIFIERS_BY_MOOD[moodText] || INTENSIFIERS_BY_MOOD.melancholic;
-  
+  let words = moodList[moodText] || moodList.melancholic;
+
   // Try partial match if exact not found
-  if (!INTENSIFIERS_BY_MOOD[moodText]) {
-    const key = Object.keys(INTENSIFIERS_BY_MOOD).find(k => moodText.includes(k) || k.includes(moodText));
-    if (key) words = INTENSIFIERS_BY_MOOD[key];
+  if (!moodList[moodText]) {
+    const key = Object.keys(moodList).find(k => moodText.includes(k) || k.includes(moodText));
+    if (key) words = moodList[key];
   }
   
   body.innerHTML = `
@@ -7889,10 +9244,11 @@ let rhymeData = { perfect: [], near: [], all: [] };
 let rhymeFilters = { type: 'all', syllables: 0 };
 let currentRhymeWord = '';
 
-async function runRhymeBrowser(word) {
+async function runRhymeBrowser(word, lang) {
   currentRhymeWord = word;
   rhymeFilters = { type: 'all', syllables: 0 };
-  
+  const isFr = (lang === 'fr');
+
   const container = document.getElementById('aiResponse');
   container.innerHTML = `
     <div class="rhyme-browser">
@@ -7917,7 +9273,7 @@ async function runRhymeBrowser(word) {
       <div class="rhyme-results" id="rhymeResults"></div>
     </div>
   `;
-  
+
   // Attach filter handlers
   container.querySelectorAll('.rhyme-filter').forEach(btn => {
     btn.onclick = () => {
@@ -7927,7 +9283,7 @@ async function runRhymeBrowser(word) {
       renderRhymeResults();
     };
   });
-  
+
   container.querySelectorAll('.rhyme-syl-btn').forEach(btn => {
     btn.onclick = () => {
       container.querySelectorAll('.rhyme-syl-btn').forEach(b => b.classList.remove('active'));
@@ -7936,49 +9292,82 @@ async function runRhymeBrowser(word) {
       renderRhymeResults();
     };
   });
-  
-  // Fetch from Datamuse API
+
   try {
-    const [perfectRes, nearRes] = await Promise.all([
-      fetch(`https://api.datamuse.com/words?rel_rhy=${encodeURIComponent(word)}&max=50&md=s`),
-      fetch(`https://api.datamuse.com/words?rel_nry=${encodeURIComponent(word)}&max=50&md=s`)
-    ]);
-    
-    const perfectData = await perfectRes.json();
-    const nearData = await nearRes.json();
-    
-    // Parse results with syllable counts
-    rhymeData.perfect = perfectData.map(r => ({
-      word: r.word,
-      syllables: r.numSyllables || countSyl(r.word),
-      score: r.score || 0
-    }));
-    
-    rhymeData.near = nearData.map(r => ({
-      word: r.word,
-      syllables: r.numSyllables || countSyl(r.word),
-      score: r.score || 0
-    }));
-    
-    // Combine for "all" view, removing duplicates
-    const seen = new Set();
-    rhymeData.all = [];
-    [...rhymeData.perfect, ...rhymeData.near].forEach(r => {
-      if (!seen.has(r.word)) {
-        seen.add(r.word);
-        rhymeData.all.push(r);
-      }
-    });
-    
-    // Sort by score
-    rhymeData.all.sort((a, b) => b.score - a.score);
-    
+    if (isFr) {
+      // ── French: drime.a3nm.net (proxied through /rhyme-fr/) ──
+      const res = await fetch(`/rhyme-fr/query?query=${encodeURIComponent(word)}&json=1`);
+      const data = await res.json();
+      const results = (data.result || []).filter(r => r.word !== word);
+
+      // Drime uses phon_rhyme score: higher = more phonemes matching from the end.
+      // phon_rhyme >= 3 is a strong rhyme; 1-2 is a near rhyme.
+      rhymeData.perfect = results
+        .filter(r => r.phon_rhyme >= 3)
+        .map(r => ({
+          word: r.word,
+          syllables: r.max_nsyl || r.min_nsyl || 1,
+          score: r.freq || 0
+        }));
+
+      rhymeData.near = results
+        .filter(r => r.phon_rhyme >= 1 && r.phon_rhyme < 3)
+        .map(r => ({
+          word: r.word,
+          syllables: r.max_nsyl || r.min_nsyl || 1,
+          score: r.freq || 0
+        }));
+
+      // Combine for "all" view, sorted by frequency (most common words first)
+      const seen = new Set();
+      rhymeData.all = [];
+      [...rhymeData.perfect, ...rhymeData.near].forEach(r => {
+        if (!seen.has(r.word)) {
+          seen.add(r.word);
+          rhymeData.all.push(r);
+        }
+      });
+      rhymeData.all.sort((a, b) => b.score - a.score);
+
+    } else {
+      // ── English: Datamuse API ──
+      const [perfectRes, nearRes] = await Promise.all([
+        fetch(`https://api.datamuse.com/words?rel_rhy=${encodeURIComponent(word)}&max=50&md=s`),
+        fetch(`https://api.datamuse.com/words?rel_nry=${encodeURIComponent(word)}&max=50&md=s`)
+      ]);
+
+      const perfectData = await perfectRes.json();
+      const nearData = await nearRes.json();
+
+      rhymeData.perfect = perfectData.map(r => ({
+        word: r.word,
+        syllables: r.numSyllables || countSyl(r.word),
+        score: r.score || 0
+      }));
+
+      rhymeData.near = nearData.map(r => ({
+        word: r.word,
+        syllables: r.numSyllables || countSyl(r.word),
+        score: r.score || 0
+      }));
+
+      const seen = new Set();
+      rhymeData.all = [];
+      [...rhymeData.perfect, ...rhymeData.near].forEach(r => {
+        if (!seen.has(r.word)) {
+          seen.add(r.word);
+          rhymeData.all.push(r);
+        }
+      });
+      rhymeData.all.sort((a, b) => b.score - a.score);
+    }
+
     container.querySelector('.rhyme-loading').style.display = 'none';
     renderRhymeResults();
-    
+
   } catch (err) {
-    container.querySelector('.rhyme-loading').innerHTML = 
-      `<span style="color:var(--ink-faint);font-size:13px;">Could not load rhymes. Try again.</span>`;
+    container.querySelector('.rhyme-loading').innerHTML =
+      `<span style="color:var(--ink-faint);font-size:13px;">${isFr ? 'Impossible de charger les rimes. Réessayez.' : 'Could not load rhymes. Try again.'}</span>`;
   }
 }
 
@@ -8036,7 +9425,15 @@ function renderRhymeResults() {
 }
 
 function insertRhyme(word) {
-  if (selectedLine === null) return;
+  if (selectedLine === null) {
+    if (_isIPhone()) {
+      const { lines } = getCurrentLines();
+      const emptyIdx = lines.findIndex(l => !l.trim());
+      selectedLine = emptyIdx >= 0 ? emptyIdx : 0;
+    } else {
+      return;
+    }
+  }
   const input = document.querySelectorAll('.line-input')[selectedLine];
   if (!input) return;
   const parts = input.value.trim().split(/\s+/);
@@ -8044,7 +9441,17 @@ function insertRhyme(word) {
   input.value = parts.join(' ') + ' ';
   sections[current].lines[selectedLine] = input.value;
   input.dispatchEvent(new Event('input'));
-  input.focus();
+  if (_isIPhone()) {
+    _haptic(8);
+    const cp = document.getElementById('collectPanel');
+    if (cp) { cp.classList.add('collapsed'); collectPanelOpen = false; }
+    aiOpen = false;
+    document.getElementById('aiPanel').classList.add('collapsed');
+    _showIphToast(_tr('Rhyme inserted ✓', 'Rime insérée ✓'), true);
+    input.focus();
+  } else {
+    input.focus();
+  }
 }
 
 function setAIHtml(html) {
@@ -9148,7 +10555,7 @@ function generateSongId() {
 }
 
 function getCurrentSongData() {
-  return {
+  const data = {
     title: document.getElementById('songTitle').value || t('song.untitled'),
     sections: sections,
     key: document.getElementById('chipKey')?.textContent || '',
@@ -9156,6 +10563,12 @@ function getCurrentSongData() {
     mood: document.getElementById('chipMood')?.textContent || '',
     updatedAt: new Date().toISOString()
   };
+  // Include beat patterns if any are non-empty
+  if (typeof serializeBeatData === 'function') {
+    const beat = serializeBeatData();
+    if (beat) data.beat = beat;
+  }
+  return data;
 }
 
 function saveSongToLibrary() {
@@ -9163,13 +10576,19 @@ function saveSongToLibrary() {
   if (!currentSongId) {
     currentSongId = generateSongId();
   }
-  // Preserve existing tags when saving
+  // Preserve existing tags, touchstones, and beat data when saving
   const existing = lib[currentSongId] || {};
-  lib[currentSongId] = { ...getCurrentSongData(), tags: existing.tags || [] };
+  const fresh = getCurrentSongData();
+  // If fresh has no beat data (all empty), keep the existing beat data — but if
+  // fresh has beat data, it overrides existing.
+  const merged = { ...fresh, tags: existing.tags || [], touchstones: existing.touchstones || [] };
+  if (!fresh.beat && existing.beat) merged.beat = existing.beat;
+  lib[currentSongId] = merged;
   saveSongLibrary(lib);
   _prefs.currentSongId = currentSongId; _savePrefs();
   _syncSingleSong(currentSongId);
   renderTagEditor();
+  renderTouchstonesEditor();
 
   // Visual feedback
   const btn = document.getElementById('saveBtn');
@@ -9190,6 +10609,8 @@ function loadSongFromLibrary(songId) {
   if (song.key) document.getElementById('chipKey').textContent = song.key;
   if (song.tempo) document.getElementById('chipTempo').textContent = song.tempo;
   if (song.mood) document.getElementById('chipMood').textContent = song.mood;
+  // Restore beat patterns (or reset to empty if song has none)
+  if (typeof deserializeBeatData === 'function') deserializeBeatData(song.beat);
 
   // Auto-detect language and switch UI if song has no explicit lang tag yet
   const detectedLang = detectSongLang(song);
@@ -9209,9 +10630,28 @@ function loadSongFromLibrary(songId) {
   }
 
   renderTagEditor();
+  renderTouchstonesEditor();
   renderSidebar();
   selectSection(0);
+  if (typeof updateIphoneUI === 'function') updateIphoneUI();
   closeSongPicker();
+  // Load this song's backing track and vocal takes
+  if (typeof loadBackingTrackForSong === 'function') loadBackingTrackForSong(songId);
+  if (typeof renderTakesList === 'function') renderTakesList();
+  // Sync metronome BPM from song tempo
+  var _bpmInput = document.getElementById('metronomeBpmInput');
+  if (_bpmInput) {
+    var _chipTempo = document.getElementById('chipTempo');
+    var _bpmMatch = _chipTempo ? _chipTempo.textContent.match(/\d+/) : null;
+    if (_bpmMatch) { _bpmInput.value = _bpmMatch[0]; if (typeof metronomeBPM !== 'undefined') metronomeBPM = parseInt(_bpmMatch[0], 10); }
+  }
+  // PostHog: track song loaded
+  if (typeof posthog !== 'undefined') {
+    posthog.capture('song_loaded', {
+      song_id: songId,
+      section_count: sections.length
+    });
+  }
 }
 
 // ── Song Starter ─────────────────────────────────────
@@ -9280,12 +10720,13 @@ function ssBack() {
 
 async function ssCallAI(system, user, maxTokens, temp) {
   const soulCtx = (typeof buildSoulPrompt === 'function') ? buildSoulPrompt() : '';
+  const touchstonesCtx = (typeof buildTouchstonesPrompt === 'function') ? buildTouchstonesPrompt() : '';
   const langNote = (typeof getLang === 'function' && getLang() === 'fr')
     ? '\nIMPORTANT: Respond entirely in French.' : '';
   const data = await _fetchAI({
     model: 'claude-haiku-4-5',
     messages: [
-      { role:'system', content: system + soulCtx + langNote },
+      { role:'system', content: system + soulCtx + touchstonesCtx + langNote },
       { role:'user', content: user }
     ],
     max_tokens: maxTokens,
@@ -9612,7 +11053,7 @@ function createNewSong() {
   currentSongId = generateSongId();
   _prefs.currentSongId = currentSongId; _savePrefs();
   _syncSingleSong(currentSongId);
-  
+
   document.getElementById('songTitle').value = '';
   sections = [
     { name: t('section.verse1'), lines: ['', '', '', ''], sources: ['human','human','human','human'] },
@@ -9623,10 +11064,17 @@ function createNewSong() {
     { name: t('section.outro'), lines: ['', ''], sources: ['human','human'] },
   ];
   current = 0;
-  
+  // Reset beat patterns for the new song (empty, no demo seed)
+  if (typeof deserializeBeatData === 'function') deserializeBeatData(null);
+
   renderSidebar();
   selectSection(0);
+  if (typeof updateIphoneUI === 'function') updateIphoneUI();
   closeSongPicker();
+  // PostHog: track song creation
+  if (typeof posthog !== 'undefined') {
+    posthog.capture('song_created', { song_id: currentSongId });
+  }
 }
 
 function deleteSong(songId, e) {
@@ -9925,6 +11373,115 @@ function removeTag(tag, e) {
   renderSongPicker();
 }
 
+// ── Touchstones (per-song AI-steering keywords) ─────────────────────
+function renderTouchstonesEditor() {
+  const wrap = document.getElementById('touchstonesWrap');
+  if (!wrap) return;
+  const lib = getSongLibrary();
+  const song = currentSongId && lib[currentSongId];
+  if (!song) { wrap.innerHTML = ''; return; }
+
+  const touchstones = song.touchstones || [];
+  const addLabel = _tr('+ touchstone', '+ point de rep\u00e8re');
+  const removeTitle = _tr('Remove touchstone', 'Retirer ce rep\u00e8re');
+  const addTitle = _tr('Add a touchstone — a word or image to guide the AI', 'Ajouter un point de rep\u00e8re — un mot ou une image pour guider l\u2019IA');
+
+  let html = `<div style="display:flex;flex-wrap:wrap;gap:4px;align-items:center;" title="${addTitle}">`;
+
+  touchstones.forEach((word) => {
+    const safe = word.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+    html += `<span style="display:inline-flex;align-items:center;gap:3px;padding:2px 7px 2px 9px;border-radius:20px;
+      background:var(--amber-pale);border:1px solid var(--gold-ring, var(--amber));font-size:11px;color:var(--amber);font-family:'Jost',sans-serif;">
+      \u2726 ${word}
+      <span onclick="removeTouchstone('${safe}', event)" style="cursor:pointer;color:var(--ink-faint);font-size:13px;line-height:1;" title="${removeTitle}">\u00d7</span>
+    </span>`;
+  });
+
+  html += `<span onclick="promptAddTouchstone(event)" style="padding:2px 8px;border-radius:20px;border:1px dashed var(--amber);
+    font-size:11px;color:var(--amber);cursor:pointer;font-family:'Jost',sans-serif;"
+    title="${addTitle}">${addLabel}</span>`;
+
+  html += `</div>`;
+  wrap.innerHTML = html;
+  // Mirror to iPhone strip
+  if (typeof updateIphoneTouchstones === 'function') updateIphoneTouchstones();
+}
+
+function promptAddTouchstone(e) {
+  if (e) e.stopPropagation();
+  const existing = document.getElementById('touchstoneModal');
+  if (existing) existing.remove();
+
+  const modal = document.createElement('div');
+  modal.id = 'touchstoneModal';
+  modal.style.cssText = 'position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;background:rgba(26,21,16,0.55);backdrop-filter:blur(4px);animation:obIn 0.15s ease both;padding:20px;';
+
+  modal.innerHTML = `
+    <div style="background:var(--cream-light);border:1px solid var(--rule);border-radius:14px;padding:28px 28px 22px;max-width:420px;width:100%;box-shadow:0 20px 60px rgba(26,21,16,0.25);">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
+        <span style="font-size:22px;color:var(--amber);">\u2726</span>
+        <div style="font-family:var(--font-display);font-size:20px;color:var(--ink);">${_tr('Add a touchstone','Ajouter un point de rep\u00e8re')}</div>
+      </div>
+      <p style="font-size:12px;color:var(--ink-soft);line-height:1.6;margin-bottom:18px;margin-left:32px;">${_tr('A word, phrase, or image that will guide every AI suggestion for this song. Think of it as a tonal compass \u2014 a lighthouse, a season, a memory.','Un mot, une phrase ou une image qui guidera chaque suggestion IA pour cette chanson. Pensez-y comme \u00e0 une boussole tonale \u2014 un phare, une saison, un souvenir.')}</p>
+
+      <input type="text" id="tsInput" autofocus
+        placeholder="${_tr('e.g. lighthouse, rust in November, patience','p.\u00a0ex. phare, rouille en novembre, patience')}"
+        style="width:100%;padding:12px 14px;font-size:14px;font-family:var(--font-display);font-style:italic;border:1px solid var(--rule);border-radius:8px;background:var(--cream);color:var(--ink);outline:none;margin-bottom:16px;"
+        maxlength="80">
+
+      <div style="display:flex;gap:8px;">
+        <button onclick="confirmAddTouchstone()" style="flex:1;padding:11px;background:var(--amber);color:#fff;border:none;border-radius:8px;font-family:var(--font-body);font-size:13px;font-weight:500;cursor:pointer;transition:opacity 0.15s;">${_tr('Add','Ajouter')}</button>
+        <button onclick="document.getElementById('touchstoneModal').remove();" style="padding:11px 16px;background:none;border:1px solid var(--rule);border-radius:8px;font-family:var(--font-body);font-size:13px;color:var(--ink-soft);cursor:pointer;">${_tr('Cancel','Annuler')}</button>
+      </div>
+    </div>
+  `;
+
+  modal.addEventListener('click', (ev) => { if (ev.target === modal) modal.remove(); });
+  document.body.appendChild(modal);
+
+  const input = document.getElementById('tsInput');
+  input.focus();
+  input.addEventListener('keydown', (ev) => {
+    if (ev.key === 'Enter') { ev.preventDefault(); confirmAddTouchstone(); }
+    if (ev.key === 'Escape') { ev.preventDefault(); modal.remove(); }
+  });
+}
+
+function confirmAddTouchstone() {
+  const input = document.getElementById('tsInput');
+  if (!input) return;
+  const word = input.value.trim();
+  if (!word) { input.focus(); return; }
+  addTouchstone(word);
+  const modal = document.getElementById('touchstoneModal');
+  if (modal) modal.remove();
+}
+
+function addTouchstone(word) {
+  if (!currentSongId) return;
+  const lib = getSongLibrary();
+  if (!lib[currentSongId]) return;
+  const list = lib[currentSongId].touchstones || [];
+  // Case-insensitive dedupe but preserve original casing
+  if (!list.some(t => t.toLowerCase() === word.toLowerCase())) {
+    lib[currentSongId].touchstones = [...list, word];
+    saveSongLibrary(lib);
+    _syncSingleSong(currentSongId);
+    renderTouchstonesEditor();
+  }
+}
+
+function removeTouchstone(word, e) {
+  if (e) e.stopPropagation();
+  if (!currentSongId) return;
+  const lib = getSongLibrary();
+  if (!lib[currentSongId]) return;
+  lib[currentSongId].touchstones = (lib[currentSongId].touchstones || []).filter(t => t !== word);
+  saveSongLibrary(lib);
+  _syncSingleSong(currentSongId);
+  renderTouchstonesEditor();
+}
+
 // Override saveSong to use library
 saveSong = function() {
   saveSongToLibrary();
@@ -10196,8 +11753,15 @@ function syncMobileSections() {
     selectSection(0);
     renderVoiceSwitcher();
     renderScratchPad();
+    if (typeof renderTagEditor === 'function') renderTagEditor();
+    if (typeof renderTouchstonesEditor === 'function') renderTouchstonesEditor();
     if (typeof buildAITools === 'function') buildAITools();
     if (typeof applyTranslations === 'function') applyTranslations();
+    if (typeof updateIphoneUI === 'function') updateIphoneUI();
+    if (typeof _attachKeyboardScroll === 'function') _attachKeyboardScroll();
+    // Load backing track + takes for this song
+    if (typeof loadBackingTrackForSong === 'function' && currentSongId) loadBackingTrackForSong(currentSongId);
+    if (typeof renderTakesList === 'function') renderTakesList();
 
     // Restore layout state
     if (_prefs.splitOpen) toggleSplit(true);
@@ -10317,81 +11881,120 @@ function syncMobileSections() {
   };
 
   window.firebaseSignOut = function() {
+    if (typeof posthog !== 'undefined') posthog.reset();
     auth.signOut().catch(e => console.error('Sign-out error:', e));
   };
 
-  // Handle redirect result (for iPhone fallback flow) — run in background, don't block auth
-  auth.getRedirectResult().catch(e => {
-    if (e.code && e.code !== 'auth/no-auth-event') {
-      console.error('Redirect sign-in error:', e);
-    }
-  });
-
   let _appLoaded = false; // once the app renders, never go back to sign-in gate automatically
+  let _appLoading = false; // guard against concurrent load attempts
   let _gateTimer = null;  // debounce showing the login gate
+
+  // ── Hard safety net ──────────────────────────────────────────
+  // No matter what happens with Firebase auth, Firestore, redirects, etc.,
+  // never leave the user staring at a spinner for more than 4 seconds.
+  const _hardSafetyTimer = setTimeout(() => {
+    const loading = document.getElementById('loadingScreen');
+    if (loading && loading.style.display !== 'none') {
+      console.warn('[carmen] Hard safety: loading screen stuck after 4s — forcing resolution');
+      loading.style.display = 'none';
+      if (!_appLoaded) {
+        if (_currentUser) {
+          // User arrived but Firestore is slow — render with whatever we have
+          renderAppWithData();
+          _appLoaded = true;
+        } else {
+          // No user yet — show sign-in gate
+          document.getElementById('signInGate').style.display = 'flex';
+        }
+      }
+    }
+  }, 4000);
 
   auth.onAuthStateChanged(async function(user) {
     _currentUser = user;
     const gate = document.getElementById('signInGate');
     const loading = document.getElementById('loadingScreen');
 
-    // Safety net: never stay on loading screen longer than 12 seconds
-    const _loadingTimeout = setTimeout(() => {
-      if (loading.style.display !== 'none') {
-        console.warn('Loading timeout — forcing screen clear');
-        loading.style.display = 'none';
-        if (!_appLoaded) gate.style.display = 'flex';
-      }
-    }, 12000);
-
     if (user) {
       // Cancel any pending gate timer — real user arrived
       if (_gateTimer) { clearTimeout(_gateTimer); _gateTimer = null; }
       _signingIn = false;
       gate.style.display = 'none';
-      loading.style.display = 'flex';
 
       document.getElementById('authAvatar').src = user.photoURL || '';
       document.getElementById('authName').textContent = user.displayName || user.email || '';
       showSyncIndicator();
-      setSyncState('saving');
 
-      if (!_appLoaded) {
+      if (!_appLoaded && !_appLoading) {
+        _appLoading = true;
+        setSyncState('saving');
+
         try {
-          const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 8000));
-          await Promise.race([
-            (async () => {
-              await migrateFromLocalStorage(user.uid);
-              await loadFromFirestore(user.uid);
-            })(),
-            timeout
-          ]);
+          await migrateFromLocalStorage(user.uid);
+          await loadFromFirestore(user.uid);
           setSyncState('saved');
         } catch(e) {
           console.error('Load error:', e);
           setSyncState('error');
         }
-        renderAppWithData();
-        _appLoaded = true;
+
+        if (!_appLoaded) {
+          clearTimeout(_hardSafetyTimer);
+          renderAppWithData();
+          _appLoaded = true;
+          loading.style.display = 'none';
+        }
+      } else if (_appLoaded) {
+        // Already loaded — just hide loading screen in case it's stuck
+        loading.style.display = 'none';
       }
 
-      clearTimeout(_loadingTimeout);
-      loading.style.display = 'none';
+      // PostHog: identify user for analytics, with UTM attribution
+      if (typeof posthog !== 'undefined') {
+        var _props = {
+          email: user.email,
+          name: user.displayName,
+          plan: (_prefs && _prefs.plan) || 'free'
+        };
+        // Last-touch attribution: always overwrite on every identify
+        var _last = window._carmenAttribution && window._carmenAttribution.last;
+        if (_last) {
+          ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'].forEach(function(k) {
+            if (_last[k]) _props['last_' + k] = _last[k];
+          });
+        }
+        // First-touch attribution: only set once, never overwrite (3rd arg to identify)
+        var _setOnce = {};
+        var _first = window._carmenAttribution && window._carmenAttribution.first;
+        if (_first) {
+          ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'referrer', 'landing_url', 'first_seen_at'].forEach(function(k) {
+            if (_first[k]) _setOnce['first_' + k] = _first[k];
+          });
+        }
+        posthog.identify(user.uid, _props, _setOnce);
+      }
     } else {
-      clearTimeout(_loadingTimeout);
       // Don't show gate immediately — Firebase often fires null briefly on page load
       // while it checks persisted auth (IndexedDB), or during redirect sign-in flow.
       // Wait 1.5s to see if a real user arrives before showing the gate.
       if (!_appLoaded && !_signingIn && !_gateTimer) {
         _gateTimer = setTimeout(() => {
           _gateTimer = null;
-          // Only show gate if still no user after the delay
           if (!_currentUser && !_appLoaded) {
+            clearTimeout(_hardSafetyTimer);
             loading.style.display = 'none';
             gate.style.display = 'flex';
           }
         }, 1500);
       }
+    }
+  });
+
+  // Handle redirect result (for non-iOS fallback flow)
+  // Run AFTER onAuthStateChanged is registered so it doesn't block the listener.
+  auth.getRedirectResult().catch(e => {
+    if (e.code && e.code !== 'auth/no-auth-event') {
+      console.error('Redirect sign-in error:', e);
     }
   });
 })();

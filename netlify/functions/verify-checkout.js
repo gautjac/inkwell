@@ -6,7 +6,7 @@
 const https = require('https');
 
 const FIREBASE_PROJECT = 'inkwell-app-619f9';
-const FIREBASE_API_KEY = process.env.FIREBASE_API_KEY || 'AIzaSyBTAN4kfoaea6RCwN0qUfeTbfqBwXigEDw';
+const FIREBASE_API_KEY = process.env.FIREBASE_API_KEY || 'AIzaSyBuEpnxGya3KgBRjfuz4hvwz_i7BOZFHTU';
 const FIRESTORE_BASE = `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT}/databases/(default)/documents`;
 
 const CORS_HEADERS = {
