@@ -5588,6 +5588,10 @@ function _applyPlanGates() {
 }
 let _currentUser = null;
 let _syncTimers = {};
+let _songsUnsub = null;
+// Per-song local write watermark: ms timestamp of the last local edit. Used by the
+// live-sync snapshot listener to ignore stale remote echoes of writes we just made.
+let _localWriteAt = {};
 
 function _userDoc() {
   return _firestoreDb.collection('users').doc(_currentUser.uid);
@@ -5597,8 +5601,10 @@ function _debouncedWrite(key, fn) {
   if (_syncTimers[key]) clearTimeout(_syncTimers[key]);
   _syncTimers[key] = setTimeout(() => {
     if (typeof setSyncState === 'function') setSyncState('saving');
-    fn().then(() => { if (typeof setSyncState === 'function') setSyncState('saved'); })
-        .catch(e => { console.error('Sync error:', e); if (typeof setSyncState === 'function') setSyncState('error'); });
+    // Wrap so callers that forget to return their Promise don't crash the setSyncState chain.
+    Promise.resolve().then(() => fn())
+      .then(() => { if (typeof setSyncState === 'function') setSyncState('saved'); })
+      .catch(e => { console.error('Sync error:', e); if (typeof setSyncState === 'function') setSyncState('error'); });
   }, 500);
 }
 
@@ -10561,11 +10567,12 @@ function saveSongLibrary(lib) {
 
 function _syncSingleSong(songId) {
   if (!_currentUser || !_songLib[songId]) return;
+  _localWriteAt[songId] = Date.now();
   _debouncedWrite('song_' + songId, () => {
-    _userDoc().collection('songs').doc(songId).set(_songLib[songId]);
-
-    // Capture human-written lines and add to active voice profile
+    // Capture writing samples first (sync, mutates profile); then return the write Promise
+    // so _debouncedWrite can resolve setSyncState('saved') only after Firestore acks.
     captureWritingSamples(songId);
+    return _userDoc().collection('songs').doc(songId).set(_songLib[songId]);
   });
 }
 
@@ -11745,6 +11752,57 @@ function syncMobileSections() {
     }
   }
 
+  // ── Live sync: subscribe to remote song changes ───────
+  // Mirrors remote writes (made on other devices) into _songLib in real time.
+  // Ignores echoes of our own pending writes via metadata.hasPendingWrites.
+  function _subscribeToSongs(uid) {
+    if (_songsUnsub) { try { _songsUnsub(); } catch(_) {} _songsUnsub = null; }
+    _songsUnsub = _firestoreDb.collection('users').doc(uid).collection('songs')
+      .onSnapshot(snap => {
+        if (snap.metadata.hasPendingWrites) return;
+        let currentChanged = false;
+        let sidebarDirty = false;
+        snap.docChanges().forEach(change => {
+          const id = change.doc.id;
+          if (change.type === 'removed') {
+            if (_songLib[id]) { delete _songLib[id]; sidebarDirty = true; }
+            return;
+          }
+          const remote = change.doc.data();
+          const remoteAt = remote.updatedAt ? Date.parse(remote.updatedAt) || 0 : 0;
+          const localAt = _localWriteAt[id] || 0;
+          // Skip echoes of our own recent writes (server ack of what we just wrote).
+          if (remoteAt && remoteAt <= localAt) return;
+          _songLib[id] = remote;
+          sidebarDirty = true;
+          if (id === currentSongId) currentChanged = true;
+        });
+        if (currentChanged) _applyRemoteCurrentSong();
+        else if (sidebarDirty && typeof renderSidebar === 'function') renderSidebar();
+      }, err => { console.error('Live sync error:', err); });
+  }
+
+  // Apply remote update to the open editor. Skipped if the user is actively typing
+  // in the editor (lyric line / title); the next blur or song switch picks it up.
+  function _applyRemoteCurrentSong() {
+    const song = _songLib[currentSongId];
+    if (!song) return;
+    const focused = document.activeElement;
+    const editing = focused && (focused.id === 'songTitle' || focused.closest?.('#editorWrap') || focused.classList?.contains('line-input'));
+    if (editing) return;
+    const titleEl = document.getElementById('songTitle');
+    if (titleEl) titleEl.value = song.title || '';
+    if (song.sections?.length) sections = song.sections;
+    if (song.key) { const el = document.getElementById('chipKey'); if (el) el.textContent = song.key; }
+    if (song.tempo) { const el = document.getElementById('chipTempo'); if (el) el.textContent = song.tempo; }
+    if (song.mood) { const el = document.getElementById('chipMood'); if (el) el.textContent = song.mood; }
+    if (typeof deserializeBeatData === 'function') deserializeBeatData(song.beat);
+    if (current >= sections.length) current = Math.max(0, sections.length - 1);
+    if (typeof renderSidebar === 'function') renderSidebar();
+    if (typeof selectSection === 'function') selectSection(current);
+    if (typeof renderOverview === 'function') renderOverview();
+  }
+
   // ── Render app with loaded data ─────────────────────
   function renderAppWithData() {
     // Apply language
@@ -11959,6 +12017,7 @@ function syncMobileSections() {
         try {
           await migrateFromLocalStorage(user.uid);
           await loadFromFirestore(user.uid);
+          _subscribeToSongs(user.uid);
           setSyncState('saved');
         } catch(e) {
           console.error('Load error:', e);
@@ -12001,6 +12060,8 @@ function syncMobileSections() {
         posthog.identify(user.uid, _props, _setOnce);
       }
     } else {
+      // User signed out — tear down live listener so we don't leak / get cross-user data
+      if (_songsUnsub) { try { _songsUnsub(); } catch(_) {} _songsUnsub = null; }
       // Don't show gate immediately — Firebase often fires null briefly on page load
       // while it checks persisted auth (IndexedDB), or during redirect sign-in flow.
       // Wait 1.5s to see if a real user arrives before showing the gate.
