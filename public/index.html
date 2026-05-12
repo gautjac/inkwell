@@ -6999,28 +6999,55 @@ function renderSidebar() {
       renderOverview();
     };
 
-    // Duplicate handler
+    // Duplicate handler — creates an empty section, prompts for a name
     li.querySelector('.section-duplicate').onclick = (e) => {
       e.stopPropagation();
       const original = sections[i];
-      const dupName = original.name + ' 2';
-      const dup = JSON.parse(JSON.stringify(original));
-      dup.name = dupName;
-      // Clear versions — duplicate starts clean with just the copied lines
-      if (dup.versions) {
-        const activeLines = dup.versions[original.activeVersion || 0]?.lines || dup.lines || [''];
-        const activeSources = dup.versions[original.activeVersion || 0]?.sources || dup.sources || activeLines.map(() => 'human');
-        delete dup.versions;
-        delete dup.activeVersion;
-        dup.lines = [...activeLines];
-        dup.sources = [...activeSources];
-      }
-      sections.splice(i + 1, 0, dup);
-      saveSong();
-      renderSidebar();
-      selectSection(i + 1);
-      updateLineCounts();
-      renderOverview();
+      const insertAt = i + 1;
+      const defaultName = original.name + ' 2';
+
+      const overlay = document.createElement('div');
+      overlay.id = 'duplicateSectionModal';
+      overlay.style.cssText = 'position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;background:rgba(26,21,16,0.55);backdrop-filter:blur(4px);animation:obIn 0.15s ease both;padding:20px;';
+      overlay.innerHTML = `
+        <div style="background:var(--cream-light);border:1px solid var(--rule);border-radius:14px;padding:28px 26px 22px;max-width:380px;width:100%;box-shadow:0 20px 60px rgba(26,21,16,0.25);">
+          <div style="font-family:var(--font-display);font-size:20px;color:var(--ink);margin-bottom:6px;">${_tr('Duplicate section','Dupliquer la section')}</div>
+          <p style="font-size:12px;color:var(--ink-soft);line-height:1.6;margin-bottom:14px;">${_tr('Creates an empty section with this name.','Crée une section vide portant ce nom.')}</p>
+          <label style="font-size:11px;color:var(--ink-faint);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px;display:block;">${_tr('Section name','Nom de la section')}</label>
+          <input id="duplicateSectionInput" type="text" value="${defaultName.replace(/"/g, '&quot;')}" style="width:100%;padding:10px 12px;border:1px solid var(--rule);border-radius:8px;background:var(--cream);color:var(--ink);font-family:var(--font-body);font-size:13px;outline:none;margin-bottom:14px;" />
+          <div style="display:flex;gap:8px;">
+            <button id="duplicateSectionConfirm" style="flex:1;padding:11px;background:var(--amber);color:#fff;border:none;border-radius:8px;font-family:var(--font-body);font-size:13px;font-weight:500;cursor:pointer;">${_tr('Create','Créer')}</button>
+            <button id="duplicateSectionCancel" style="padding:11px 16px;background:none;border:1px solid var(--rule);border-radius:8px;font-family:var(--font-body);font-size:13px;color:var(--ink-soft);cursor:pointer;">${_tr('Cancel','Annuler')}</button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(overlay);
+
+      const input = overlay.querySelector('#duplicateSectionInput');
+      input.focus();
+      input.select();
+
+      const close = () => overlay.remove();
+      const confirm = () => {
+        const name = input.value.trim();
+        if (!name) { input.focus(); return; }
+        const badge = name.length > 7 ? name.slice(0,6).trim() + '…' : name;
+        sections.splice(insertAt, 0, { name, badge, lines: ['','',''], sources: ['human','human','human'] });
+        saveSong();
+        renderSidebar();
+        selectSection(insertAt);
+        updateLineCounts();
+        renderOverview();
+        close();
+      };
+
+      overlay.querySelector('#duplicateSectionConfirm').onclick = confirm;
+      overlay.querySelector('#duplicateSectionCancel').onclick = close;
+      overlay.addEventListener('click', (ev) => { if (ev.target === overlay) close(); });
+      input.onkeydown = (ev) => {
+        if (ev.key === 'Enter') { ev.preventDefault(); confirm(); }
+        else if (ev.key === 'Escape') { ev.preventDefault(); close(); }
+      };
     };
 
     // Drag-and-drop handlers
